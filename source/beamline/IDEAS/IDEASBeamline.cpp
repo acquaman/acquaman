@@ -267,15 +267,16 @@ AMAction3 *IDEASBeamline::createBeamOffAction() const
 	return beamOffAction;
 }
 
-AMAction3* IDEASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
+AMAction3* IDEASBeamline::createScanInitializationAction(AMStepScanConfiguration *configuration)
 {
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+
 	return initializationActions;
 }
 
-AMAction3* IDEASBeamline::createScanCleanupAction(AMGenericStepScanConfiguration *configuration)
+AMAction3* IDEASBeamline::createScanCleanupAction(AMStepScanConfiguration *configuration)
 {
 	Q_UNUSED(configuration)
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));

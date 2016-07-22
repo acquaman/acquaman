@@ -1,6 +1,6 @@
 #include "BioXASBeamline.h"
 
-#include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 
 #include "actions3/AMActionSupport.h"
@@ -79,7 +79,7 @@ AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSecond
 	return result;
 }
 
-AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
+AMAction3* BioXASBeamline::createScanInitializationAction(AMStepScanConfiguration *configuration)
 {
 	BioXASGenericStepScanConfiguration * bioXASGenericStepScanConfiguration = qobject_cast<BioXASGenericStepScanConfiguration *>(configuration);
 
@@ -128,10 +128,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 			// Determine the longest region time of all axis in the scan.
 
-			double maxRegionTime = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
+			double maxRegionTime = bioXASGenericStepScanConfiguration->scanAxisAt(0)->regionAt(0)->regionTime();
 
-			for (int i = 0, count = configuration->scanAxes().count(); i < count; i++) {
-				double regionTime = configuration->scanAxisAt(i)->maximumRegionTime();
+			for (int i = 0, count = bioXASGenericStepScanConfiguration->scanAxes().count(); i < count; i++) {
+				double regionTime = bioXASGenericStepScanConfiguration->scanAxisAt(i)->maximumRegionTime();
 
 				if (maxRegionTime < regionTime)
 					maxRegionTime = regionTime;
@@ -166,11 +166,11 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			for (int i = 0, count = geDetectors->count(); i < count; i++) {
 				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-				if (geDetector && configuration->usingDetector(geDetector->name())) {
+				if (geDetector && bioXASGenericStepScanConfiguration->usingDetector(geDetector->name())) {
 
 					AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
 					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASGenericStepScanConfiguration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
 					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
 
 					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
@@ -208,7 +208,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		AMAction3* standardsWheelInitialization = 0;
 		CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
-		BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
+		BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(bioXASGenericStepScanConfiguration);
 
 		if (bioxasConfiguration && bioxasConfiguration->usingStandardsWheel())
 			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioxasConfiguration->edge().split(" ").first());
@@ -235,7 +235,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 	return initializationAction;
 }
 
-AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguration *configuration)
+AMAction3* BioXASBeamline::createScanCleanupAction(AMStepScanConfiguration *configuration)
 {
 	BioXASGenericStepScanConfiguration * bioXASGenericStepScanConfiguration = qobject_cast<BioXASGenericStepScanConfiguration *>(configuration);
 

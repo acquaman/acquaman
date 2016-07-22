@@ -57,6 +57,8 @@
 #define BIOXASBEAMLINE_FASTVALVE_OPEN 1
 #define BIOXASBEAMLINE_FASTVALVE_CLOSED 4
 
+class AMStepScanConfiguration;
+
 class BioXASBeamline : public CLSBeamline
 {
     Q_OBJECT
@@ -82,9 +84,9 @@ public:
 	/// Creates and returns an action that performs a dark current measurement.
 	virtual AMAction3* createDarkCurrentMeasurementAction(double dwellSeconds);
 	/// Creates and returns an action that initializes the beamline before a scan.
-	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	virtual AMAction3* createScanInitializationAction(AMStepScanConfiguration *configuration);
 	/// Creates and returna an action that cleans up the beamline after a scan.
-	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+	virtual AMAction3* createScanCleanupAction(AMStepScanConfiguration *configuration);
 
 	/// Returns the beam status.
 	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
