@@ -159,7 +159,7 @@ public:
 	void initializeBeamlineSupport();
 
 	/// Creates and returns an action that sets up the beamline for a scan.
-	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
 	/// Creates and returns an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
 
