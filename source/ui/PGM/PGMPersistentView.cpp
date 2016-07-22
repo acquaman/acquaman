@@ -15,6 +15,8 @@
 #include "ui/PGM/PGMBPMStatusView.h"
 
 
+#include "util/AMHDF5Driver.h"
+
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -26,6 +28,10 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(persistentViewGroupBox);
+
+	AMHDF5Driver test;
+	hid_t fileId = test.openFile();
+	herr_t status = test.closeFile(fileId);
 
 	setLayout(mainViewLayout);
 

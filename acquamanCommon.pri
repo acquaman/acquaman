@@ -15,6 +15,7 @@ include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMMobility.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMCDF.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMHDF5.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/Eigen.pri )
 include ( $$PATH_TO_AM/compositeCommon/MuParser.pri )
@@ -470,7 +471,8 @@ HEADERS += \
     source/beamline/AMBeamlineControlGroup.h \
     source/beamline/AMBeamlineControl.h \
 	source/ui/AMWindowPaneProxyModel.h \
-	source/ui/dataman/AMSpectrumAndPeriodicTableView.h
+	source/ui/dataman/AMSpectrumAndPeriodicTableView.h \
+    $$PWD/source/util/AMHDF5Driver.h
 
 FORMS += \
 
@@ -904,7 +906,8 @@ SOURCES += \
     source/beamline/AMBeamlineControlGroup.cpp \
     source/beamline/AMBeamlineControl.cpp \
 	source/ui/AMWindowPaneProxyModel.cpp \
-	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp
+	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp \
+    $$PWD/source/util/AMHDF5Driver.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \
