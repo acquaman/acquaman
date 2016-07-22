@@ -33,7 +33,7 @@ signals:
 
 public slots:
 	/// Adds a shutter control.
-	bool addShutter(AMControl *newShutter, double openValue, double closedValue);
+	bool addShutter(AMControl *newShutter, double openStateValue, double closedStateValue);
 	/// Removes a shutter control.
 	bool removeShutter(AMControl *newValve);
 	/// Clears all shutter controls.

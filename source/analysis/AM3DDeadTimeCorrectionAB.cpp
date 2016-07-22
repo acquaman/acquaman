@@ -56,12 +56,10 @@ AMNumber AM3DDeadTimeCorrectionAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (indexes.i() >= spectra_->size(0)
 			|| indexes.j() >= spectra_->size(1)
 			|| indexes.k() >= spectra_->size(2))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if ((int)spectra_->value(indexes) == 0 || double(ocr_->value(indexes)) == 0)
 		return 0;
@@ -77,12 +75,10 @@ bool AM3DDeadTimeCorrectionAB::values(const AMnDIndex &indexStart, const AMnDInd
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i()
 			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j()
 			|| (unsigned)indexEnd.k() >= (unsigned)axes_.at(2).size || (unsigned)indexStart.k() > (unsigned)indexEnd.k())
 		return false;
-#endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 
@@ -122,10 +118,8 @@ AMNumber AM3DDeadTimeCorrectionAB::axisValue(int axisNumber, int index) const
 	if(axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (index >= spectra_->size(axisNumber))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return spectra_->axisValue(axisNumber, index);
 }

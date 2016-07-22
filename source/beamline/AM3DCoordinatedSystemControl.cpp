@@ -71,13 +71,10 @@ bool AM3DCoordinatedSystemControl::canStop() const
 			globalZAxis_ && globalZAxis_->canStop();
 }
 
-void AM3DCoordinatedSystemControl::addChildControl(AMControl *control)
+bool AM3DCoordinatedSystemControl::addChildControl(AMControl *control)
 {
-	AMPseudoMotorControl::addChildControl(control);
-
-	if(control) {
+	if(AMPseudoMotorControl::addChildControl(control))
 		connect(control, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint()));
-	}
 }
 
 void AM3DCoordinatedSystemControl::updateConnected()

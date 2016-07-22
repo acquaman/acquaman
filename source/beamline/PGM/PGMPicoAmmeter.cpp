@@ -67,6 +67,8 @@ void PGMPicoAmmeter::updateUnits()
 
 void PGMPicoAmmeter::onConnectedChanged(bool connected)
 {
+	setConnected(connected);
+
 	if (connected)
 		setReadyForAcquisition();
 

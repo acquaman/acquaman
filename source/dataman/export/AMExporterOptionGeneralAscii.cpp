@@ -30,7 +30,7 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 {
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
-
+	exportPrecision_ = 0;
 	setModified(false);
 }
 
@@ -39,6 +39,8 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(const AMExporterOptio
 {
 	columnDelimiter_ = original.columnDelimiter();
 	newlineDelimiter_ = original.newlineDelimiter();
+	sourceExportPrecision_ = original.precisionMap();
+	exportPrecision_ = original.exportPrecision();
 }
 
 AMExporterOption *AMExporterOptionGeneralAscii::createCopy() const
@@ -47,6 +49,76 @@ AMExporterOption *AMExporterOptionGeneralAscii::createCopy() const
 	option->dissociateFromDb(true);
 	return option;
 }
+
+int AMExporterOptionGeneralAscii::exportPrecision() const
+{
+	return exportPrecision_;
+}
+
+int AMExporterOptionGeneralAscii::exportPrecision(const QString &source) const
+{
+	if(sourceExportPrecision_.contains(source)){
+		return sourceExportPrecision_.value(source);
+	}
+	else
+		return exportPrecision_;
+}
+
+void AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, int precision)
+{
+	if(!source.isEmpty() && precision >= 1) {
+		sourceExportPrecision_.insert(source, precision);
+		setModified(true);
+	}
+}
+
+void AMExporterOptionGeneralAscii::setExportPrecision(int precision)
+{
+	if(precision >= 1){
+		exportPrecision_ = precision;
+		setModified(true);
+	}
+}
+
+QString AMExporterOptionGeneralAscii::loadPrecisionMap()
+{
+	QStringList precisionMapConversion;
+
+	QMap<QString, int>::iterator i;
+
+	for (i = sourceExportPrecision_.begin(); i != sourceExportPrecision_.end(); ++i)
+		precisionMapConversion << i.key() << QString("%1").arg(i.value());
+
+	return precisionMapConversion.join(":");
+
+}
+
+void AMExporterOptionGeneralAscii::readPrecisionMap(const QString &stringMap)
+{
+	QStringList precisionMap = stringMap.split(":", QString::SkipEmptyParts);
+
+	if(precisionMap.size() % 2 != 0){
+		return;
+	}
+
+	sourceExportPrecision_.clear();
+
+	for(int i = 0; i < precisionMap.size(); i = i + 2){
+		sourceExportPrecision_.insert(precisionMap.at(i), precisionMap.at(i+1).toInt());
+	}
+}
+
+QString AMExporterOptionGeneralAscii::mapToString() const
+{
+	QMap<QString, int>::ConstIterator i;
+	QString map = "";
+
+	for(i = sourceExportPrecision_.constBegin(); i != sourceExportPrecision_.constEnd(); ++i)
+		map = i.key() + " " + QString("%1").arg(i.value()) + "\n";
+
+	return map;
+}
+
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){
 	return metaObject();
 }

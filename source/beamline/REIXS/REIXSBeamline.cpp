@@ -283,20 +283,22 @@ REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeCon
 	endstationValve_ = new CLSExclusiveStatesControl("XESendstationValve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", this);
 	endstationValve_->setDescription("XES Endstation Valve");
 
-	addChildControl(ssh1_);
-	addChildControl(psh2_);
-	addChildControl(psh4_);
-	addChildControl(endstationValve_);
-
-
 	// connect to monitor full beam status:
 	/////////////////////
-	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(ssh1_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+
+	if(addChildControl(ssh1_)){
+		connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+		connect(ssh1_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	}
+	if(addChildControl(psh2_)){
+		connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+		connect(psh2_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	}
+	if(addChildControl(psh4_)){
+		connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+		connect(psh4_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	}
+	addChildControl(endstationValve_);
 
 	reviewIsBeamOn();
 }
@@ -387,10 +389,10 @@ bool REIXSSampleChamber::canStop() const
 	// connected, but we still want to stop it. The stop() slot thus has to take care of only issuing the stop command to those
 	// motors which can currently stop.
 	return shouldStop() && (
-	            (beamNormalTranslation_ && beamNormalTranslation_->canStop())
-	            || (beamHorizontalTranslation_ && beamHorizontalTranslation_->canStop())
-	            || (beamVerticalTranslation_ && beamVerticalTranslation_->canStop())
-	            || (beamVerticalRotation_ && beamVerticalRotation_->canStop()));
+				(beamNormalTranslation_ && beamNormalTranslation_->canStop())
+				|| (beamHorizontalTranslation_ && beamHorizontalTranslation_->canStop())
+				|| (beamVerticalTranslation_ && beamVerticalTranslation_->canStop())
+				|| (beamVerticalRotation_ && beamVerticalRotation_->canStop()));
 }
 
 bool REIXSSampleChamber::stop()
@@ -489,28 +491,28 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	setDescription("XES Detector Energy");
 
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
-							    "SMTR1610-4-I21-01:mm:fbk",
-							    "SMTR1610-4-I21-01:mm",
-							    "SMTR1610-4-I21-01:status",
-							    "SMTR1610-4-I21-01:stop", this, 1.0);
+								"SMTR1610-4-I21-01:mm:fbk",
+								"SMTR1610-4-I21-01:mm",
+								"SMTR1610-4-I21-01:status",
+								"SMTR1610-4-I21-01:stop", this, 1.0);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
 	spectrometerRotationDrive_->setSettlingTime(1.0);
 
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
-						      "SMTR1610-4-I21-04:mm:fbk",
-						      "SMTR1610-4-I21-04:mm",
-						      "SMTR1610-4-I21-04:status",
-						      "SMTR1610-4-I21-04:stop", this, 2.0);
+							  "SMTR1610-4-I21-04:mm:fbk",
+							  "SMTR1610-4-I21-04:mm",
+							  "SMTR1610-4-I21-04:status",
+							  "SMTR1610-4-I21-04:stop", this, 2.0);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTranslation_->setSettlingTime(1.0);
 
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
-						    "SMTR1610-4-I21-02:mm:sp",
-						    "SMTR1610-4-I21-02:mm",
-						    "SMTR1610-4-I21-02:status",
-						    "SMTR1610-4-I21-02:stop", this, 0.05);
+							"SMTR1610-4-I21-02:mm:sp",
+							"SMTR1610-4-I21-02:mm",
+							"SMTR1610-4-I21-02:status",
+							"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 	detectorTiltDrive_->setSettlingTime(0.5);
 
@@ -523,10 +525,10 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	endstationTranslation_->setSettlingTime(0.2);
 
 	gratingMask_ = new AMPVwStatusControl("gratingMask",
-					      "SMTR1610-4-I21-03:mm:sp",
-					      "SMTR1610-4-I21-03:mm",
-					      "SMTR1610-4-I21-03:status",
-					      "SMTR1610-4-I21-03:stop",this,0.01); //DAVID ADDED 005
+						  "SMTR1610-4-I21-03:mm:sp",
+						  "SMTR1610-4-I21-03:mm",
+						  "SMTR1610-4-I21-03:status",
+						  "SMTR1610-4-I21-03:stop",this,0.01); //DAVID ADDED 005
 	gratingMask_->setDescription("Grating Mask Position");
 	gratingMask_->setSettlingTime(0.2);
 
@@ -537,10 +539,14 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	tmSOE_ = new AMReadOnlyPVControl("SOETemp", "TM1609-01", this, "SOE Temperature");
 
 
-	addChildControl(spectrometerRotationDrive_);
-	addChildControl(detectorTranslation_);
+	if(addChildControl(spectrometerRotationDrive_))
+		connect(spectrometerRotationDrive_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
+	if(addChildControl(detectorTranslation_))
+		connect(detectorTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
+	if(addChildControl(endstationTranslation_))  //DAVID ADDED
+		connect(endstationTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));  //DAVID ADDED
+
 	addChildControl(detectorTiltDrive_);
-	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
 	addChildControl(gratingMask_);  //DAVID ADDED 005
 	addChildControl(tmMCPPreamp_);
@@ -557,13 +563,8 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	// valueChanged(): if the optical origin is at the rotation point and everything is perfect, then only the spectrometerRotationDrive_ motor will affect the energy value.  But in the non-perfect-aligned general math situation, the translation can also affect eV.  And of course gratings...
 	// Here we make the connections to get our valueChanged() signal:
-	connect(spectrometerRotationDrive_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
-	connect(detectorTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
 	connect(this, SIGNAL(gratingChanged(int)), this, SLOT(scheduleReviewValueChanged()));
-	connect(endstationTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));  //DAVID ADDED
-
 	connect(&reviewValueChangedFunction_, SIGNAL(executed()), this, SLOT(reviewValueChanged()));
-
 	connect(this, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 
 }

@@ -234,22 +234,23 @@ void VESPERSExporter3DAscii::writeMainTable()
 				for(int c=0; c<mainTableDataSources_.count(); c++) {
 					setCurrentDataSource(mainTableDataSources_.at(c));
 					AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+					int precision = option_->exportPrecision(ds->name());
 
 					// print x and y column?
 					if(mainTableIncludeX_.at(c)) {
 
-						ts << ds->axisValue(0, x).toString();
+						ts << ds->axisValue(0, x).toString(precision);
 						ts << option_->columnDelimiter();
-						ts << ds->axisValue(1, y).toString();
+						ts << ds->axisValue(1, y).toString(precision);
 						ts << option_->columnDelimiter();
-						ts << ds->axisValue(2, z).toString();
+						ts << ds->axisValue(2, z).toString(precision);
 						ts << option_->columnDelimiter();
 					}
 
 					if(c == indexOfCCDName)
 						ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x, y, z)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 					else
-						ts << ds->value(AMnDIndex(x, y, z)).toString();
+						ts << ds->value(AMnDIndex(x, y, z)).toString(precision);
 
 					ts << option_->columnDelimiter();
 				}
@@ -271,22 +272,23 @@ void VESPERSExporter3DAscii::writeMainTable()
 				for(int c=0; c<mainTableDataSources_.count(); c++) {
 					setCurrentDataSource(mainTableDataSources_.at(c));
 					AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+					int precision = option_->exportPrecision(ds->name());
 
 					// print x and y column?
 					if(mainTableIncludeX_.at(c)) {
 
-						ts << ds->axisValue(0, x).toString();
+						ts << ds->axisValue(0, x).toString(precision);
 						ts << option_->columnDelimiter();
-						ts << ds->axisValue(1, yRange_-1).toString();
+						ts << ds->axisValue(1, yRange_-1).toString(precision);
 						ts << option_->columnDelimiter();
-						ts << ds->axisValue(2, z).toString();
+						ts << ds->axisValue(2, z).toString(precision);
 						ts << option_->columnDelimiter();
 					}
 
 					if(c == indexOfCCDName)
 						ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x, yRange_-1, z)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 					else
-						ts << ds->value(AMnDIndex(x, yRange_-1, z)).toString();
+						ts << ds->value(AMnDIndex(x, yRange_-1, z)).toString(precision);
 
 					ts << option_->columnDelimiter();
 				}
@@ -304,22 +306,23 @@ void VESPERSExporter3DAscii::writeMainTable()
 			for(int c=0; c<mainTableDataSources_.count(); c++) {
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+				int precision = option_->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0, xRange_-1).toString();
+					ts << ds->axisValue(0, xRange_-1).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << ds->axisValue(1, yRange_-1).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(2, z).toString();
+					ts << ds->axisValue(2, z).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
 				if(c == indexOfCCDName)
 					ts << QString(ccdString).arg(int(ds->value(AMnDIndex(xRange_-1, yRange_-1, z)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 				else
-					ts << ds->value(AMnDIndex(xRange_-1, yRange_-1, z)).toString();
+					ts << ds->value(AMnDIndex(xRange_-1, yRange_-1, z)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}

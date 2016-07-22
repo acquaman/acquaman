@@ -88,13 +88,14 @@ void VESPERSExporterSMAK::writeMainTable()
 
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+				int precision = option_->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0,x).toString();
+					ts << ds->axisValue(0,x).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, y).toString();
+					ts << ds->axisValue(1, y).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
@@ -102,7 +103,7 @@ void VESPERSExporterSMAK::writeMainTable()
 					ts << QString("%1_%2.%3").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y)))-1).arg(suffix);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 
 				else
-					ts << ds->value(AMnDIndex(x, y)).toString();
+					ts << ds->value(AMnDIndex(x, y)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}
@@ -120,13 +121,14 @@ void VESPERSExporterSMAK::writeMainTable()
 
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+				int precision = option_->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0,x).toString();
+					ts << ds->axisValue(0,x).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << ds->axisValue(1, yRange_-1).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
@@ -134,7 +136,7 @@ void VESPERSExporterSMAK::writeMainTable()
 					ts << QString("%1_%2.%3").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, yRange_-1)))-1).arg(suffix);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 
 				else
-					ts << ds->value(AMnDIndex(x, yRange_-1)).toString();
+					ts << ds->value(AMnDIndex(x, yRange_-1)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}

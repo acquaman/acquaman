@@ -142,7 +142,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 	if(sxrmbBL->isConnected())
-		onEndstationSampleStagePositionChanged(-1);
+		updateBeamlineSettingWarning();
 }
 
 SXRMBEXAFSScanConfigurationView::~SXRMBEXAFSScanConfigurationView()
@@ -220,26 +220,26 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 
 	if (sampleStageXSpinBox_) {
 		disconnect(sampleStageXSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageXSpinBoxEditingFinished()));
-		disconnect(sampleStageXControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		disconnect(sampleStageXControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
 	}
 	if (sampleStageZSpinBox_) {
 		disconnect(sampleStageZSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageZSpinBoxEditingFinished()));
-		disconnect(sampleStageZControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		disconnect(sampleStageZControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
 	}
 	if (sampleStageNormalSpinBox_) {
 		disconnect(sampleStageNormalSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageNormalSpinBoxEditingFinished()));
-		disconnect(sampleStageYControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		disconnect(sampleStageYControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
 	}
 	if (sampleStageRotationSpinBox_) {
 		disconnect(sampleStageRotationSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageRotationSpinBoxEditingFinished()));
-		disconnect(sampleStageRControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		disconnect(sampleStageRControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
 	}
 
 	// recreate the component for the new endstation
 	createAndLayoutSampleStageSpinBox(sampleStageFL_);
 	updatePowerOnHVControlCheckBoxText();
 
-	onEndstationSampleStagePositionChanged(-1);
+	updateBeamlineSettingWarning();
 }
 
 void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
@@ -325,28 +325,28 @@ void SXRMBEXAFSScanConfigurationView::onEdgeChanged(){
 		energy_->setValue(configuration_->energy());
 }
 
-void SXRMBEXAFSScanConfigurationView::onSampleStageXSpinBoxEditingFinished(){
-
+void SXRMBEXAFSScanConfigurationView::onSampleStageXSpinBoxEditingFinished()
+{
 	configuration_->setX(sampleStageXSpinBox_->value());
-	onEndstationSampleStagePositionChanged(-1);
+	updateBeamlineSettingWarning();
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageZSpinBoxEditingFinished(){
 
 	configuration_->setZ(sampleStageZSpinBox_->value());
-	onEndstationSampleStagePositionChanged(-1);
+	updateBeamlineSettingWarning();
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageNormalSpinBoxEditingFinished(){
 
 	configuration_->setY(sampleStageNormalSpinBox_->value());
-	onEndstationSampleStagePositionChanged(-1);
+	updateBeamlineSettingWarning();
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageRotationSpinBoxEditingFinished(){
 
 	configuration_->setRotation(sampleStageRotationSpinBox_->value());
-	onEndstationSampleStagePositionChanged(-1);
+	updateBeamlineSettingWarning();
 }
 
 void SXRMBEXAFSScanConfigurationView::onSetSampleStageFromBeamlineButtonClicked(){
@@ -378,9 +378,8 @@ void SXRMBEXAFSScanConfigurationView::onSetSampleStageFromBeamlineButtonClicked(
 
 }
 
-void SXRMBEXAFSScanConfigurationView::onEndstationSampleStagePositionChanged(double value){
-	Q_UNUSED(value)
-
+void SXRMBEXAFSScanConfigurationView::updateBeamlineSettingWarning()
+{
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	AMPVwStatusControl* sampleStageXControl = sxrmbBL->endstationSampleStageX(sxrmbBL->currentEndstation());
 	AMPVwStatusControl* sampleStageYControl = sxrmbBL->endstationSampleStageY(sxrmbBL->currentEndstation());
@@ -405,6 +404,31 @@ void SXRMBEXAFSScanConfigurationView::onEndstationSampleStagePositionChanged(dou
 	}
 
 	sampleStageWarningLabel_->setVisible(showWarningLabel);
+}
+
+void SXRMBEXAFSScanConfigurationView::updateSampleStageControlRange()
+{
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+	AMPVwStatusControl* sampleStageXControl = sxrmbBL->endstationSampleStageX(sxrmbBL->currentEndstation());
+	AMPVwStatusControl* sampleStageYControl = sxrmbBL->endstationSampleStageY(sxrmbBL->currentEndstation());
+	AMPVwStatusControl* sampleStageZControl = sxrmbBL->endstationSampleStageZ(sxrmbBL->currentEndstation());
+	AMPVwStatusControl* sampleStageRControl = sxrmbBL->endstationSampleStageR(sxrmbBL->currentEndstation());
+
+	if (sampleStageXControl && sampleStageXControl->isConnected()) {
+		sampleStageXSpinBox_->setRange(sampleStageXControl->minimumValue(), sampleStageXControl->maximumValue());
+	}
+
+	if (sampleStageYControl && sampleStageYControl->isConnected()) {
+		sampleStageNormalSpinBox_->setRange(sampleStageYControl->minimumValue(), sampleStageYControl->maximumValue());
+	}
+
+	if (sampleStageZControl && sampleStageZControl->isConnected()) {
+		sampleStageZSpinBox_->setRange(sampleStageZControl->minimumValue(), sampleStageZControl->maximumValue());
+	}
+
+	if (sampleStageRControl && sampleStageRControl->isConnected()) {
+		sampleStageRotationSpinBox_->setRange(sampleStageRControl->minimumValue(), sampleStageRControl->maximumValue());
+	}
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanConfigurationSampleStageXChanged(double value){
@@ -456,7 +480,7 @@ void SXRMBEXAFSScanConfigurationView::clearLayout(QLayout * layout, bool deleteW
 	}
 }
 
-QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
+QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double defaultValue) {
 	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
 	sampleStageSpinBox->setSuffix(" " % units);
 	sampleStageSpinBox->setSingleStep(0.001);
@@ -464,7 +488,6 @@ QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QStrin
 	sampleStageSpinBox->setAlignment(Qt::AlignCenter);
 	sampleStageSpinBox->setFixedWidth(110);
 
-	sampleStageSpinBox->setRange(minimumValue, maximumValue);
 	sampleStageSpinBox->setValue(defaultValue);
 
 	return sampleStageSpinBox;
@@ -487,33 +510,37 @@ void SXRMBEXAFSScanConfigurationView::createAndLayoutSampleStageSpinBox(QFormLay
 	AMPVwStatusControl* sampleStageRControl = sxrmbBL->endstationSampleStageR(sxrmbBL->currentEndstation());
 
 	if (sampleStageXControl) {
-		sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sampleStageXControl->minimumValue(), sampleStageXControl->maximumValue(), configuration_->x());
+		sampleStageXSpinBox_ = createSampleStageSpinBox("mm", configuration_->x());
 		formLayout->addRow("X Position", sampleStageXSpinBox_);
 
 		connect(sampleStageXSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageXSpinBoxEditingFinished()));
-		connect(sampleStageXControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		connect(sampleStageXControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
+		connect(sampleStageXControl, SIGNAL(connected(bool)), this, SLOT(updateSampleStageControlRange()));
 	}
 
 	if (sampleStageZControl) {
-		sampleStageZSpinBox_ = createSampleStageSpinBox("mm", sampleStageZControl->minimumValue(), sampleStageZControl->maximumValue(), configuration_->z());
+		sampleStageZSpinBox_ = createSampleStageSpinBox("mm", configuration_->z());
 		formLayout->addRow("Z Position", sampleStageZSpinBox_);
 
 		connect(sampleStageZSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageZSpinBoxEditingFinished()));
-		connect(sampleStageZControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		connect(sampleStageZControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
+		connect(sampleStageZControl, SIGNAL(connected(bool)), this, SLOT(updateSampleStageControlRange()));
 	}
 	if (sampleStageYControl) {
-		sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sampleStageYControl->minimumValue(), sampleStageYControl->maximumValue(), configuration_->y());
+		sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", configuration_->y());
 		formLayout->addRow("Normal Position", sampleStageNormalSpinBox_);
 
 		connect(sampleStageNormalSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageNormalSpinBoxEditingFinished()));
-		connect(sampleStageYControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		connect(sampleStageYControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
+		connect(sampleStageYControl, SIGNAL(connected(bool)), this, SLOT(updateSampleStageControlRange()));
 	}
 	if (sampleStageRControl) {
-		sampleStageRotationSpinBox_ = createSampleStageSpinBox("deg", sampleStageRControl->minimumValue(), sampleStageRControl->maximumValue(), configuration_->rotation());
+		sampleStageRotationSpinBox_ = createSampleStageSpinBox("deg", configuration_->rotation());
 		formLayout->addRow("Rotation Position", sampleStageRotationSpinBox_);
 
 		connect(sampleStageRotationSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageRotationSpinBoxEditingFinished()));
-		connect(sampleStageRControl, SIGNAL(valueChanged(double)), this, SLOT(onEndstationSampleStagePositionChanged(double)));
+		connect(sampleStageRControl, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineSettingWarning()));
+		connect(sampleStageRControl, SIGNAL(connected(bool)), this, SLOT(updateSampleStageControlRange()));
 	}
 }
 

@@ -22,24 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMXRFBASEDETECTORVIEW_H
 #define AMXRFBASEDETECTORVIEW_H
 
-#include <QWidget>
+#include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
 
 #include "beamline/AMXRFDetector.h"
 
-#include "MPlot/MPlot.h"
-#include "MPlot/MPlotWidget.h"
-#include "MPlot/MPlotSeries.h"
-#include "ui/AMTopFrame.h"
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QDoubleSpinBox>
-
 /// This class provides a very basic view for any AMXRFDetector.  It provides very basic control and feedback with a spectrum viewer.
-class AMXRFBaseDetectorView : public QWidget
+class AMXRFBaseDetectorView : public AMSpectrumAndPeriodicTableView
 {
 	Q_OBJECT
 
@@ -94,10 +82,6 @@ protected:
 	/// The pointer to the detector.
 	AMXRFDetector *detector_;
 
-	/// This is the plot widget that holds the plot used for viewing the spectra.
-	MPlotWidget *plotView_;
-	/// This is the plot itself.
-	MPlot *plot_;
 	/// A list of plot items that are spectra currently being displayed in the plot.
 	QList<MPlotItem *> spectraPlotItems_;
 

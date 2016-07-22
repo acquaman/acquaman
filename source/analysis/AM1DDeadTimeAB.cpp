@@ -56,10 +56,8 @@ AMNumber AM1DDeadTimeAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (indexes.i() >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if ((int)spectra_->value(indexes) == 0 || double(ocr_->value(indexes.i())) == 0)
 		return 0;
@@ -75,10 +73,8 @@ bool AM1DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 
@@ -110,10 +106,8 @@ AMNumber AM1DDeadTimeAB::axisValue(int axisNumber, int index) const
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (index >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return spectra_->axisValue(axisNumber, index);
 }

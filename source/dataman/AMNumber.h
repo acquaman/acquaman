@@ -126,8 +126,9 @@ public:
 	}
 
 	/// Print as a string
-	QString toString(QChar format = 'g', int precision = 19);
+	QString toString(QChar format = 'g', int precision = 19) const;
 
+	QString toString(int precision) const;
 
 protected:
 	State state_;

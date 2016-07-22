@@ -338,14 +338,16 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 
 void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 {
-	AMRegionOfInterest *newRegionOfInterest = regionOfInterest->createCopy();
+	if ( !containsRegionOfInterest(regionOfInterest) ) {
+		AMRegionOfInterest *newRegionOfInterest = regionOfInterest->createCopy();
 
-	connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
-	regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
-	regionsOfInterest_.append(newRegionOfInterest);
-	newRegionOfInterest->setSpectrumSource(primarySpectrumDataSource_);
-	addRegionOfInterestImplementation(newRegionOfInterest);
-	emit addedRegionOfInterest(newRegionOfInterest);
+		connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
+		regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
+		regionsOfInterest_.append(newRegionOfInterest);
+		newRegionOfInterest->setSpectrumSource(primarySpectrumDataSource_);
+		addRegionOfInterestImplementation(newRegionOfInterest);
+		emit addedRegionOfInterest(newRegionOfInterest);
+	}
 }
 
 void AMXRFDetector::removeRegionOfInterest(const AMEmissionLine &emissionLine)
@@ -458,4 +460,20 @@ void AMXRFDetector::updatePrimarySpectrumSources()
 				newSum << rawSpectraSources_.at(enabledElement);
 
 		((AMAnalysisBlock *)primarySpectrumDataSource_)->setInputDataSources(newSum);
+}
+
+bool AMXRFDetector::containsRegionOfInterest(AMRegionOfInterest *newROI) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionsOfInterest_.isEmpty() && newROI) {
+		for (int i = 0, count = regionsOfInterest_.count(); i < count && !regionOfInterestFound; i++) {
+			AMRegionOfInterest *regionOfInterest = regionsOfInterest_.at(i);
+
+			if (regionOfInterest && regionOfInterest->name() == newROI->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }

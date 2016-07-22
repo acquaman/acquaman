@@ -153,10 +153,8 @@ void AMExclusiveStatesEnumeratedControl::removeControl(int index)
 {
 	AMControl *toRemove = indexControlMap_.value(index, 0);
 
-	if (toRemove) {
-		removeChildControl(toRemove);
+	if (removeChildControl(toRemove))
 		indexControlMap_.remove(index);
-	}
 }
 
 void AMExclusiveStatesEnumeratedControl::clearControls()

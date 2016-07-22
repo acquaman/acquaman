@@ -141,6 +141,11 @@ void AMControlInfoList::setValuesFrom(const AMControlInfoList &other)
 	setModified(true);
 }
 
+bool AMControlInfoList::hasControl(const QString &controlName) const
+{
+	return (indexOf(controlName) != -1);
+}
+
 int AMControlInfoList::indexOf(const QString &controlName) const
 {
 	for(int i=count()-1; i>= 0; i--) {

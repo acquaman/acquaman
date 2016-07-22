@@ -258,10 +258,8 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::InvalidError);
 
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(((unsigned long)indexes.i() >= (unsigned long)axes_.at(0).size))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if(cacheUpdateRequired_)
 		computeCachedValues();
@@ -280,13 +278,10 @@ bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &index
 	// Max x pixel value:
 	int maxI = inputSource_->size(0);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(indexEnd.i() < indexStart.i())
 		return false;
 	if(indexEnd.i() >= maxI)
 		return false;
-#endif
-
 
 	if(cacheUpdateRequired_)
 		computeCachedValues();
@@ -364,10 +359,8 @@ AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 	if((axisNumber != 0))
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(((unsigned)index >= (unsigned)axes_.at(0).size))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if(axisValueCacheInvalid_)
 		computeCachedAxisValues();

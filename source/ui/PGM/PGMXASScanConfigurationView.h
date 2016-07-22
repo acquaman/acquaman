@@ -35,6 +35,9 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 
+	/// Helper to set estimated time label.
+	void onEstimatedTimeChanged(double newTime);
+
 	/// Handles changes of the auto export check box.
 	void onExportSelectionChanged(QAbstractButton *button);
 
@@ -47,6 +50,9 @@ protected:
 
 	/// The scan name.
 	QLineEdit *scanName_;
+
+	/// A label holding the current estimated time per scan.
+	QLabel *estimatedTime_;
 
 	/// Set of dectors to display.
 	QCheckBox *exportSpectraCheckBox_;

@@ -75,7 +75,7 @@ public:
 	/// Returns SingleRead as the type (support for ContinuousRead will be done in a subclass)
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or if the data is not ready.
 	virtual AMNumber reading(const AMnDIndex& indexes) const;
 
 	/// Returns the channel count

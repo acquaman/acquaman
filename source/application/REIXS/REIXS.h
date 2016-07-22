@@ -34,6 +34,7 @@ namespace REIXS {
 		exporterOption->setSeparateHigherDimensionalSources(true);
 		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 		exporterOption->setHigherDimensionsInRows(true);
+		exporterOption->setExportPrecision(6);
 		exporterOption->storeToDb(AMDatabase::database("user"));
 
 		return exporterOption;

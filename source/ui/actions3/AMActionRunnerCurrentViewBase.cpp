@@ -140,7 +140,6 @@ void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 void AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged(bool pausable)
 {
 	pauseButton_->setEnabled(pausable);
-	pauseButton_->repaint(); // force repaint;
 }
 
 void AMActionRunnerCurrentViewBase::onExpectedDurationChanged(double totalSeconds)

@@ -30,6 +30,10 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 
 	Q_PROPERTY(QString columnDelimiter READ columnDelimiter WRITE setColumnDelimiter)
 	Q_PROPERTY(QString newlineDelimiter READ newlineDelimiter WRITE setNewlineDelimiter)
+	Q_PROPERTY(int exportPrecision READ exportPrecision WRITE setExportPrecision)
+	Q_PROPERTY(QString precisionMap READ loadPrecisionMap WRITE readPrecisionMap)
+
+	Q_CLASSINFO("exportPrecision", "upgradeDefault=6")
 
 public:
 	/// Constructor.
@@ -47,11 +51,21 @@ public:
 	QString columnDelimiter() const { return columnDelimiter_; }
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter() const { return newlineDelimiter_; }
-
-
+	/// Returns the precision map used to assign AMDataSources an export precission.
+	QMap<QString, int> precisionMap() const { return sourceExportPrecision_; }
+	/// Returns the default precision if no source is specified.
+	int exportPrecision() const;
+	/// Returns the associated precision with the source name.
+	int exportPrecision(const QString& source) const;
+	/// Sets a precision for a source name. Duplicate naming is not allowed.
+	void setExportPrecision(const QString& source, const int precision);
+	/// Sets the default precision with no AMDataSource name specified.
+	void setExportPrecision(int precision);
 
 	virtual QWidget* createEditorWidget();
 
+	/// Output the current map in exportPrecision_ into a string to allow mapping visualization.
+	QString mapToString() const;
 
 signals:
 
@@ -62,10 +76,20 @@ public slots:
 	void setNewlineDelimiter(const QString& t) { newlineDelimiter_ = t; setModified(true); }
 
 protected:
+
+	/// Loads the precision map into the database in the form of a string.
+	QString loadPrecisionMap();
+	/// Parses a precision map string from the database and recreates the map.
+	void readPrecisionMap(const QString& stringMap);
+
 	/// The delimiter to use between columns
 	QString columnDelimiter_;
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter_;
+	/// A mapping of datasource names to the precision their data should be exported at.
+	QMap<QString, int> sourceExportPrecision_;
+	/// A default precision if a source is not given one specifically.
+	int exportPrecision_ ;
 
 };
 

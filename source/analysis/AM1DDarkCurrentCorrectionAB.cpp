@@ -168,10 +168,8 @@ AMNumber AM1DDarkCurrentCorrectionAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
 	// Can't divide by zero.
 	if (double(dwellTime_->value(indexes)) == 0)
@@ -195,10 +193,8 @@ bool AM1DDarkCurrentCorrectionAB::values(const AMnDIndex &indexStart, const AMnD
 	if (!canAnalyze())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 

@@ -414,10 +414,8 @@ AMNumber AM1DCalibrationAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
         if (cacheUpdateRequired_)
             computeCachedValues();
@@ -436,16 +434,14 @@ bool AM1DCalibrationAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 	if (!canAnalyze())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 
 	return true;
 }

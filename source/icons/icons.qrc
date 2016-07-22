@@ -221,5 +221,6 @@
         <file>mono-icon5.png</file>
         <file>beam-icon.png</file>
         <file>mirror-icon1.png</file>
+        <file>beamStatus.png</file>
     </qresource>
 </RCC>

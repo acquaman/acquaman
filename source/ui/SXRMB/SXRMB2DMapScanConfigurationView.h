@@ -112,7 +112,7 @@ protected:
 	/// Add the dwell time box.  Returns a pointer to the widget.
 	QDoubleSpinBox *createDwellTimeSpinBox(double time);
 	/// create spinbox
-	QDoubleSpinBox *createEnergySpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
+	QDoubleSpinBox *createEnergySpinBox(QString units, double minEnergy, double maxEnergy, double defaultValue);
 	/// Pointer to the specific scan config the view is modifying.
 	SXRMB2DMapScanConfiguration *configuration_;
 

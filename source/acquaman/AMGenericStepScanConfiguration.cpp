@@ -163,7 +163,7 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 	return result;
 }
 
-bool AMGenericStepScanConfiguration::usingControl(AMControlInfo controlInfo) const
+bool AMGenericStepScanConfiguration::usingControl(const AMControlInfo &controlInfo) const
 {
 	return (axisControlInfos_.indexOf(controlInfo.name()) != -1);
 }
@@ -176,7 +176,6 @@ bool AMGenericStepScanConfiguration::usingDetector(const QString &detectorName) 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
-
 		axisControlInfos_.append(newInfo);
 		setModified(true);
 
@@ -188,12 +187,16 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+		emit axisControlInfoAdded();
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 0){
-
 		axisControlInfos_.replace(0, newInfo);
 		setModified(true);
+
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 1 && axisControlInfos_.count() == 1){
@@ -209,12 +212,16 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+		emit axisControlInfoAdded();
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 1){
-
 		axisControlInfos_.replace(1, newInfo);
 		setModified(true);
+
+		emit axisControlInfoChanged();
 	}
 
 	computeTotalTime();
@@ -230,7 +237,12 @@ void AMGenericStepScanConfiguration::removeControl(int axisId)
 		axis->deleteLater();
 		axisControlInfos_.remove(axisId);
 		setModified(true);
+
+		emit axisControlInfoRemoved();
+		emit axisControlInfoChanged();
 	}
+
+	computeTotalTime();
 }
 
 void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
@@ -269,8 +281,10 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 
 void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
-	regionsOfInterest_.append(region);
-	setModified(true);
+	if ( !containsRegionOfInterest(region) ) {
+		regionsOfInterest_.append(region);
+		setModified(true);
+	}
 }
 
 void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
@@ -345,4 +359,20 @@ QString AMGenericStepScanConfiguration::regionsOfInterestHeaderString(const QLis
 	}
 
 	return string;
+}
+
+bool AMGenericStepScanConfiguration::containsRegionOfInterest(AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionsOfInterest_.isEmpty() && toFind) {
+		for (int i = 0, count = regionsOfInterest_.count(); i < count && !regionOfInterestFound; i++) {
+
+			AMRegionOfInterest *regionOfInterest = regionsOfInterest_.at(i);
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }

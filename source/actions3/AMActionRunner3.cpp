@@ -164,24 +164,11 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 	if ( ! validateAction(action, QString("Ignore this warning and add"), QString("Cancel adding this action")) )
 		return;
 
-	InsertActionToQueue(action, index);
+	insertActionToQueue(action, index);
 
 	// was this the first action inserted into a running but empty queue? Start it up!
 	if(!isPaused_ && !actionRunning())
 		internalDoNextAction();
-}
-
-bool AMActionRunner3::InsertActionToQueue(AMAction3 *action, int index)
-{
-	if (!action)
-		return false;
-
-	connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
-	emit queuedActionAboutToBeAdded(index);
-	queuedActions_.insert(index, action);
-	emit queuedActionAdded(index);
-
-	return true;
 }
 
 AMAction3* AMActionRunner3::removeActionFromQueue(int index)
@@ -258,7 +245,7 @@ bool AMActionRunner3::moveActionInQueue(int currentIndex, int finalIndex)
 
 	AMAction3* moveAction = removeActionFromQueue(currentIndex);
 
-	InsertActionToQueue(moveAction, finalIndex);
+	insertActionToQueue(moveAction, finalIndex);
 
 	return true;
 }
@@ -447,8 +434,7 @@ bool AMActionRunner3::validateAction(AMAction3 *newAction, const QString &okButt
 
 void AMActionRunner3::onCurrentActionStarting()
 {
-	if(loggingDatabase_)
-		currentAction_->setIsLoggingFinished(false);
+	currentAction_->setIsLoggingFinished(false);
 
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 
@@ -467,14 +453,14 @@ void AMActionRunner3::onCurrentActionStarting()
 	}
 
 	if (isScanAction())
-		emit scanActionCreated((AMScanAction *)currentAction());
+		emit scanActionCreated(qobject_cast<AMScanAction *>(currentAction_));
 
 }
 
 void AMActionRunner3::onCurrentActionRunning()
 {
 	if (isScanAction())
-		emit scanActionStarted((AMScanAction *)currentAction());
+		emit scanActionStarted(qobject_cast<AMScanAction *>(currentAction_));
 
 }
 
@@ -1133,3 +1119,16 @@ bool AMActionRunner3::isActionRunnerPausable() const
 }
 
  AMModelIndexListMimeData3::~AMModelIndexListMimeData3(){}
+
+ bool AMActionRunner3::insertActionToQueue(AMAction3 *action, int index)
+ {
+	 if (!action)
+		 return false;
+
+	 connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
+	 emit queuedActionAboutToBeAdded(index);
+	 queuedActions_.insert(index, action);
+	 emit queuedActionAdded(index);
+
+	 return true;
+ }

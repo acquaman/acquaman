@@ -51,6 +51,7 @@ namespace BioXAS
 		xasDefault->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 		xasDefault->setElementSymbol(elementSymbol);
 		xasDefault->setElementEdge(elementEdge);
+		xasDefault->setExportPrecision(6);
 		xasDefault->storeToDb(AMDatabase::database("user"));
 
 		return xasDefault;

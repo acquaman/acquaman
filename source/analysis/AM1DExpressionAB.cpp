@@ -126,10 +126,8 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if(indexes.i() < 0 || indexes.i() >= size_)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if(indexes.i() < 0 || indexes.i() >= size_)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
@@ -178,10 +176,8 @@ bool AM1DExpressionAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if((unsigned)indexEnd.i() >= (unsigned)size_ || indexStart.i() > indexEnd.i())
-			return false;
-#endif
+	if((unsigned)indexEnd.i() >= (unsigned)size_ || indexStart.i() > indexEnd.i())
+		return false;
 
 	int totalSize = indexEnd.i() - indexStart.i() + 1;
 	int offset = indexStart.i();
@@ -257,11 +253,8 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const
 	if(axisNumber != 0)	// someone gave us a multi-dim index for a 1D dataset
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if(index < 0 || index >= size_)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
-
+	if(index < 0 || index >= size_)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(xDirect_) {
@@ -305,13 +298,11 @@ bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 	if(axisNumber != 0)	// someone gave us a multi-dim index for a 1D dataset
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(startIndex < 0 || startIndex >= size_)
 		return false;
 
 	if(endIndex < 0 || endIndex >= size_)
 		return false;
-#endif
 
 	if (xDirect_){
 

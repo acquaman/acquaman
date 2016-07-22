@@ -1,21 +1,18 @@
 #include "BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM1MirrorBendControl.h"
-#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
 
-BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
-	BioXASM1Mirror("SideM1Mirror", parent)
+BioXASSideM1Mirror::BioXASSideM1Mirror(const QString &name, QObject *parent) :
+	BioXASM1Mirror(name, parent)
 {
 	setUpstreamLength(-543.77);
 	setDownstreamLength(543.68);
 
-	CLSMAXvMotor *upperSlitBladeMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
-	upperSlitBladeMotor->setMinimumValueOverride(0);
-	upperSlitBladeMotor->setMaximumValueOverride(3.4);
+	CLSMAXvMotor *maskUpperBladeMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
+	maskUpperBladeMotor->setMinimumValueOverride(0);
+	maskUpperBladeMotor->setMaximumValueOverride(3.4);
 
-	BioXASM1MirrorMask *mask = new BioXASM1MirrorMask(name()+"Mask", this);
-	mask->setUpperSlitBlade(upperSlitBladeMotor);
-	setMask(mask);
+	setMaskUpperBlade(maskUpperBladeMotor);
 
 	setUpstreamInboardMotor(new BioXASMirrorMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, -619.125, 190.438, 0.05, 2.0, this, QString(":mm")));
 	setUpstreamOutboardMotor(new BioXASMirrorMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, -619.125, -12.763, 0.05, 2.0, this, QString(":mm")));
@@ -33,34 +30,34 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	downstreamBender->setMaximumValueOverride(10);
 	setDownstreamBenderMotor(downstreamBender);
 
-	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
+	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name+"PitchControl", "deg", this);
 	pitchControl->setMinimumValue(0.1);
 	pitchControl->setMaximumValue(0.225);
 	setPitch(pitchControl);
 
-	BioXASMirrorRollControl *rollControl = new BioXASMirrorRollControl(name()+"RollControl", "deg", this);
+	BioXASMirrorRollControl *rollControl = new BioXASMirrorRollControl(name+"RollControl", "deg", this);
 	rollControl->setMinimumValue(-0.1);
 	rollControl->setMaximumValue(0.1);
 	setRoll(rollControl);
 
-	BioXASMirrorHeightControl *heightControl = new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this);
+	BioXASMirrorHeightControl *heightControl = new BioXASMirrorHeightControl(name+"HeightControl", "mm", this);
 	heightControl->setMinimumValue(-2);
 	heightControl->setMaximumValue(2);
 	setHeight(heightControl);
 
-	BioXASMirrorLateralControl *lateralControl = new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this);
+	BioXASMirrorLateralControl *lateralControl = new BioXASMirrorLateralControl(name+"LateralControl", "mm", this);
 	lateralControl->setMinimumValue(-3);
 	lateralControl->setMaximumValue(3);
 	setLateral(lateralControl);
 
-	BioXASMirrorYawControl *yawControl = new BioXASMirrorYawControl(name()+"YawControl", "deg", this);
+	BioXASMirrorYawControl *yawControl = new BioXASMirrorYawControl(name+"YawControl", "deg", this);
 	yawControl->setMinimumValue(-0.05);
 	yawControl->setMaximumValue(0.05);
 	setYaw(yawControl);
 
-	setBend(new BioXASSideM1MirrorBendControl(name()+"BendControl", "m", this));
+	setBend(new BioXASSideM1MirrorBendControl(name+"BendControl", "m", this));
 
-	setDownstreamBladeCurrent(new AMReadOnlyPVControl(QString("%1%2").arg(name()).arg("DownstreamBladeCurrent"), QString("A1607-5-03:A:fbk"), this));
+	setDownstreamBladeCurrent(new AMReadOnlyPVControl(QString("%1%2").arg(name).arg("DownstreamBladeCurrent"), QString("A1607-5-03:A:fbk"), this));
 }
 
 BioXASSideM1Mirror::~BioXASSideM1Mirror()

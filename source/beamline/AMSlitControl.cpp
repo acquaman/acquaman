@@ -59,14 +59,12 @@ void AMSlitControl::setFirstBlade(AMControl *newControl, double orientation)
 {
 	if (firstBlade_ != newControl) {
 
-		if (firstBlade_)
-			removeFirstBlade();
+		removeFirstBlade();
 
 		firstBlade_ = newControl;
 
-		if (firstBlade_) {
+		if (addChildControl(firstBlade_)){
 			bladeOrientationMap_.insert(firstBlade_, orientation);
-			addChildControl(firstBlade_);
 		}
 
 		emit firstBladeChanged(firstBlade_);
@@ -77,14 +75,12 @@ void AMSlitControl::setSecondBlade(AMControl *newControl, double orientation)
 {
 	if (secondBlade_ != newControl) {
 
-		if (secondBlade_)
-			removeSecondBlade();
+		removeSecondBlade();
 
 		secondBlade_ = newControl;
 
-		if (secondBlade_) {
+		if (addChildControl(secondBlade_)){
 			bladeOrientationMap_.insert(secondBlade_, orientation);
-			addChildControl(secondBlade_);
 		}
 
 		emit secondBladeChanged(secondBlade_);
@@ -144,12 +140,13 @@ void AMSlitControl::updateTolerance()
 }
 
 
-void AMSlitControl::removeBlade(AMControl *control)
+bool AMSlitControl::removeBlade(AMControl *control)
 {
-	if (control) {
+	if (removeChildControl(control)){
 		bladeOrientationMap_.remove(control);
-		removeChildControl(control);
+		return true;
 	}
+	return false;
 }
 
 double AMSlitControl::currentGap() const

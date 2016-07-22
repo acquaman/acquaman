@@ -559,14 +559,13 @@ bool AMDetector::checkValid(const AMnDIndex &startIndex, const AMnDIndex &endInd
 	if(startIndex.rank() != detectorRank || startIndex.rank() != endIndex.rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for(int mu=0; mu<detectorRank; ++mu) {
 		if(endIndex.at(mu) >= size(mu))
 			return false;
 		if(endIndex.at(mu) < startIndex.at(mu))
 			return false;
 	}
-#endif
+
 	return true;
 }
 

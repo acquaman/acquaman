@@ -60,7 +60,7 @@ protected slots:
 
 protected:
 	/// Removes the given blade control.
-	void removeBlade(AMControl *control);
+	bool removeBlade(AMControl *control);
 
 	/// Returns the current gap value.
 	virtual double currentGap() const;

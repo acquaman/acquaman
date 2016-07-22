@@ -39,14 +39,11 @@ void BioXASSollerSlit::setXMotor(CLSMAXvMotor *newControl)
 {
 	if (xMotor_ != newControl) {
 
-		if (xMotor_)
-			removeChildControl(xMotor_);
+		removeChildControl(xMotor_);
 
 		xMotor_ = newControl;
 
-		if (xMotor_) {
-			addChildControl(xMotor_);
-
+		if (addChildControl(xMotor_)){
 			connect( xMotor_, SIGNAL(valueChanged(double)), this, SIGNAL(xValueChanged(double)) );
 		}
 
@@ -58,16 +55,12 @@ void BioXASSollerSlit::setZMotor(CLSMAXvMotor *newControl)
 {
 	if (zMotor_ != newControl) {
 
-		if (zMotor_)
-			removeChildControl(zMotor_);
+		removeChildControl(zMotor_);
 
 		zMotor_ = newControl;
 
-		if (zMotor_) {
-			addChildControl(zMotor_);
-
+		if (addChildControl(zMotor_))
 			connect( zMotor_, SIGNAL(valueChanged(double)), this, SIGNAL(zValueChanged(double)) );
-		}
 
 		emit zMotorChanged(zMotor_);
 	}

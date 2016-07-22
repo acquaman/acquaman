@@ -23,9 +23,9 @@ protected slots:
 	virtual void updateConnected();
 
 	/// Adds a child control: connects to child's connected signal.
-	virtual void addChildControl(AMControl *control);
+	virtual bool addChildControl(AMControl *control);
 	/// Removes a child control: disconnects from all signals from the child.
-	virtual void removeChildControl(AMControl *control);
+	virtual bool removeChildControl(AMControl *control);
 
 protected:
 	/// Returns true if the child controls are connected.

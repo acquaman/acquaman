@@ -73,6 +73,7 @@
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
+#include "ui/BioXAS/BioXASGenericStepScanConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
@@ -169,9 +170,6 @@ protected:
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
-
-	/// Returns true if the list of regions of interest contains the given ROI.
-	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);

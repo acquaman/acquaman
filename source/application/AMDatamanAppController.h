@@ -95,6 +95,8 @@ class AMScanConfigurationView;
 #define AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER 270229
 
 #define AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW 270230
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_UPGRADING_DATABASES 270231
+
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.

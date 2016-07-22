@@ -73,7 +73,7 @@ public:
 	virtual double acquisitionTimeTolerance() const;
 	/// Returns the elapsed time from the elapsed time control.
 	virtual double elapsedTime() const;
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or if the data is not ready.
 	virtual AMNumber reading(const AMnDIndex& indexes) const;
 	/// Returns the total count (sum of all bins) as the single reading.  This sums all the values available in dataSource().  Subclasses can re-implement if they have more convenient methods for returning this value.
 	virtual AMNumber singleReading() const;
@@ -203,6 +203,10 @@ protected:
 	/// Helper function that updates the primary spectrum source to only use the enabled elements.
 	void updatePrimarySpectrumSources();
 
+	/// Helper function to check whether the given ROI is added to the current ROI list or not
+	bool containsRegionOfInterest(AMRegionOfInterest *newROI) const;
+
+protected:
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
 	AMControl *acquireTimeControl_;

@@ -60,11 +60,9 @@ AMNumber AMnDDeadTimeAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = axes_.size(); i < size; i++)
 		if (indexes.at(i) >= axes_.at(i).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if ((int)spectrum_->value(indexes) == 0 || double(outputCounts_->value(indexes.i())) == 0)
 		return 0;
@@ -80,11 +78,9 @@ bool AMnDDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = axes_.size(); i < size; i++)
 		if (indexEnd.at(i) >= axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
-#endif
 
 	switch(rank()){
 
@@ -251,10 +247,8 @@ AMNumber AMnDDeadTimeAB::axisValue(int axisNumber, int index) const
 	if(axisNumber < 0 && axisNumber >= rank())
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (index < 0 || index >= spectrum_->size(rank()-1))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return spectrum_->axisValue(axisNumber, index);
 }
@@ -267,10 +261,8 @@ bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, do
 	if(axisNumber < 0 || axisNumber >= rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= spectrum_->size(axisNumber) || endIndex < 0 || endIndex >= spectrum_->size(axisNumber))
 		return false;
-#endif
 
 	return spectrum_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }

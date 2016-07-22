@@ -18,7 +18,7 @@ public:
 	/// Constructor.  Pass in the control that encapsulates the scaler time.
 	AMScalerTimeControlDetector(const QString &name, const QString &description, AMControl *scalerTime, QObject *parent = 0);
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or if the data is not ready.
 	virtual AMNumber reading(const AMnDIndex& indexes) const;
 	/// Fills the given double pointer with our current value
 	virtual bool data(double *outputValues) const;

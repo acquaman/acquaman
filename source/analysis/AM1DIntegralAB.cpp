@@ -186,10 +186,8 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes) const{
 	if (!canAnalyze())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
 	AMNumber rv = cachedValues_.at(indexes.i());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
@@ -229,10 +227,8 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	if (!canAnalyze())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	int offset = indexStart.i();

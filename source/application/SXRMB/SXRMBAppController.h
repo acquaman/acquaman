@@ -33,7 +33,9 @@ class AMRegionOfInterest;
 class AMListAction3;
 class AMGenericScanEditor;
 class AMScan;
+class AMControl;
 
+class CLSBeamlineStatusView;
 class CLSSIS3820ScalerView;
 
 class SXRMBPersistentView;
@@ -59,6 +61,8 @@ public:
 	virtual bool startupInstallActions();
 
 protected slots:
+	/// actions when beamline is connected for the first time
+	void onBeamlineInitializeFinished();
 	/// slot to handle Beamline control shutters timeout
 	void onBeamControlShuttersTimeout();
 	/// slot to handle Beamline endstation switched
@@ -91,6 +95,9 @@ protected slots:
 	void onShowAmbiantSampleStageMotorsTriggered();
 	/// Hanldes the action to switch beamline endstation
 	void onSwitchBeamlineEndstationTriggered();
+
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamlineStatusView(AMControl *control);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -135,6 +142,9 @@ protected:
 protected:
 	/// Persistent sidebar for SXRMB
 	SXRMBPersistentView *sxrmbPersistentView_;
+
+	/// the beamline status view
+	CLSBeamlineStatusView *beamlineStatusView_;
 
 	/// EXAFS scan configuration
 	SXRMBEXAFSScanConfiguration* exafsScanConfiguration_;

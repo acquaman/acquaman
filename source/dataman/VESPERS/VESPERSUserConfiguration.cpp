@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSUserConfiguration::~VESPERSUserConfiguration(){}
 
 VESPERSUserConfiguration::VESPERSUserConfiguration(QObject *parent)
-	: AMDbObject(parent)
+	: CLSUserConfiguration(parent)
 {
 	setName("User Configuration");
 	I0_ = VESPERS::Imini;
@@ -79,51 +79,3 @@ void VESPERSUserConfiguration::setCCDDetector(VESPERS::CCDDetectors ccd)
 	}
 }
 
-AMDbObjectList VESPERSUserConfiguration::dbReadRegionsOfInterest()
-{
-	AMDbObjectList listToBeSaved;
-
-	foreach (AMRegionOfInterest *region, regionsOfInterest_)
-		listToBeSaved << region;
-
-	return listToBeSaved;
-}
-
-void VESPERSUserConfiguration::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
-{
-	regionsOfInterest_.clear();
-
-	foreach (AMDbObject *newObject, newRegions){
-
-		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
-
-		if (region)
-			regionsOfInterest_.append(region);
-	}
-}
-
-void VESPERSUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
-{
-	regionsOfInterest_.append(region);
-	setModified(true);
-}
-
-void VESPERSUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
-		if (regionToBeRemoved->name() == region->name()){
-
-			regionsOfInterest_.removeOne(regionToBeRemoved);
-			setModified(true);
-		}
-}
-
-void VESPERSUserConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
-		if (regionToBeUpdated->name() == region->name()){
-
-			regionToBeUpdated->setBoundingRange(region->boundingRange());
-			setModified(true);
-		}
-}

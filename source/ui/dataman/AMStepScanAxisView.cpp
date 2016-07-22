@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMStepScanAxisElementView
 /////////////////////////////////////////////
 
-AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent)
+AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent, const QString &startLabel, const QString &endLabel)
 	: QWidget(parent)
 {
 	region_ = region;
@@ -70,11 +70,11 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	connect(time_, SIGNAL(editingFinished()), this, SLOT(onTimeUpdated()));
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
-	elementViewLayout->addWidget(new QLabel("Start"));
+	elementViewLayout->addWidget(new QLabel(startLabel));
 	elementViewLayout->addWidget(start_);
 	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")));
 	elementViewLayout->addWidget(delta_);
-	elementViewLayout->addWidget(new QLabel("End"));
+	elementViewLayout->addWidget(new QLabel(endLabel));
 	elementViewLayout->addWidget(end_);
 	elementViewLayout->addWidget(new QLabel("Time"));
 	elementViewLayout->addWidget(time_);
@@ -112,7 +112,6 @@ void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 		time_->setValue(double(value));
 		onTimeUpdated();
 	}
-
 }
 
 void AMStepScanAxisElementView::onStartPositionUpdated()
@@ -140,13 +139,16 @@ void AMStepScanAxisElementView::onTimeUpdated()
 // AMStepScanAxisView
 /////////////////////////////////////////////
 
-AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent)
+AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent, const QString &startLabel, const QString &endLabel)
 	: QWidget(parent)
 {
 	configuration_ = configuration;
 
 	deleteButtonGroup_ = new QButtonGroup;
 	scanAxisViewLayout_ = new QVBoxLayout;
+
+	startLabelString_ = startLabel;
+	endLabelString_ = endLabel;
 
 	addRegionButton_ = new QToolButton;
 	addRegionButton_->setIcon(QIcon(":22x22/list-add.png"));
@@ -324,7 +326,7 @@ void AMStepScanAxisView::removeRegion(int index)
 
 void AMStepScanAxisView::buildScanAxisRegionView(int index, AMScanAxisRegion *region)
 {
-	AMStepScanAxisElementView *elementView = new AMStepScanAxisElementView(region);
+	AMStepScanAxisElementView *elementView = new AMStepScanAxisElementView(region, 0, startLabelString_, endLabelString_);
 
 	QToolButton *deleteButton = new QToolButton;
 	deleteButton->setIcon(QIcon(":22x22/list-remove-2.png"));

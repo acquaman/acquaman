@@ -113,10 +113,7 @@ void CLSHVControlChannelView::layoutHVControl(CLSHVControl *hvControl, bool view
 {
 	nameLabel_ = new QLabel(hvControl->name());
 	nameLabel_->setAlignment(Qt::AlignCenter);
-	if (viewOnly)
-		nameLabel_->setMaximumWidth(150);
-	else
-		nameLabel_->setMinimumWidth(100);
+	nameLabel_->setFixedWidth(110);
 
 	actVoltageLabel_ = 0;
 	voltageSpinBox_ = 0;
@@ -137,7 +134,7 @@ void CLSHVControlChannelView::layoutHVControl(CLSHVControl *hvControl, bool view
 	measuredCurrentLabel_ = 0;
 	if (hvControl->hasMeasureCurrent()) {
 		measuredCurrentLabel_ = new QLabel("0.00 uA");
-		measuredCurrentLabel_->setFixedWidth(90);
+		measuredCurrentLabel_->setFixedWidth(80);
 		measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 	}
 
@@ -147,6 +144,7 @@ void CLSHVControlChannelView::layoutHVControl(CLSHVControl *hvControl, bool view
 	statusLabel_ = new QLabel;
 	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 
+	// layout the widgets
 	contentLayout_->addWidget(nameLabel_, 0, Qt::AlignLeft);
 	if (viewOnly)
 		contentLayout_->addWidget(actVoltageLabel_);

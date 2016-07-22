@@ -24,25 +24,23 @@ void AMConnectedControl::updateConnected()
 	setConnected( childrenConnected() );
 }
 
-void AMConnectedControl::addChildControl(AMControl *control)
+bool AMConnectedControl::addChildControl(AMControl *control)
 {
-	if (control) {
-		children_ << control;
-
+	if (AMControl::addChildControl(control)){
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 		updateConnected();
+		return true;
 	}
+	return false;
 }
 
-void AMConnectedControl::removeChildControl(AMControl *control)
+bool AMConnectedControl::removeChildControl(AMControl *control)
 {
-	if (control) {
-		disconnect( control, 0, this, 0 );
-		children_.removeOne(control);
-
+	if (AMControl::removeChildControl(control)){
 		updateConnected();
+		return true;
 	}
+	return false;
 }
 
 bool AMConnectedControl::childrenConnected() const

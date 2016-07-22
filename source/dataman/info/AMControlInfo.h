@@ -46,6 +46,8 @@ public:
 	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", const QString& enumString = QString(), QObject* parent = 0);
 	virtual ~AMControlInfo();
 
+	/// Returns true if the info is valid, false otherwise.
+	bool isValid() const { return name() != "Invalid Control"; }
 	/// Returns the value of the control
 	double value() const { return value_; }
 	/// Returns the minimum value of the control

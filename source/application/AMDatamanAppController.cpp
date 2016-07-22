@@ -242,6 +242,8 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
 
+	if(!startupDatabaseUpgrades())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_UPGRADING_DATABASES, "Problem with Acquaman startup: upgrading database.");
 
 	if(!startupRegisterDatabases())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
@@ -385,21 +387,24 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 		firstTimeWizard->deleteLater();
 
-		if(userLocalStorage){
-			AMUserSettings::remoteDataFolder = userDataFolder;
-			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
-				AMUserSettings::remoteDataFolder.append("/");
+		// we only need to change the AMUserSettings if we are doing user based data storage
+		if (AMUserSettings::userBasedDataStorage) {
+			if(userLocalStorage){
+				AMUserSettings::remoteDataFolder = userDataFolder;
+				if(!AMUserSettings::remoteDataFolder.endsWith('/'))
+					AMUserSettings::remoteDataFolder.append("/");
 
-			QString localUserDataFolder = AMUserSettings::remoteDataFolder;
-			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
-		}
-		else{
-			AMUserSettings::userDataFolder = userDataFolder;
-			if(!AMUserSettings::userDataFolder.endsWith('/'))
-				AMUserSettings::userDataFolder.append("/");
-		}
+				QString localUserDataFolder = AMUserSettings::remoteDataFolder;
+				AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
+			}
+			else{
+				AMUserSettings::userDataFolder = userDataFolder;
+				if(!AMUserSettings::userDataFolder.endsWith('/'))
+					AMUserSettings::userDataFolder.append("/");
+			}
 
-		AMUserSettings::save();
+			AMUserSettings::save();
+		}
 
 		// Attempt to create user's data folder, only if it doesn't exist:
 		QDir userDataDir(AMUserSettings::userDataFolder);
@@ -412,7 +417,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 
 		if(userLocalStorage){
-			// Attempt to create user's data folder, only if it doesn't exist:
+			// Attempt to create user's remote data folder, only if it doesn't exist:
 			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
 			if(!remoteDataDir.exists()) {
 				AMErrorMon::information(0, 0, "Creating new remote data folder: "  + AMUserSettings::remoteDataFolder);
@@ -429,10 +434,6 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupCreateDatabases())
 			return false;
 
-		// check for and run any database upgrades we require...
-		if(!startupDatabaseUpgrades())
-			return false;
-
 		if(userLocalStorage){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
@@ -442,11 +443,10 @@ bool AMDatamanAppController::startupOnFirstTime()
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
 		}
 
+		// start the one-minute timer to monitor the disk usage of local storage
 		if(usingLocalStorage()) {
 
 			storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
-
-			// start timer for updates every 1 minute
 			timerIntervalID_ = startTimer(60000);
 		}
 
@@ -487,15 +487,10 @@ bool AMDatamanAppController::startupOnEveryTime()
 	if(!startupCreateDatabases())
 		return false;
 
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades())
-		return false;
-
+	// start the one-minute timer to monitor the disk usage of local storage
 	if(usingLocalStorage()) {
 
 		storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
-
-		// start timer for updates every 1 minute
 		timerIntervalID_ = startTimer(60000);
 	}
 
