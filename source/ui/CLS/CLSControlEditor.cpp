@@ -20,7 +20,6 @@ CLSControlEditor::CLSControlEditor(AMControl *control, QWidget *parent) :
 	useControlMovingAsDisplayProgress_ = true;
 	useControlMoveProgressAsProgress_ = true;
 	useControlMovingAsDisplayProgress_ = true;
-	useControlMoveProgressAsProgress_ = true;
 
 	stopAction_ = new QAction("Stop", this);
 	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
