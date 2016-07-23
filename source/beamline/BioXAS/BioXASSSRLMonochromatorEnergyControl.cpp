@@ -194,6 +194,27 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createCalibrateAction(double ol
 	return result;
 }
 
+double BioXASSSRLMonochromatorEnergyControl::calculateMoveProgressPercent() const
+{
+	double result = 0;
+
+	// The bragg motor is what's used to change the energy.
+	// We calculate the move progress based on the bragg motor positions.
+
+//	if (bragg_) {
+//		double braggMoveStart = bragg_->moveStart();
+//		double braggMoveValue = bragg_->moveValue();
+//		double braggMoveEnd = bragg_->moveEnd();
+
+//		if (braggMoveStart != braggMoveEnd)
+//			result = qAbs(braggMoveValue - braggMoveStart) / (braggMoveEnd - braggMoveStart);
+//	}
+
+	result = AMControl::calculateMoveProgressPercent();
+
+	return result;
+}
+
 double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset)
 {
 	double braggAngle = calculateBraggAngleFromPositionRegionB(braggPosition, m1Pitch, thetaBraggOffset) - regionOffset;

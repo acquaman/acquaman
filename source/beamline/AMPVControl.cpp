@@ -44,6 +44,7 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 	highLimitValue_ = -1;
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(updateMoveValue()) );
 	connect(readPV_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)));
 	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
@@ -528,6 +529,13 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = Setpoint;
+
+		// Update the move progress values.
+
+		updateMoveStart();
+		updateMoveValue();
+		updateMoveEnd();
+
 		writePV_->setValue(setpoint_);
 
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
@@ -548,6 +556,12 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// This is our new target:
 		setpoint_ = Setpoint;
+
+		// Update the move progress values.
+
+		updateMoveStart();
+		updateMoveValue();
+		updateMoveEnd();
 
 		// Normal move:
 		// Issue the move command, check on attemptMoveWhenWithinTolerance

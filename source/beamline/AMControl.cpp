@@ -246,10 +246,12 @@ bool AMControl::clearChildControls()
 
 double AMControl::calculateMoveProgressPercent() const
 {
+	double result = 0;
+
 	if (moveStart_ != moveEnd_)
-		return qAbs(value() - moveStart()) / qAbs(moveEnd() - moveStart());
-	else
-		return 0;
+		result = qAbs(value() - moveStart()) / qAbs(moveEnd() - moveStart());
+
+	return result;
 }
 
 void AMControl::setMoveStart(double newValue)
