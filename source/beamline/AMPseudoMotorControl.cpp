@@ -135,7 +135,7 @@ QString AMPseudoMotorControl::toString() const
 
 	return result;
 }
-#include <QDebug>
+
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
 	// Check that this control is connected and able to move before proceeding.
@@ -160,8 +160,6 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 		return AMControl::LimitFailure;
 	}
 
-	qDebug() << "\n\n" << name() << "move start.";
-
 	// Update the setpoint.
 
 	setSetpoint(setpoint);
@@ -171,11 +169,6 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	updateMoveStart();
 	updateMoveValue();
 	updateMoveEnd();
-
-	qDebug() << name() << "move progress min:" << moveStart();
-	qDebug() << name() << "move progress value:" << moveValue();
-	qDebug() << name() << "move progress max:" << moveEnd();
-	qDebug() << name() << "move progress percent:" << moveProgressPercent();
 
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.

@@ -106,8 +106,6 @@ public:
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
 signals:
-	/// Notifier that there has been progress in completing a crystal change.
-	void moveProgressChanged(double numerator, double denominator);
 	/// Notifier that the current step in a move has changed.
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
@@ -147,6 +145,8 @@ protected slots:
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
+	/// Handles updating the move start, value, and end in response to changes in the action progress.
+	void onActionProgressChanged(double progressNumerator, double progressDenominator);
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onMoveStepChanged(int stepIndex);
 

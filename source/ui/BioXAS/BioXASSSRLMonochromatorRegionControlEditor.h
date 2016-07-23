@@ -57,7 +57,7 @@ protected slots:
 	/// Handles updating the view when a region move has succeeded.
 	void onMoveSucceeded();
 	/// Handles updating the progress bar when the region control reports move progress has been made.
-	void onMoveProgressChanged(double numerator, double denominator);
+	void onMoveProgressChanged();
 	/// Handles updating the moving view description and instruction when the region control reports the current step in the move has changed.
 	void onMoveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 

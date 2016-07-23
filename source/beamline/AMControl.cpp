@@ -249,7 +249,7 @@ double AMControl::calculateMoveProgressPercent() const
 	double result = 0;
 
 	if (moveStart_ != moveEnd_)
-		result = qAbs(value() - moveStart()) / qAbs(moveEnd() - moveStart());
+		result = qAbs(moveValue() - moveStart()) / qAbs(moveEnd() - moveStart());
 
 	return result;
 }

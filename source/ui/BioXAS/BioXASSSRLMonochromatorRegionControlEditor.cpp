@@ -4,7 +4,7 @@
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	CLSControlEditor(regionControl, parent)
 {
-		setDisplayProgress(false);
+		//setDisplayProgress(false);
 }
 
 BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionControlEditor()
@@ -27,7 +27,7 @@ void BioXASSSRLMonochromatorRegionControlEditor::showMovingView()
 {
 	if (control_ && initiatedCurrentMove()) {
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
-		movingView->setWindowModality(Qt::WindowModal);
+//		movingView->setWindowModality(Qt::WindowModal);
 		movingView->setWindowTitle("Mono crystal change procedure");
 		movingView->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 		movingView->show();
@@ -132,8 +132,9 @@ void BioXASSSRLMonochromatorRegionControlMovingView::setRegionControl(BioXASSSRL
 			connect( regionControl_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()) );
 			connect( regionControl_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed(int)) );
 			connect( regionControl_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()) );
-			connect( regionControl_, SIGNAL(moveProgressChanged(double,double)), this, SLOT(onMoveProgressChanged(double, double)) );
+			connect( regionControl_, SIGNAL(moveProgressChanged(double,double,double)), this, SLOT(onMoveProgressChanged()) );
 			connect( regionControl_, SIGNAL(moveStepChanged(QString, QString, QString)), this, SLOT(onMoveStepChanged(QString, QString, QString)) );
+
 		}
 
 		onMoveStarted();
@@ -158,11 +159,13 @@ void BioXASSSRLMonochromatorRegionControlMovingView::onMoveSucceeded()
 	showSucceededView();
 }
 
-void BioXASSSRLMonochromatorRegionControlMovingView::onMoveProgressChanged(double numerator, double denominator)
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveProgressChanged()
 {
-	movingProgress_->setValue((int)numerator);
-	movingProgress_->setMinimum(0);
-	movingProgress_->setMaximum((int)denominator);
+	if (regionControl_) {
+		movingProgress_->setMinimum(regionControl_->moveStart());
+		movingProgress_->setValue(regionControl_->moveValue());
+		movingProgress_->setMaximum(regionControl_->moveEnd());
+	}
 }
 
 void BioXASSSRLMonochromatorRegionControlMovingView::onMoveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes)

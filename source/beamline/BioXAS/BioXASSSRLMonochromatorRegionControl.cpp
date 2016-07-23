@@ -315,15 +315,14 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 
 void BioXASSSRLMonochromatorRegionControl::updateMoving()
 {
-	if (isConnected()) {
-		setIsMoving(
-					maskUpperBlade_->isMoving() ||
-					maskLowerBlade_->isMoving() ||
-					paddle_->isMoving() ||
-					bragg_->isMoving() ||
-					crystalChange_->isMoving()
-					);
-	}
+	setIsMoving( moveInProgress() );
+}
+
+void BioXASSSRLMonochromatorRegionControl::onActionProgressChanged(double progressNumerator, double progressDenominator)
+{
+	setMoveStart(0);
+	setMoveValue(progressNumerator);
+	setMoveEnd(progressDenominator);
 }
 
 void BioXASSSRLMonochromatorRegionControl::onMoveStepChanged(int stepIndex)
@@ -350,7 +349,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 
 		// Make additional action connections.
 
-		//connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
+		connect( action, SIGNAL(progressChanged(double, double)), this, SLOT(onActionProgressChanged(double, double)) );
 		connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onMoveStepChanged(int)) );
 	}
 

@@ -201,16 +201,14 @@ double BioXASSSRLMonochromatorEnergyControl::calculateMoveProgressPercent() cons
 	// The bragg motor is what's used to change the energy.
 	// We calculate the move progress based on the bragg motor positions.
 
-//	if (bragg_) {
-//		double braggMoveStart = bragg_->moveStart();
-//		double braggMoveValue = bragg_->moveValue();
-//		double braggMoveEnd = bragg_->moveEnd();
+	if (bragg_) {
+		double braggMoveStart = bragg_->moveStart();
+		double braggMoveValue = bragg_->moveValue();
+		double braggMoveEnd = bragg_->moveEnd();
 
-//		if (braggMoveStart != braggMoveEnd)
-//			result = qAbs(braggMoveValue - braggMoveStart) / (braggMoveEnd - braggMoveStart);
-//	}
-
-	result = AMControl::calculateMoveProgressPercent();
+		if (braggMoveStart != braggMoveEnd)
+			result = qAbs(braggMoveValue - braggMoveStart) / (braggMoveEnd - braggMoveStart);
+	}
 
 	return result;
 }
