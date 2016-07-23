@@ -30,9 +30,9 @@ AMControl::AMControl(const QString& name, const QString& units, QObject* parent,
 	allowsMovesWhileMoving_ = false;
 	displayPrecision_ = 3;
 
-	moveProgressMinimum_ = 0;
-	moveProgressValue_ = 0;
-	moveProgressMaximum_ = 1;
+	moveStart_ = 0;
+	moveValue_ = 0;
+	moveEnd_ = 1;
 	moveProgressPercent_ = 0;
 }
 
@@ -244,71 +244,75 @@ bool AMControl::clearChildControls()
 	return result;
 }
 
-double AMControl::calculateMoveProgressPercent(double min, double value, double max) const
+double AMControl::calculateMoveProgressPercent() const
 {
-	if (max != min)
-		return qAbs(value - min) / qAbs(max - min);
+	if (moveStart_ != moveEnd_)
+		return qAbs(value() - moveStart()) / qAbs(moveEnd() - moveStart());
 	else
 		return 0;
 }
 
-void AMControl::updateMoveProgress()
+void AMControl::setMoveStart(double newValue)
 {
-	//updateMoveProgressMinimum();
-	updateMoveProgressValue();
-	updateMoveProgressMaximum();
+	if (moveStart_ != newValue) {
+		moveStart_ = newValue;
 
-	updateMoveProgressPercent();
-}
+		emit moveStartChanged(moveStart_);
+		emit moveProgressChanged(moveStart_, moveValue_, moveEnd_);
 
-void AMControl::setMoveProgressMinimum(double newValue)
-{
-	if (moveProgressMinimum_ != newValue) {
-		moveProgressMinimum_ = newValue;
 		updateMoveProgressPercent();
 	}
 }
 
-void AMControl::updateMoveProgressMinimum()
+void AMControl::updateMoveStart()
 {
-	setMoveProgressMinimum( value() );
+	setMoveStart( value() );
 }
 
-void AMControl::setMoveProgressValue(double newValue)
+void AMControl::setMoveValue(double newValue)
 {
-	if (moveProgressValue_ != newValue) {
-		moveProgressValue_ = newValue;
+	if (moveValue_ != newValue) {
+		moveValue_ = newValue;
+
+		emit moveValueChanged(moveValue_);
+		emit moveProgressChanged(moveStart_, moveValue_, moveEnd_);
+
 		updateMoveProgressPercent();
 	}
 }
 
-void AMControl::updateMoveProgressValue()
+void AMControl::updateMoveValue()
 {
-	setMoveProgressValue( value() );
+	setMoveValue( value() );
 }
 
-void AMControl::setMoveProgressMaximum(double newValue)
+void AMControl::setMoveEnd(double newValue)
 {
-	if (moveProgressMaximum_ != newValue) {
-		moveProgressMaximum_ = newValue;
+	if (moveEnd_ != newValue) {
+		moveEnd_ = newValue;
+
+		emit moveEndChanged(moveEnd_);
+		emit moveProgressChanged(moveStart_, moveValue_, moveEnd_);
+
 		updateMoveProgressPercent();
 	}
 }
 
-void AMControl::updateMoveProgressMaximum()
+void AMControl::updateMoveEnd()
 {
-	setMoveProgressMaximum( setpoint() );
+	setMoveEnd( setpoint() );
 }
 
 void AMControl::setMoveProgressPercent(double newValue)
 {
 	if (moveProgressPercent_ != newValue) {
 		moveProgressPercent_ = newValue;
-		emit moveProgressChanged(moveProgressPercent_);
+
+		emit moveProgressPercentChanged(moveProgressPercent_);
 	}
 }
 
 void AMControl::updateMoveProgressPercent()
 {
-	setMoveProgressPercent( calculateMoveProgressPercent(moveProgressMinimum_, moveProgressValue_, moveProgressMaximum_) );
+	setMoveProgressPercent( calculateMoveProgressPercent() );
 }

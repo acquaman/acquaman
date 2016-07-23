@@ -216,8 +216,8 @@ void CLSValueEditor::updateValueLabel()
 	valueLabel_->setText( generateValueText() );
 
 	valueLabel_->setProgressValueMinimum(progressValueMinimum_);
-	valueLabel_->setProgressValueMaximum(progressValueMaximum_);
 	valueLabel_->setProgressValue(progressValue_);
+	valueLabel_->setProgressValueMaximum(progressValueMaximum_);
 	valueLabel_->setDisplayProgress(displayProgress_);
 }
 

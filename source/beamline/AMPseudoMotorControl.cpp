@@ -39,7 +39,6 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 
 	calibrationSucceededMapper_ = new QSignalMapper(this);
 	connect( calibrationSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationSucceeded(QObject*)) );
-
 }
 
 AMPseudoMotorControl::~AMPseudoMotorControl()
@@ -136,7 +135,7 @@ QString AMPseudoMotorControl::toString() const
 
 	return result;
 }
-
+#include <QDebug>
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
 	// Check that this control is connected and able to move before proceeding.
@@ -161,14 +160,22 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 		return AMControl::LimitFailure;
 	}
 
+	qDebug() << "\n\n" << name() << "move start.";
+
 	// Update the setpoint.
 
 	setSetpoint(setpoint);
 
 	// Update the move progress values.
 
-	updateMoveProgressMinimum();
-	updateMoveProgress();
+	updateMoveStart();
+	updateMoveValue();
+	updateMoveEnd();
+
+	qDebug() << name() << "move progress min:" << moveStart();
+	qDebug() << name() << "move progress value:" << moveValue();
+	qDebug() << name() << "move progress max:" << moveEnd();
+	qDebug() << name() << "move progress percent:" << moveProgressPercent();
 
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
@@ -339,6 +346,9 @@ void AMPseudoMotorControl::setValue(double newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
+
+		updateMoveValue();
+
 		emit valueChanged(value_);
 	}
 }
