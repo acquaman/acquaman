@@ -50,11 +50,6 @@ AMControl::FailureExplanation CLSPseudoMotorControl::move(double setpoint)
 		// This is our new target:
 		setpoint_ = setpoint;
 
-		// Update the move progress values.
-
-		updateMoveProgressMinimum();
-		updateMoveProgress();
-
 		// Normal move:
 		// Issue the move command, check on attemptMoveWhenWithinTolerance
 		if(!attemptMoveWhenWithinTolerance_ && inPosition())

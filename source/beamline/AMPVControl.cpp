@@ -165,8 +165,6 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	// connect the timer to the timeout handler:
 	connect(&completionTimer_, SIGNAL(timeout()), this, SLOT(onCompletionTimeout()));
 
-	//connect( readPV_, SIGNAL(valueChanged()), this, SLOT(updateMoveProgressValue()) );
-
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 	// instead of connected(), use writeRead: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)))
@@ -179,8 +177,6 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
-
-	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMoveProgressValue()) );
 
 	// Do we have a stopPV?
 	noStopPV_ = stopPVname.isEmpty();
@@ -252,24 +248,9 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return NotConnectedFailure;
 		}
-
-		// Set the move target.
-
 		setpoint_ = setpoint;
-
-		// Set the move progress values.
-
-		updateMoveProgressMinimum();
-		updateMoveProgress();
-
-		// Initiate move.
-
 		writePV_->setValue(setpoint_);
-
-		// Start the completion timer.
-
 		completionTimer_.start(int(completionTimeout_*1000.0)); // restart the completion timer... Since this might be another move, give it some more time.
-
 		// re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the first move.
 		emit moveReTargetted();
 
@@ -293,12 +274,6 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// new move target:
 		setpoint_ = setpoint;
-
-		// Set the move progress values.
-
-		updateMoveProgressMinimum();
-		updateMoveProgress();
-
 		// Issue the move, check on attemptMoveWhenWithinTolerance
 		if(!attemptMoveWhenWithinTolerance_ && inPosition()){
 			emit moveSucceeded();
@@ -553,13 +528,6 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = Setpoint;
-
-		// Update the move progress values.
-
-		qDebug() << "\n\nAMPVwStatusControl: Updating move progress values.";
-		updateMoveProgressMinimum();
-		updateMoveProgress();
-
 		writePV_->setValue(setpoint_);
 
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
@@ -580,11 +548,6 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// This is our new target:
 		setpoint_ = Setpoint;
-
-		// Update the move progress values.
-
-		updateMoveProgressMinimum();
-		updateMoveProgress();
 
 		// Normal move:
 		// Issue the move command, check on attemptMoveWhenWithinTolerance
