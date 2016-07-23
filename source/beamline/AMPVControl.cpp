@@ -44,7 +44,6 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 	highLimitValue_ = -1;
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(updateMoveValue()) );
 	connect(readPV_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)));
 	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
@@ -178,6 +177,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
+	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(updateMoveValue()) );
 
 	// Do we have a stopPV?
 	noStopPV_ = stopPVname.isEmpty();
@@ -250,6 +250,13 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 			return NotConnectedFailure;
 		}
 		setpoint_ = setpoint;
+
+		// Update the move progress values.
+
+		updateMoveStart();
+		updateMoveValue();
+		updateMoveEnd();
+
 		writePV_->setValue(setpoint_);
 		completionTimer_.start(int(completionTimeout_*1000.0)); // restart the completion timer... Since this might be another move, give it some more time.
 		// re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the first move.
@@ -304,6 +311,12 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 // Start a move to the value setpoint:
 AMControl::FailureExplanation AMPVControl::move(const QString &stringSetPoint)
 {
+	// Update the move progress values.
+
+	updateMoveStart();
+	updateMoveValue();
+	updateMoveEnd();
+
 	writePV_->setValue(stringSetPoint);
 	return NoFailure;
 }
@@ -437,6 +450,8 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	setpoint_ = 0;
 	moveStartTimeout_ = moveStartTimeoutSeconds;
 	hardwareWasMoving_ = false;
+
+	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(updateMoveValue()) );
 
 	// create new setpoint PV. Monitor it, in case someone else changes it
 	writePV_ = new AMProcessVariable(writePVname, true, this);
