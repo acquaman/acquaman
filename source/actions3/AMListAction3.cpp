@@ -91,10 +91,10 @@ QStringList AMListAction3::generateSkipOptions() const
 {
 	QStringList skipOptions = AMAction3::generateSkipOptions();
 
-	if (currentSubAction()->canSkip()) {
+	if (currentSubAction() && currentSubAction()->canSkip()) {
 		QStringList subActionSkipOptions = currentSubAction()->generateSkipOptions();
-		for (int i = 0, size = subActionSkipOptions.size(); i < size; i++)
-			skipOptions.append(subActionSkipOptions.at(i));
+//		for (int i = 0, size = subActionSkipOptions.size(); i < size; i++)
+//			skipOptions.append(subActionSkipOptions.at(i));
 	}
 
 	return skipOptions;

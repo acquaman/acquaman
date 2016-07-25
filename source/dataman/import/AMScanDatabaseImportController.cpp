@@ -299,7 +299,6 @@ void AMScanDatabaseImportController::copyFacilities()
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
 		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
-//		int sourceId = i.key();
 		int destinationId = i.value();
 		if(destinationId<1) {
 			AMFacility f;
