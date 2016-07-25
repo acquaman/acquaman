@@ -238,7 +238,7 @@ protected slots:
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onSpectrumCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
-	void onExportClicked();
+	void onExportButtonClicked();
 
 protected:
 	/// The title label.

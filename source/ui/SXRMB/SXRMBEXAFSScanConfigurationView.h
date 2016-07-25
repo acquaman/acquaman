@@ -74,8 +74,10 @@ protected slots:
 	/// Handles setting X, Y, and Z positions of the uProbe sample stage when the button is clicked
 	void onSetSampleStageFromBeamlineButtonClicked();
 
-	/// Handles checking the current beamline uProbe sample stage positions when they update for the warning label
-	void onEndstationSampleStagePositionChanged(double value);
+	/// Handles checking the current beamline sample stage positions when they update for the warning label
+	void updateBeamlineSettingWarning();
+	/// Handles checking the current beamline sample stage control connected signals to update the min/max value of the spin box
+	void updateSampleStageControlRange();
 
 	/// Handles changes to sample stage X from the scan configuration
 	void onScanConfigurationSampleStageXChanged(double value);
@@ -91,7 +93,7 @@ protected:
 	void clearLayout(QLayout * layout, bool deleteWidgets = true) ;
 
 	/// create spinbox for sample stage
-	QDoubleSpinBox *createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
+	QDoubleSpinBox *createSampleStageSpinBox(QString units, double defaultValue);
 	/// create / update sample stage layout
 	void createAndLayoutSampleStageSpinBox(QFormLayout *frameLayout);
 	/// create and layout beamline settings groupbox

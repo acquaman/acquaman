@@ -114,26 +114,24 @@ void AMGenericStepScanConfigurationDetectorsView::update()
 		QAbstractButton *button = buttonGroup_->button(buttonIndex);
 		AMDetector *detector = detectorButtonMap_.key(button, 0);
 
-		if (detector && button) {
-
-			// If the detector is connected, the button should be listed as normal. Otherwise, the button should be unchecked and disabled.
-			// If the detector is connected and used in the configuration, button should be checked.
-
-			bool detectorConnected = detector->isConnected();
-			bool detectorUsed = false;
-
-			if (configuration_)
-				detectorUsed = configuration_->detectorConfigurations().contains(detector->name());
+		if (button) {
 
 			button->blockSignals(true);
 
-			if (detectorConnected) {
-				button->setChecked(detectorUsed);
-				button->setEnabled(true);
+			// Buttons are unchecked and disabled by default.
 
-			} else {
-				button->setChecked(false);
-				button->setEnabled(false);
+			button->setChecked(false);
+			button->setEnabled(false);
+
+			if (configuration_ && detector) {
+
+				// If the detector is connected, the button should be listed as normal.
+				// If the detector is connected and used in the configuration, button should be checked.
+
+				if (detector->isConnected()) {
+					button->setChecked(configuration_->detectorConfigurations().contains(detector->name()));
+					button->setEnabled(true);
+				}
 			}
 
 			button->blockSignals(false);
@@ -187,7 +185,7 @@ void AMGenericStepScanConfigurationDetectorsView::onButtonSelectionChanged(int b
 	// If the button is checked and corresponds to a detector, make sure that detector is
 	// added to the configuration. Remove the detector if its button is unchecked.
 
-	if (button && detector) {
+	if (configuration_ && button && detector) {
 		if (button->isChecked())
 			configuration_->addDetector(detector->toInfo());
 		else

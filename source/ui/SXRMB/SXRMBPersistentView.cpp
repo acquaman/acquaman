@@ -41,7 +41,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	mainGroupBoxVL_->addWidget(mainGroupBox_);
 
 	setLayout(mainGroupBoxVL_);
-	setFixedWidth(350);
+	setFixedWidth(400);
 
 	// connect to signals
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
