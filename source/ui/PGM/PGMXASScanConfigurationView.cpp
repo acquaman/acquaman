@@ -47,7 +47,7 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	exportSpectraCheckBox_->setChecked(configuration_->autoExportEnabled());
 
 	// Setup primary (scientific) detector options.
-	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, PGMBeamline::pgm()->exposedScientificDetectors());
+	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(configuration_, PGMBeamline::pgm()->exposedScientificDetectors());
 
 	QVBoxLayout *scientificDetectorsWidgetLayout = new QVBoxLayout();
 	scientificDetectorsWidgetLayout->addWidget(scientificDetectorsView_);
@@ -57,7 +57,7 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	scientificDetectorsWidget->setLayout(scientificDetectorsWidgetLayout);
 
 	// Setup options for all detectors.
-	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, PGMBeamline::pgm()->exposedDetectors());
+	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(configuration_, PGMBeamline::pgm()->exposedDetectors());
 
 	QVBoxLayout *allDetectorsWidgetLayout = new QVBoxLayout();
 	allDetectorsWidgetLayout->addWidget(allDetectorsView_);
