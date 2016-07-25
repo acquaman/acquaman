@@ -136,6 +136,20 @@ bool SXRMBAppController::startupInstallActions()
 		return false;
 }
 
+void SXRMBAppController::onBeamlineInitializeFinished()
+{
+	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineInitializeFinished()));
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(sxrmbUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+	if (!sxrmbUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+		sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
+
+	userConfiguration_ = sxrmbUserConfiguration_;
+}
+
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
 	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
@@ -279,20 +293,9 @@ void SXRMBAppController::setupScanConfigurations()
 
 void SXRMBAppController::setupUserConfiguration()
 {
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(sxrmbUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-	if (!sxrmbUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-		sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
-
-		AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
-		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-		connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-		connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-	}
-
-	userConfiguration_ = sxrmbUserConfiguration_;
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineInitializeFinished()));
+	if (SXRMBBeamline::sxrmb()->isConnected())
+		onBeamlineInitializeFinished();
 }
 
 void SXRMBAppController::createPersistentView()

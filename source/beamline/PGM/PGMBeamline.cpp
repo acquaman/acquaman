@@ -148,7 +148,7 @@ void PGMBeamline::setupDetectors()
 	exitSlitUpperBladeCurrentBDetector_ = new PGMPicoAmmeter("exitSlitUpperBladeCurrentB", "Exit Slit Upper B", "A1611-4-05:nA:fbk", this);
 
 	entranceSlitLowerBladeCurrentDetector_ = new PGMPicoAmmeter("entranceSlitLowerBladeCurrent", "Entrance Slit Lower", "A1611-3-03:nA:fbk", this);
-	entranceSlitUpperBladeCurrentDetector_ = new PGMPicoAmmeter("entranceSlitUpperBladeCurrent", "Entrance Slit Lower", "A1611-3-04:nA:fbk", this);
+	entranceSlitUpperBladeCurrentDetector_ = new PGMPicoAmmeter("entranceSlitUpperBladeCurrent", "Entrance Slit Upper", "A1611-3-04:nA:fbk", this);
 
 	teyBladeCurrentDetector_ = new PGMPicoAmmeter("teyBladeCurrentDetector", "TEY", "A1611-4-09:nA:fbk", this);
 	flyBladeCurrentDetector_ = new PGMPicoAmmeter("flyBladeCurrentDetector", "FLY", "A1611-4-08:nA:fbk", this);

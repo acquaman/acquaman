@@ -25,25 +25,25 @@ signals:
 	void mirrorChanged(BioXASM2Mirror *newMirror);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASM2Mirror *newMirror);
 
 protected slots:
+	/// Updates the entire mirror view.
+	void updateMirrorView();
 	/// Updates the screen control editor.
 	void updateScreenEditor();
+	/// Updates the basic mirror editor.
+	void updateMirrorEditor();
 
 protected:
 	/// The mirror being viewed.
 	BioXASM2Mirror *mirror_;
 
-	/// The stop button.
-	AMControlStopButton *stopButton_;
-	/// The basic mirror editor.
-	BioXASMirrorView *mirrorView_;
 	/// The editor for the screen control.
 	CLSControlEditor *screenEditor_;
+	/// The basic mirror editor.
+	BioXASMirrorView *mirrorEditor_;
 };
 
 #endif // BIOXASM2MIRRORVIEW_H

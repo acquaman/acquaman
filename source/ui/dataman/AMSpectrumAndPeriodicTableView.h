@@ -120,6 +120,8 @@ protected slots:
 	void onLogScaleEnabled(bool enable);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
 	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
+	/// Placeholder function for handling export operations in derived classes.
+	virtual void onExportButtonClicked() = 0;
 
 protected:
 	/// Sets up the plot.
@@ -156,6 +158,7 @@ protected:
 
 	/// The export button.
 	QPushButton *exportButton_;
+
 	/// The button for choosing the second element for combination pile up peaks.
 	QToolButton *combinationChoiceButton_;
 

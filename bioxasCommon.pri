@@ -84,7 +84,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h \
@@ -121,6 +120,10 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMAXvMotor.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationView.h \
+	source/ui/BioXAS/BioXASScanAxisRegionView.h \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.h \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h \
 	source/beamline/BioXAS/BioXASMirrorMaskState.h
 
@@ -200,7 +203,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
@@ -237,6 +239,10 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationView.cpp \
+	source/ui/BioXAS/BioXASScanAxisRegionView.cpp \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.cpp \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \
 	source/beamline/BioXAS/BioXASMirrorMaskState.cpp
 

@@ -73,6 +73,7 @@ public:
 			// for none user-account based storage, the user data path is already chosen by the AmChooseDataFolderDialog.
 			// for simplification, we won't allow the user to change the path again here.
 			userDataFolder_->setEnabled(false);
+			useLocalStorage_->setEnabled(false);
 			hl->addWidget(userDataFolder_);
 		}
 
