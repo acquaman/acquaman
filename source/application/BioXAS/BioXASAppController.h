@@ -51,7 +51,6 @@
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
@@ -61,7 +60,7 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
@@ -74,6 +73,7 @@
 #include "ui/BioXAS/BioXASPersistentView.h"
 #include "ui/BioXAS/BioXASWigglerView.h"
 #include "ui/BioXAS/BioXASBeamStatusView.h"
+#include "ui/BioXAS/BioXASGenericStepScanConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 

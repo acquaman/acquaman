@@ -550,7 +550,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(component);
 		if (!componentFound && mono) {
-			componentView = new BioXASSSRLMonochromatorView(mono);
+			componentView = new BioXASSSRLMonochromatorConfigurationView(mono);
 			componentFound = true;
 		}
 
@@ -656,7 +656,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->defaultGenericScanDetectorOptions());
+			configurationView = new BioXASGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->defaultGenericScanDetectorOptions());
 			configurationFound = true;
 		}
 	}
@@ -746,6 +746,7 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 		configuration->setAutoExportEnabled(false);
 
 		// Set scan detectors.
+
 		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );
 		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
 		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );

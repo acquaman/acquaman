@@ -19,12 +19,8 @@ AMSpectrumAndPeriodicTableView::AMSpectrumAndPeriodicTableView(QWidget *parent)
 	periodicTable_ = new AMSelectablePeriodicTable(this);
 	periodicTable_->buildPeriodicTable();
 
-	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
-
 	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
 	periodicTableView_->buildPeriodicTableView();
-	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
 	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
 }
@@ -73,7 +69,7 @@ void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
 
 	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
 	exportButton_->setEnabled(false);
-	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
 
 	energyRangeLayout_ = new QVBoxLayout;
 
@@ -111,8 +107,6 @@ void AMSpectrumAndPeriodicTableView::buildShowSpectraButtons()
 {
 	logScaleButton_ = new QPushButton("Log scale");
 	logScaleButton_->setCheckable(true);
-
-	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 }
 
 void AMSpectrumAndPeriodicTableView::removeAllPlotItems(QList<MPlotItem *> &items)

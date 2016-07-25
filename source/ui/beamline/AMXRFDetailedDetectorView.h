@@ -48,13 +48,6 @@ public:
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
 
-	/// Returns the energy range used for filtering.  If no range has been provided the range is null.
-	const AMRange &energyRange() const { return emissionLineValidator_->range(); }
-	/// Returns the minimum energy in the energy range filter.
-	double minimumEnergy() const { return emissionLineValidator_->minimum(); }
-	/// Returns the maximum energy in the energy range filter.
-	double maximumEnergy() const { return emissionLineValidator_->maximum(); }
-
 	/// Sets the colors for each of the emission lines.
 	void setLineColors(const QColor &kColor, const QColor &lColor, const QColor &mColor, const QColor &defaultColor);
 	/// Sets the K emission line color.
@@ -108,7 +101,7 @@ protected slots:
 	/// Starts the acquisition.  Treats the acquisition like a scan and saves the result to the database.
 	virtual void startAcquisition();
 	/// Handles bringing up and exporting the given XRF scans.
-	void onSaveButtonClicked();
+	void onExportButtonClicked();
 	/// Handles grabbing the scan and exporting it.
 	void exportScan();
 	/// Handles deleting the export controller.
