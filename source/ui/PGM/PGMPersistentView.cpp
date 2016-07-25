@@ -120,12 +120,16 @@ void PGMPersistentView::onBranchSelectionChanged(double value)
 
 		branchAGroupBox_->show();
 		branchBGroupBox_->hide();
+		branchAGroupBox_->setEnabled(true);
+		branchBGroupBox_->setEnabled(false);
 	}
 
 	else if (branchValue == PGMBranchSelectionControl::BranchB){
 
 		branchAGroupBox_->hide();
 		branchBGroupBox_->show();
+		branchAGroupBox_->setEnabled(false);
+		branchBGroupBox_->setEnabled(true);
 	}
 
 	else {

@@ -6,7 +6,8 @@
 PGMBranchSelectionControl::PGMBranchSelectionControl(QObject *parent)
     : AMEnumeratedControl("Branch Selection", QString(), parent)
 {
-	branchSelectionPVControl_ = new AMPVwStatusControl("Branch Selection PV", "BL1611-ID-2:Branch:fbk", "BL1611-ID-2:Branch", "SMTR16114I2007:state",QString(),this,0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	branchSelectionPVControl_ = new AMPVwStatusControl("Branch Selection PV", "BL1611-ID-2:Branch:fbk", "BL1611-ID-2:Branch", "SMTR16114I2007:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	branchMotorFeedbackControl_ = new AMReadOnlyPVControl("Branch Motor Feedback", "SMTR16114I2007:step:fbk", this);
 
 	addOption(BranchA, "Branch A");
 	addOption(BranchB, "Branch B");
@@ -19,6 +20,7 @@ PGMBranchSelectionControl::PGMBranchSelectionControl(QObject *parent)
 	updateStates();
 
 	addChildControl(branchSelectionPVControl_);
+	addChildControl(branchMotorFeedbackControl_);
 }
 
 bool PGMBranchSelectionControl::shouldMeasure() const
@@ -38,7 +40,9 @@ bool PGMBranchSelectionControl::shouldStop() const
 
 bool PGMBranchSelectionControl::canMeasure() const
 {
-	return shouldMeasure() && branchSelectionPVControl_ && branchSelectionPVControl_->canMeasure();
+	return shouldMeasure()
+			&& branchSelectionPVControl_ && branchSelectionPVControl_->canMeasure()
+			&& branchMotorFeedbackControl_ && branchMotorFeedbackControl_->canMeasure();
 }
 
 bool PGMBranchSelectionControl::canMove() const
@@ -71,7 +75,9 @@ bool PGMBranchSelectionControl::validSetpoint(double value) const
 void PGMBranchSelectionControl::updateConnected()
 {
 	setConnected(branchSelectionPVControl_ &&
-	             branchSelectionPVControl_->isConnected());
+		     branchSelectionPVControl_->isConnected() &&
+		     branchMotorFeedbackControl_ &&
+		     branchMotorFeedbackControl_->isConnected());
 }
 
 void PGMBranchSelectionControl::updateMoving()
@@ -97,6 +103,16 @@ int PGMBranchSelectionControl::currentIndex() const
 	// The PV uses 3 for unknown, the enumerated control interface uses -1
 	if (intValue == 3) {
 		return -1;
+	}
+
+	// This is a special case to handle the fact that the motor slips and we still want the correct index displayed.
+	if (!isMoving() && intValue == Between){
+
+		if (branchMotorFeedbackControl_->value() > 20000)
+			return BranchA;
+
+		else if (branchMotorFeedbackControl_->value() < -14500)
+			return BranchB;
 	}
 
 	// Else we can just map the PV value to our enum

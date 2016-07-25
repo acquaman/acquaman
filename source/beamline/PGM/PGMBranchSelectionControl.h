@@ -6,6 +6,8 @@
 #include "beamline/AMEnumeratedControl.h"
 
 class AMPVwStatusControl;
+class AMReadOnlyPVControl;
+
 class PGMBranchSelectionControl : public AMEnumeratedControl
 {
 	Q_OBJECT
@@ -55,6 +57,7 @@ protected:
 	virtual int currentIndex() const;
 
 	AMPVwStatusControl *branchSelectionPVControl_;
+	AMReadOnlyPVControl *branchMotorFeedbackControl_;
 };
 
 #endif // PGMBRANCHSELECTIONCONTROL_H
