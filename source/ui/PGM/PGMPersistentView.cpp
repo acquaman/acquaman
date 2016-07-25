@@ -69,8 +69,6 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	energyControlEditor_->setControlFormat('f', 3);
 	energyControlEditor_->setUnits("eV");
 
-	CLSControlEditor *testEnergyEditor = new CLSControlEditor(PGMBeamline::pgm()->energy());
-
 	gratingControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->gratingSelectionControl());
 
 	// Main layout
@@ -79,7 +77,6 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	mainPanelLayout->addWidget(beamStatusView_);
 	mainPanelLayout->addWidget(bpmBox);
 	mainPanelLayout->addWidget(energyControlEditor_);
-	mainPanelLayout->addWidget(testEnergyEditor);
 	mainPanelLayout->addWidget(gratingControlEditor_);
 //    mainPanelLayout->addWidget(bladeCurrentBox);
 
