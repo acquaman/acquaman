@@ -440,7 +440,7 @@ public:
 	static REIXSBeamline* bl() {
 		if(!instance_){
 			instance_ = new REIXSBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 		return static_cast<REIXSBeamline*>(instance_);
 	}

@@ -46,6 +46,8 @@
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
+#include "beamline/BioXAS/BioXASWiggler.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASMirrorMaskState.h"
 
 #include "util/AMErrorMonitor.h"
@@ -55,6 +57,8 @@
 #define BIOXASBEAMLINE_VALVE_CLOSED 4
 #define BIOXASBEAMLINE_FASTVALVE_OPEN 1
 #define BIOXASBEAMLINE_FASTVALVE_CLOSED 4
+
+class AMStepScanConfiguration;
 
 class BioXASBeamline : public CLSBeamline
 {
@@ -66,7 +70,7 @@ public:
 	{
 		if (!instance_) {
 			instance_ = new BioXASBeamline("BioXAS Beamline");
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<BioXASBeamline*>(instance_);
@@ -81,12 +85,15 @@ public:
 	/// Creates and returns an action that performs a dark current measurement.
 	virtual AMAction3* createDarkCurrentMeasurementAction(double dwellSeconds);
 	/// Creates and returns an action that initializes the beamline before a scan.
-	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	virtual AMAction3* createScanInitializationAction(AMScanConfiguration *configuration);
 	/// Creates and returna an action that cleans up the beamline after a scan.
-	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+	virtual AMAction3* createScanCleanupAction(AMScanConfiguration *configuration);
+
+	/// Returns the wiggler.
+	BioXASWiggler* wiggler() const { return wiggler_; }
 
 	/// Returns the beam status.
-	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
+	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
@@ -120,8 +127,8 @@ public:
 	/// Returns the SOE shutter.
 	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
-        /// Returns the end station kill switch.
-        virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
+	/// Returns the end station kill switch.
+	virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
@@ -428,8 +435,12 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
+	/// The wiggler.
+	BioXASWiggler *wiggler_;
+
 	/// The beam status.
-	CLSBeamlineStatus *beamlineStatus_;
+	BioXASBeamStatus *beamStatus_;
+
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 

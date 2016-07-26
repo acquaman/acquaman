@@ -32,9 +32,6 @@ protected:
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
 
-	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
-	AMAction3* createInitializationActions();
-
 	/// Creates a region of interest analysis block from the given AMRegionOfInterest and 1D spectrum source.
 	AMAnalysisBlock *createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const;
 	/// Creates a normalized analysis block from a source and normalizer source.

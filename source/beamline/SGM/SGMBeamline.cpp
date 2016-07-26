@@ -44,7 +44,7 @@ SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
 		instance_ = new SGMBeamline();
-		instance_->initializeBeamlineSupport();
+		instance_->initializeBeamline();
 	}
 
 	return static_cast<SGMBeamline*>(instance_);

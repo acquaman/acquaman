@@ -21,6 +21,8 @@ public:
 
 	/// Returns the button color state.
 	AMToolButton::ColorState colorState() const { return colorState_; }
+	/// Returns a string representation of the given color state.
+	QString colorStateToString(AMToolButton::ColorState state) const;
 
 signals:
 	/// Notifier that the button color state has changed.

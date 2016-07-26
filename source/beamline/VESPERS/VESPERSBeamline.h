@@ -73,7 +73,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new VESPERSBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 		return static_cast<VESPERSBeamline*>(instance_);
 	}

@@ -24,36 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include "dataman/AMSamplePlate.h"
-#include "acquaman/AMGenericStepScanConfiguration.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
 AMBeamline* AMBeamline::instance_ = 0;
-
-
-AMBeamline::AMBeamline(const QString& controlName)
-	: AMControl(controlName, ""), AMBeamlineControlAPI(), AMBeamlineControlSetAPI(), AMBeamlineDetectorAPI(), AMBeamlineDetectorSetAPI(), AMBeamlineSynchronizedDwellTimeAPI()
-{
-	exposedControls_ = new AMControlSet(this);
-	exposedDetectors_ = new AMDetectorSet(this);
-	exposedScientificDetectors_ = new AMDetectorSet(this);
-	samplePlate_ = 0; //NULL
-	samplePlateBrowser_ = 0; //NULL
-	currentSamples_ = QList<AMSample*>();
-}
-
-AMBeamline::~AMBeamline()
-{
-}
-
-void AMBeamline::initializeBeamlineSupport()
-{
-	// initialize beamline support
-	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
-}
-
 
 void AMBeamline::releaseBl() {
 
@@ -71,6 +46,31 @@ AMBeamline * AMBeamline::bl()
 	 }
 
 	return instance_;
+}
+
+AMBeamline::AMBeamline(const QString& controlName)
+	: AMControl(controlName, ""), AMBeamlineControlAPI(), AMBeamlineControlSetAPI(), AMBeamlineDetectorAPI(), AMBeamlineDetectorSetAPI(), AMBeamlineSynchronizedDwellTimeAPI()
+{
+	exposedControls_ = new AMControlSet(this);
+	exposedDetectors_ = new AMDetectorSet(this);
+	exposedScientificDetectors_ = new AMDetectorSet(this);
+	samplePlate_ = 0; //NULL
+	samplePlateBrowser_ = 0; //NULL
+	currentSamples_ = QList<AMSample*>();
+}
+
+AMBeamline::~AMBeamline()
+{
+}
+
+void AMBeamline::initializeBeamline()
+{
+	// initialize beamline support
+	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
 }
 
 AMSamplePlate* AMBeamline::samplePlate(){
@@ -192,4 +192,40 @@ void AMBeamline::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *regi
 		foreach (AMRegionOfInterest *tempRegion, detector->regionsOfInterest())
 			if (region->name() == tempRegion->name() && tempRegion->boundingRange() != region->boundingRange())
 				tempRegion->setBoundingRange(region->boundingRange());
+}
+
+AMAction3* AMBeamline::createInitializeScanAxisControlsAction(AMStepScanConfiguration *configuration)
+{
+	AMAction3* result = 0;
+
+	if (configuration) {
+
+		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("Initialize step scan axis controls", "Initialize step scan axis controls"), AMListAction3::Parallel);
+
+		// add the move actions to move the axis controls to the start point
+		for (int i=0, size=configuration->scanAxes().count(); i < size; i++) {
+			AMScanAxis *scanAxis = configuration->scanAxisAt(i);
+			AMControl *control = AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfoAt(i));
+			if (scanAxis && control) {
+				AMAction3 *moveAxisControlAction = AMActionSupport::buildControlMoveAction(control, scanAxis->regionAt(0)->regionStart());
+				initializationAction->addSubAction(moveAxisControlAction);
+			}
+		}
+
+		result = initializationAction;
+	}
+
+	return result;
+}
+
+AMAction3* AMBeamline::createScanInitializationAction(AMScanConfiguration *configuration)
+{
+	AMAction3* result = 0;
+
+	AMStepScanConfiguration *stepScanConfiguration = qobject_cast<AMStepScanConfiguration*>(configuration);
+
+	if (stepScanConfiguration)
+		result = createInitializeScanAxisControlsAction(stepScanConfiguration);
+
+	return result;
 }

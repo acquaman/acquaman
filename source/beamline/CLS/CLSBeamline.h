@@ -28,7 +28,7 @@ public:
 	virtual ~CLSBeamline();
 
 	/// function to be called after beamline instantiated, which will finalize the initialization of the CLSBeamline
-	virtual void initializeBeamlineSupport();
+	virtual void initializeBeamline();
 
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }

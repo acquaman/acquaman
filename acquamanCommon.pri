@@ -469,7 +469,8 @@ HEADERS += \
     source/beamline/AMBeamlineControlGroupStatus.h \
     source/beamline/AMBeamlineControlGroup.h \
     source/beamline/AMBeamlineControl.h \
-	source/ui/AMWindowPaneProxyModel.h \
+    source/ui/AMWindowPaneProxyModel.h \
+	source/ui/beamline/AMControlToolButton.h \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.h
 
 FORMS += \
@@ -903,7 +904,8 @@ SOURCES += \
     source/beamline/AMBeamlineControlGroupStatus.cpp \
     source/beamline/AMBeamlineControlGroup.cpp \
     source/beamline/AMBeamlineControl.cpp \
-	source/ui/AMWindowPaneProxyModel.cpp \
+    source/ui/AMWindowPaneProxyModel.cpp \
+	source/ui/beamline/AMControlToolButton.cpp \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp
 
 RESOURCES *= \
@@ -924,3 +926,5 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+

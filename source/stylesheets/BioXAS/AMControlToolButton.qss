@@ -1,0 +1,35 @@
+
+AMControlToolButton#BioXASWigglerGapStatus {
+qproperty-icon: url(:/arrow_wiggle.png);
+qproperty-toolTip: "Wiggler gap status";
+}
+
+AMControlToolButton#BioXASUtilitiesShutters {
+qproperty-icon: url(:/shutterIcon2.png);
+qproperty-toolTip: "Shutters status";
+}
+
+AMControlToolButton#BioXASUtilitiesBeampathValves {
+qproperty-icon: url(:/valveIcon2.png);
+qproperty-toolTip: "Valves status";
+}
+
+AMControlToolButton#BioXASSideM1MirrorMaskState {
+qproperty-icon: url(:/mirror-icon1.png);
+qproperty-toolTip: "M1 mask status";
+}
+
+AMControlToolButton#BioXASMainM1MirrorMaskState {
+qproperty-icon: url(:/mirror-icon1.png);
+qproperty-toolTip: "M1 mask status";
+}
+
+AMControlToolButton#BioXASSideMonochromatorMaskState {
+qproperty-icon: url(:/mono-icon5.png);
+qproperty-toolTip: "Mono mask status";
+}
+
+AMControlToolButton#BioXASMainMonochromatorMaskState {
+qproperty-icon: url(:/mono-icon5.png);
+qproperty-toolTip: "Mono mask status";
+}

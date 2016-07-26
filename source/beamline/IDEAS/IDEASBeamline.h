@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
 
+class AMStepScanConfiguration;
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class IDEASBeamline : public CLSBeamline
@@ -53,7 +54,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new IDEASBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<IDEASBeamline*>(instance_);
@@ -71,9 +72,9 @@ public:
 	AMAction3 *createBeamOffAction() const;
 
 	/// Create the scan initialization actions.
-	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	virtual AMAction3* createScanInitializationAction(AMScanConfiguration *configuration);
 	/// Create the scan cleanup actions.
-	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+	virtual AMAction3* createScanCleanupAction(AMScanConfiguration *configuration);
 
 
 	/// Returns the monochromator control for the beamline.

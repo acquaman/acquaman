@@ -34,7 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSamplePlate;
 class AMSample;
 class AMSamplePlateBrowser;
-class AMGenericStepScanConfiguration;
+class AMScanConfiguration;
+class AMStepScanConfiguration;
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -72,7 +73,7 @@ public:
 	virtual ~AMBeamline();
 
 	/// function to be called after beamline instantiated, which will finalize the initialization of the CLSBeamline
-	virtual void initializeBeamlineSupport();
+	virtual void initializeBeamline();
 
 	/// Returns a string with a human readable text of what is important about this detector.
 	virtual QString details() const { return ""; }
@@ -159,10 +160,13 @@ public:
 	/// Returns an action that can turn off the beam.
 	virtual AMAction3* createTurnOffBeamActions();
 
+	/// Creates and returns an action that initializes the axis controls to their start positions for the given configuration.
+	virtual AMAction3* createInitializeScanAxisControlsAction(AMStepScanConfiguration *configuration);
+
 	/// Creates and returns an action that sets up the beamline for a scan.
-	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
+	virtual AMAction3* createScanInitializationAction(AMScanConfiguration *configuration);
 	/// Creates and returns an action that cleans up the beamline after a scan.
-	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
+	virtual AMAction3* createScanCleanupAction(AMScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
@@ -183,10 +187,11 @@ protected slots:
 	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
-	/// Singleton classes have a protected constructor, all access is through AMBeamline::bl() or YourBeamline::bl()
-	AMBeamline(const QString& controlName);
 	/// Instance variable
 	static AMBeamline* instance_;
+
+	/// Singleton classes have a protected constructor, all access is through AMBeamline::bl() or YourBeamline::bl()
+	AMBeamline(const QString& controlName);
 
 	/// A control set that contains all of the publicly (throughout the program) available controls for a beamline.  This is primarily used for AMControlMoveAction.
 	AMControlSet *exposedControls_;

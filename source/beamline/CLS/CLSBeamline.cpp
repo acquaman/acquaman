@@ -17,9 +17,9 @@ CLSBeamline::~CLSBeamline()
  * ================= implementation of public interface / slots =======================
  **/
 
-void CLSBeamline::initializeBeamlineSupport()
+void CLSBeamline::initializeBeamline()
 {
-	AMBeamline::initializeBeamlineSupport();
+	AMBeamline::initializeBeamline();
 
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(updateBeamAvailabilityStatus()));
 

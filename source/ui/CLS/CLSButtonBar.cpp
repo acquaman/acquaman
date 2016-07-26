@@ -8,7 +8,7 @@ CLSButtonBar::CLSButtonBar(QWidget *parent) :
 	selectedButton_ = 0;
 
 	buttonsGroup_ = new QButtonGroup(this);
-	buttonsGroup_->setExclusive(false); // Exclusive must be turned off to have 'deselect when clicked' capability.
+	buttonsGroup_->setExclusive(false); // Exclusive must be turned off to have total control over which buttons are selected and what isn't.
 
 	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
 	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SIGNAL(buttonClicked(QAbstractButton*)) );
@@ -23,7 +23,7 @@ CLSButtonBar::CLSButtonBar(QWidget *parent) :
 
 CLSButtonBar::~CLSButtonBar()
 {
-	clearButtons();
+
 }
 
 QList<QAbstractButton*> CLSButtonBar::buttons() const
@@ -36,17 +36,17 @@ void CLSButtonBar::setSelectedButton(QAbstractButton *button)
 	if (selectedButton_ != button) {
 
 		if (selectedButton_) {
-			selectedButton_->blockSignals(true);
+			buttonsGroup_->blockSignals(true);
 			selectedButton_->setChecked(false);
-			selectedButton_->blockSignals(false);
+			buttonsGroup_->blockSignals(false);
 		}
 
 		selectedButton_ = button;
 
 		if (selectedButton_) {
-			selectedButton_->blockSignals(true);
+			buttonsGroup_->blockSignals(true);
 			selectedButton_->setChecked(true);
-			selectedButton_->blockSignals(false);
+			buttonsGroup_->blockSignals(false);
 		}
 
 		emit selectedButtonChanged(selectedButton_);
@@ -81,7 +81,7 @@ void CLSButtonBar::removeButton(QAbstractButton *button)
 	}
 }
 
-void CLSButtonBar::clearButtons()
+void CLSButtonBar::removeButtons()
 {
 	for (int i = 0, count = buttonsGroup_->buttons().count(); i < count; i++) {
 		QAbstractButton *button = buttonsGroup_->button(i);
@@ -91,13 +91,21 @@ void CLSButtonBar::clearButtons()
 	}
 }
 
+void CLSButtonBar::clearButtons()
+{
+	for (int i = 0, count = buttonsGroup_->buttons().count(); i < count; i++) {
+		QAbstractButton *button = buttonsGroup_->button(i);
+
+		buttonsGroup_->removeButton(button);
+		buttonsLayout_->removeWidget(button);
+
+		button->disconnect();
+		button->deleteLater();
+	}
+}
+
 void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 {
-	// If the group's selection is identical to the current
-	// selection, the selected button should be unchecked.
-	// Otherwise, the clicked button should become the new
-	// selection.
-
 	if (selectedButton_ == clickedButton)
 		setSelectedButton(0);
 	else if (selectedButton_ != clickedButton)

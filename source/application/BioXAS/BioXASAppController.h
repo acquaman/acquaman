@@ -47,11 +47,9 @@
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
@@ -61,7 +59,7 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
@@ -72,6 +70,8 @@
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
+#include "ui/BioXAS/BioXASWigglerView.h"
+#include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASGenericStepScanConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
@@ -109,7 +109,7 @@ protected slots:
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// Sets the beam status view as the current view, with the given control as the selected control.
-	void goToBeamlineStatusView(AMControl *control);
+	void goToBeamStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
@@ -166,12 +166,15 @@ protected:
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
+
 protected:
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;
 
 	/// The beam status view.
-	CLSBeamlineStatusView *beamlineStatusView_;
+	BioXASBeamStatusView *beamStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;

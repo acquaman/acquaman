@@ -63,7 +63,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new SXRMBBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<SXRMBBeamline*>(instance_);
