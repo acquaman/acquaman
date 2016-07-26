@@ -20,7 +20,7 @@ class CLSBeamlineStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit CLSBeamlineStatusView(CLSBeamline *beamline, bool compactView=false, bool showBeamStatusInCompactView=false, QWidget *parent=0);
+	explicit CLSBeamlineStatusView(bool compactView=false, bool showBeamStatusInCompactView=false, QWidget *parent=0);
 	/// Destructor.
 	virtual ~CLSBeamlineStatusView();
 
@@ -76,8 +76,6 @@ protected:
 	/// flag to identify whether this is the compact status view or full status view
 	bool compactView_;
 
-	/// The beamline being operated
-	CLSBeamline *beamline_;
 	/// The beam status being viewed.
 	CLSBeamlineStatus *beamlineStatus_;
 	/// The selected component.

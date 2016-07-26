@@ -308,7 +308,7 @@ void SXRMBAppController::createGeneralPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
-	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl, false);
+	beamlineStatusView_ = new CLSBeamlineStatusView(false);
 	beamlineStatusView_->enableBeamOnOffActions();
 	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 

@@ -7,11 +7,10 @@
 
 #include "ui/CLS/CLSControlEditor.h"
 
-CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamline *beamline, bool compactView, bool showBeamStatusInCompactView, QWidget *parent) :
+CLSBeamlineStatusView::CLSBeamlineStatusView(bool compactView, bool showBeamStatusInCompactView, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
-	beamline_ = beamline;
 	beamlineStatus_ = 0;
 	selectedComponent_ = 0;
 
@@ -38,7 +37,7 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamline *beamline, bool compact
 	contentLayout->addWidget(beamlineStatusWidget);
 
 	// Current settings.
-	setBeamlineStatusComponent(beamline_->beamlineStatus());
+	setBeamlineStatusComponent(CLSBeamline::clsBeamline()->beamlineStatus());
 }
 
 CLSBeamlineStatusView::~CLSBeamlineStatusView()
@@ -51,8 +50,8 @@ void CLSBeamlineStatusView::enableBeamOnOffActions()
 	if (beamStatusContentLayout_) {
 		beamStatusContentLayout_->addLayout(beamOnOffButtonLayout);
 
-		connect(this, SIGNAL(beamOnRequested()), beamline_, SLOT(onTurningBeamOnRequested()) );
-		connect(this, SIGNAL(beamOffRequested()), beamline_, SLOT(onTurningBeamOffRequested()) );
+		connect(this, SIGNAL(beamOnRequested()), CLSBeamline::clsBeamline(), SLOT(onTurningBeamOnRequested()) );
+		connect(this, SIGNAL(beamOffRequested()), CLSBeamline::clsBeamline(), SLOT(onTurningBeamOffRequested()) );
 	}
 }
 
