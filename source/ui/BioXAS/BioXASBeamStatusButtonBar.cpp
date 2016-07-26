@@ -1,22 +1,29 @@
 #include "BioXASBeamStatusButtonBar.h"
 
-#include "beamline/CLS/CLSBeamlineStatus.h"
-
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-
-BioXASBeamStatusButtonBar::BioXASBeamStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent) :
-	CLSControlButtonBar(parent)
+BioXASBeamStatusButtonBar::BioXASBeamStatusButtonBar(BioXASBeamStatus *beamStatus, QWidget *parent) :
+	QWidget(parent)
 {
-	// Initialize class variables.
+	beamStatus_ = 0;
+	selectedComponent_ = 0;
 
-	beamlineStatus_ = 0;
+	// Create button bar.
+
+	buttonBar_ = new CLSButtonBar();
+
+	connect( buttonBar_, SIGNAL(selectedButtonChanged(QAbstractButton*)), this, SLOT(updateSelectedComponent()) );
+	connect( buttonBar_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonBarButtonClicked(QAbstractButton*)) );
+
+	// Create and set main layouts.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
+	layout->addWidget(buttonBar_);
+
+	setLayout(layout);
 
 	// Current settings.
 
-	setBeamlineStatus(beamlineStatus);
+	setBeamStatus(beamStatus);
 }
 
 BioXASBeamStatusButtonBar::~BioXASBeamStatusButtonBar()
@@ -24,79 +31,111 @@ BioXASBeamStatusButtonBar::~BioXASBeamStatusButtonBar()
 
 }
 
-void BioXASBeamStatusButtonBar::refresh()
+void BioXASBeamStatusButtonBar::setBeamStatus(BioXASBeamStatus *newBeamStatus)
 {
-	// Clear the controls.
+	if (beamStatus_ != newBeamStatus) {
 
-	clearControls();
+		if (beamStatus_)
+			disconnect( beamStatus_, 0, this, 0 );
 
-	// Add control for each component in the beam status.
+		beamStatus_ = newBeamStatus;
 
-	if (beamlineStatus_) {
+		if (beamStatus_)
+			connect( beamStatus_, SIGNAL(componentsChanged()), this, SLOT(updateButtonBar()) );
 
-		foreach (AMControl *control, beamlineStatus_->components())
-			addControl(control, beamlineStatus_->componentBeamOnValue(control));
+		emit beamStatusChanged(beamStatus_);
+	}
+
+	updateButtonBar();
+}
+
+void BioXASBeamStatusButtonBar::setSelectedComponent(AMControl *control)
+{
+	if (selectedComponent_ != control) {
+		selectedComponent_ = control;
+		emit selectedComponentChanged(selectedComponent_);
+	}
+
+	updateButtonBarSelectedButton();
+}
+
+void BioXASBeamStatusButtonBar::updateSelectedComponent()
+{
+	setSelectedComponent( getComponentForButton(buttonBar_->selectedButton()) );
+}
+
+void BioXASBeamStatusButtonBar::updateButtonBar()
+{
+	// Clear the button bar.
+
+	buttonBar_->clearButtons();
+	componentButtonMap_.clear();
+
+	if (beamStatus_) {
+
+		// Create new buttons for each beam status component.
+
+		foreach (AMControl *component, beamStatus_->components()) {
+			QAbstractButton *button = createButton(component);
+
+			buttonBar_->addButton(button);
+			componentButtonMap_.insert(component, button);
+		}
+
+		// Set the selected button.
+
+		updateButtonBarSelectedButton();
 	}
 }
 
-void BioXASBeamStatusButtonBar::setBeamlineStatus(CLSBeamlineStatus *newControl)
+void BioXASBeamStatusButtonBar::updateButtonBarSelectedButton()
 {
-	if (beamlineStatus_ != newControl) {
-
-		if (beamlineStatus_)
-			disconnect( beamlineStatus_, 0, this, 0 );
-
-		beamlineStatus_ = newControl;
-
-		if (beamlineStatus_)
-			connect( beamlineStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
-
-		refresh();
-
-		emit beamStatusChanged(beamlineStatus_);
-	}
+	buttonBar_->setSelectedButton( getButtonForComponent(selectedComponent_) );
 }
 
-QAbstractButton* BioXASBeamStatusButtonBar::createButton(AMControl *control, double greenValue)
+void BioXASBeamStatusButtonBar::onButtonBarButtonClicked(QAbstractButton *clickedButton)
 {
-	QAbstractButton *button = CLSControlButtonBar::createButton(control, greenValue);
+	emit componentClicked( getComponentForButton(clickedButton) );
+}
 
-	if (button) {
+QAbstractButton* BioXASBeamStatusButtonBar::createButton(AMControl *control)
+{
+	AMControlToolButton *newButton = new AMControlToolButton(control);
+	newButton->setObjectName(control ? control->name() : "");
 
-		bool controlFound = false;
+	if (beamStatus_) {
 
-		BioXASShutters *shutters = qobject_cast<BioXASShutters*>(control);
-		if (!controlFound && shutters) {
-			button->setIcon(QIcon(":/shutterIcon2.png"));
-			button->setToolTip("Shutters");
+		// Iterate through the list of beam status states associated with the given component.
+		// Convert the beam status into a color state, and add it to the list of states
+		// for the new button.
 
-			controlFound = true;
-		}
+		QList<BioXASBeamStatusState> states = beamStatus_->componentBeamStatusStates(control);
 
-		BioXASValves *valves = qobject_cast<BioXASValves*>(control);
-		if (!controlFound && valves) {
-			button->setIcon(QIcon(":/valveIcon2.png"));
-			button->setToolTip("Valves");
-
-			controlFound = true;
-		}
-
-		BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
-		if (!controlFound && mirrorMask) {
-			button->setIcon(QIcon(":/mirror-icon1.png"));
-			button->setToolTip("Mirror Mask");
-
-			controlFound = true;
-		}
-
-		BioXASSSRLMonochromatorMaskState *monoMask = qobject_cast<BioXASSSRLMonochromatorMaskState*>(control);
-		if (!controlFound && monoMask) {
-			button->setIcon(QIcon(":/mono-icon5.png"));
-			button->setToolTip("Monochromator Mask");
-
-			controlFound = true;
-		}
+		foreach (BioXASBeamStatusState state, states)
+			newButton->addColorState(getColorState(state.beamStatusValue()), state.controlMinValue(), state.controlMaxValue());
 	}
 
-	return button;
+	return newButton;
+}
+
+AMToolButton::ColorState BioXASBeamStatusButtonBar::getColorState(BioXASBeamStatus::Value beamStatusValue) const
+{
+	AMToolButton::ColorState result = AMToolButton::Neutral;
+
+	if (beamStatusValue == BioXASBeamStatus::Off)
+		result = AMToolButton::Bad;
+	else if (beamStatusValue == BioXASBeamStatus::On)
+		result = AMToolButton::Good;
+
+	return result;
+}
+
+AMControl* BioXASBeamStatusButtonBar::getComponentForButton(QAbstractButton *button) const
+{
+	return componentButtonMap_.key(button, 0);
+}
+
+QAbstractButton* BioXASBeamStatusButtonBar::getButtonForComponent(AMControl *control) const
+{
+	return componentButtonMap_.value(control, 0);
 }

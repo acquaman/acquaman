@@ -29,9 +29,11 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
-				beamlineStatus_ && beamlineStatus_->isConnected() &&
-				utilities_ && utilities_->isConnected() &&
+				beamStatus_ && beamStatus_->isConnected() &&
 
+				wiggler_ && wiggler_->isConnected() &&
+
+				utilities_ && utilities_->isConnected() &&
 				ionPumps_ && ionPumps_->isConnected() &&
 				flowSwitches_ && flowSwitches_->isConnected() &&
 				pressureMonitors_ && pressureMonitors_->isConnected() &&
@@ -1118,22 +1120,29 @@ bool BioXASBeamline::clearDefaultGenericScanDetectorOptions()
 
 void BioXASBeamline::setupComponents()
 {
+	// Beam status.
+
+	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Wiggler.
+
+	wiggler_ = new BioXASWiggler("BioXASWiggler", this);
+	connect( wiggler_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->addComponent(wiggler_->gapStatus(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASWigglerGapStatus::Open) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASWigglerGapStatus::Closed));
+
 	// Utilities.
 
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Beam status.
-
-	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
-	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamlineStatus_->addShutterControl(utilities_->shutters(), CLSShutters::Open);
-	beamlineStatus_->addValveControl(utilities_->beampathValves(), CLSValves::Open);
+	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
+	beamStatus_->addComponent(utilities_->beampathValves(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
 
 	// Utilities - front-end shutters.
 
-	addShutter(new BioXASFrontEndShutters("Front-end shutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
+	addShutter(new BioXASFrontEndShutters("BioXASFrontEndShutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
 
 	// Utilities - front-end beampath valves.
 
@@ -1377,7 +1386,10 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	connected_ = false;
 
-	beamlineStatus_ = 0;
+	beamStatus_ = 0;
+
+	wiggler_ = 0;
+
 	utilities_ = 0;
 
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);

@@ -8,7 +8,6 @@
 
 ///
 /// The button bar is a widget which contains a group of buttons.
-/// Those buttons can work in exclusive mode or not
 ///
 
 class CLSButtonBar : public QWidget
@@ -42,7 +41,9 @@ public slots:
 	void addButton(QAbstractButton *newButton);
 	/// Removes a button.
 	void removeButton(QAbstractButton *button);
-	/// Clears all buttons.
+	/// Removes all buttons, without deleting them.
+	void removeButtons();
+	/// Removes and deletes all buttons.
 	void clearButtons();
 
 protected slots:

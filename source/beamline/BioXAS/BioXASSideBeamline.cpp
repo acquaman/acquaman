@@ -263,7 +263,7 @@ void BioXASSideBeamline::setupComponents()
 {
 	// SOE shutter.
 
-	setSOEShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this));
+	setSOEShutter(new CLSExclusiveStatesControl("BioXASSOEShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this));
 
 	// Utilities - Side valves (non-beampath--beampath valves are added in BioXASBeamline).
 
@@ -289,6 +289,8 @@ void BioXASSideBeamline::setupComponents()
 	m1Mirror_ = new BioXASSideM1Mirror("BioXASSideM1Mirror", this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	beamStatus_->addComponent(m1Mirror_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASMirrorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASMirrorMaskState::Open));
+
 	// Mono.
 
 	mono_ = new BioXASSideMonochromator("BioXASSideMonochromator", this);
@@ -296,15 +298,12 @@ void BioXASSideBeamline::setupComponents()
 
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 
+	beamStatus_->addComponent(mono_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASSSRLMonochromatorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASSSRLMonochromatorMaskState::Open));
+
 	// M2 mirror.
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Beam status.
-
-	beamlineStatus_->addMirrorMaskControl(m1Mirror_->maskState(), BioXASMirrorMaskState::Open);
-	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// End Station Kill Switch
 

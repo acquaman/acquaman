@@ -288,26 +288,26 @@ void BioXASMainBeamline::setupComponents()
 	m1Mirror_ = new BioXASMainM1Mirror("BioXASMainM1Mirror", this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	beamStatus_->addComponent(m1Mirror_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASMirrorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASMirrorMaskState::Open));
+
 	// Mono.
 
 	mono_ = new BioXASMainMonochromator("BioXASMainMonochromator", this);
-	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
+
+	beamStatus_->addComponent(mono_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASSSRLMonochromatorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASSSRLMonochromatorMaskState::Open));
 
 	// M2 Mirror.
 
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// The beam status.
+	// Kill switch status.
 
-	beamlineStatus_->addMirrorMaskControl(m1Mirror_->maskState(), BioXASMirrorMaskState::Open);
-	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
-
-        // Kill switch status.
-
-		endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASMainEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
-        connect(endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
+	endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASMainEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
+	connect(endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
 
 	// Be window.
 

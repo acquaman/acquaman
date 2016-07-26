@@ -47,6 +47,36 @@ void BioXASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor 
 	}
 }
 
+QString BioXASAppController::getStylesheet() const
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet = CLSAppController::getStylesheet();
+
+	// AMControlToolButton
+
+	QFile qss1(":/BioXAS/AMControlToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// BioXASBeamStatusView
+
+	QFile qss2(":/BioXAS/BioXASBeamStatusView.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// Return master sheet.
+
+	return stylesheet;
+}
+
 void BioXASAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
 {
 	// This should always succeed because the only way to get into this function is using the 2D Generic scan view which currently only is accessed by 2D scans.
@@ -204,17 +234,17 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		genericConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
-void BioXASAppController::goToBeamlineStatusView(AMControl *control)
+void BioXASAppController::goToBeamStatusView(AMControl *control)
 {
-	if (beamlineStatusView_) {
+	if (beamStatusView_) {
 
 		// Set the given control as the view's selected control.
 
-		beamlineStatusView_->setSelectedComponent(control);
+		beamStatusView_->setSelectedComponent(control);
 
 		// Set the beam status pane as the current pane.
 
-		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+		QWidget *windowPane = viewPaneMapping_.value(beamStatusView_, 0);
 		if (windowPane)
 			mw_->setCurrentPane(windowPane);
 	}
@@ -381,7 +411,7 @@ void BioXASAppController::createPersistentView()
 
 	mw_->addRightWidget(persistentView);
 
-	connect( persistentView, SIGNAL(beamlineStatusControlClicked(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+	connect( persistentView, SIGNAL(beamStatusControlClicked(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
 }
 
 void BioXASAppController::createGeneralPanes()
@@ -389,8 +419,8 @@ void BioXASAppController::createGeneralPanes()
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
 	addMainWindowView( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
-	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus(), false);
-	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
+	addMainWindowView( beamStatusView_, "Beam status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void BioXASAppController::createDetectorPanes()
@@ -458,6 +488,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		BioXASWiggler *wiggler = qobject_cast<BioXASWiggler*>(component);
+		if (!componentFound && wiggler) {
+			componentView = new BioXASWigglerView(wiggler);
+			componentFound = true;
+		}
+
 		BioXASCryostat *cryostat = qobject_cast<BioXASCryostat*>(component);
 		if (!componentFound && cryostat) {
 			componentView = new BioXASCryostatView(cryostat);
@@ -488,9 +524,9 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
+		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new CLSBeamlineStatusView(beamStatus, false);
+			componentView = new BioXASBeamStatusView(beamStatus);
 			componentFound = true;
 		}
 

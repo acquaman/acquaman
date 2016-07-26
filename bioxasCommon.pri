@@ -125,6 +125,12 @@ HEADERS += \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.h \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h \
+	source/beamline/BioXAS/BioXASWiggler.h \
+	source/beamline/BioXAS/BioXASWigglerGapStatus.h \
+	source/beamline/BioXAS/BioXASBeamStatus.h \
+    source/ui/BioXAS/BioXASWigglerView.h \
+	source/ui/BioXAS/BioXASBeamStatusView.h \
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
 	source/beamline/BioXAS/BioXASMirrorMaskState.h
 
 SOURCES += \
@@ -244,7 +250,17 @@ SOURCES += \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.cpp \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \
+	source/beamline/BioXAS/BioXASWiggler.cpp \
+	source/beamline/BioXAS/BioXASWigglerGapStatus.cpp \
+	source/beamline/BioXAS/BioXASBeamStatus.cpp \
+    source/ui/BioXAS/BioXASWigglerView.cpp \
+	source/ui/BioXAS/BioXASBeamStatusView.cpp \
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
 	source/beamline/BioXAS/BioXASMirrorMaskState.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
+
+OTHER_FILES += \
+	source/stylesheets/BioXAS/AMControlToolButton.qss \
+	source/stylesheets/BioXAS/BioXASBeamStatusView.qss

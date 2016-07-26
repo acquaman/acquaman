@@ -414,18 +414,6 @@ void CLSControlEditor::editImplementation()
 				setInitiatedCurrentMove(true);
 				control_->move(double(newValue));
 			}
-
-		} else {
-
-			AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-			if (values_.isEmpty())
-				newValue = getDoubleValue();
-			else
-				newValue = getEnumValue();
-
-			if (newValue.isValid())
-				CLSValueEditor::setValue(newValue);
 		}
 
 	} else {

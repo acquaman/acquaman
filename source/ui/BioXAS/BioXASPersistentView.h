@@ -20,11 +20,11 @@ public:
 
 signals:
 	/// Notifier that the selected control in the beam status buttons view has changed.
-	void beamlineStatusControlClicked(AMControl *control);
+	void beamStatusControlClicked(AMControl *control);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
+	/// Updates the whole persistent view.
+	void updateView();
 
 protected slots:
 	/// Updates the cryostat box.
