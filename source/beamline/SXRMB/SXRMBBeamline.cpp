@@ -916,7 +916,7 @@ void SXRMBBeamline::setupConnections()
 
 bool SXRMBBeamline::isBeamlineBeamAvailable()
 {
-	return ( beamlineStatus_->isOn());
+	return ( beamlineStatus_->isConnected() && beamlineStatus_->isOn());
 }
 
 void SXRMBBeamline::sampleStageConnectHelper()
@@ -949,11 +949,10 @@ void SXRMBBeamline::onPVConnectedHelper(){
 }
 
 void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
-	onPVConnectedHelper();
+	Q_UNUSED (value)
 
-	if (value) {
-		updateBeamAvailabilityStatus();
-	}
+	onPVConnectedHelper();
+	updateBeamAvailabilityStatus();
 }
 
 void SXRMBBeamline::onPhotonShutterStateChanged()

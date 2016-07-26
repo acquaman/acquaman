@@ -55,7 +55,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new PGMBeamline();
-			instance_->initializeBeamline();
+			instance_->initializeBeamlineSupport();
 		}
 
 		return static_cast<PGMBeamline*>(instance_);
@@ -160,9 +160,6 @@ public:
 	/// Returns the set of HV controls
 	AMControlSet *branchAHVControlSet() const { return branchAHVControlSet_; }
 	AMControlSet *branchBHVControlSet() const { return branchBHVControlSet_; }
-
-signals:
-
 
 protected slots:
 	/// slot to handle connection changed signals of the control

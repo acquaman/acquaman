@@ -1124,6 +1124,8 @@ void BioXASBeamline::setupComponents()
 
 	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
 	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateBeamAvailabilityStatus()) );
+	connect( beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamAvailabilityStatus()) );
 
 	beamlineStatus_->addShutterControl(utilities_->shutters(), CLSShutters::Open);
 	beamlineStatus_->addValveControl(utilities_->beampathValves(), CLSValves::Open);
@@ -1369,7 +1371,7 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 
 bool BioXASBeamline::isBeamlineBeamAvailable()
 {
-	return true;
+	return beamlineStatus_->isConnected() && beamlineStatus_->isOn();
 }
 
 BioXASBeamline::BioXASBeamline(const QString &controlName) :

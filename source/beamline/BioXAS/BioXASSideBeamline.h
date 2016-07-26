@@ -49,7 +49,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new BioXASSideBeamline();
-			instance_->initializeBeamline();
+			instance_->initializeBeamlineSupport();
 		}
 
 		return static_cast<BioXASSideBeamline*>(instance_);

@@ -44,7 +44,7 @@ AMBeamline::~AMBeamline()
 {
 }
 
-void AMBeamline::initializeBeamline()
+void AMBeamline::initializeBeamlineSupport()
 {
 	// initialize beamline support
 	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());

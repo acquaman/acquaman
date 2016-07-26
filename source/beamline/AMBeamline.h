@@ -72,7 +72,7 @@ public:
 	virtual ~AMBeamline();
 
 	/// function to be called after beamline instantiated, which will finalize the initialization of the CLSBeamline
-	virtual void initializeBeamline();
+	virtual void initializeBeamlineSupport();
 
 	/// Returns a string with a human readable text of what is important about this detector.
 	virtual QString details() const { return ""; }

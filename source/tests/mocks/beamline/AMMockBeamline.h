@@ -41,7 +41,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new AMMockBeamline();
-			instance_->initializeBeamline();
+			instance_->initializeBeamlineSupport();
 		}
 
 		return static_cast<AMMockBeamline*>(instance_);

@@ -73,7 +73,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new VESPERSBeamline();
-			instance_->initializeBeamline();
+			instance_->initializeBeamlineSupport();
 		}
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
@@ -532,8 +532,6 @@ public:
 signals:
 	/// Notifier that the beam has been changed.
 	void currentBeamChanged(VESPERS::Beam);
-//	/// Notifier that passes on that the beam has gone down.
-//	void beamDumped();
 	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
 	void pressureStatus(bool);
 	/// Notifier of the current state of the valves on the beamline.  Passes false if ANY of the valves are closed.

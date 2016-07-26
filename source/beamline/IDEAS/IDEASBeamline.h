@@ -53,7 +53,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new IDEASBeamline();
-			instance_->initializeBeamline();
+			instance_->initializeBeamlineSupport();
 		}
 
 		return static_cast<IDEASBeamline*>(instance_);

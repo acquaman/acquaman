@@ -66,7 +66,7 @@ public:
 	{
 		if (!instance_) {
 			instance_ = new BioXASBeamline("BioXAS Beamline");
-			instance_->initializeBeamline();
+			instance_->initializeBeamlineSupport();
 		}
 
 		return static_cast<BioXASBeamline*>(instance_);
