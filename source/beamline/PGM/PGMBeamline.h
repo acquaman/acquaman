@@ -159,6 +159,11 @@ public:
 	AMControlSet *branchAHVControlSet() const { return branchAHVControlSet_; }
 	AMControlSet *branchBHVControlSet() const { return branchBHVControlSet_; }
 
+	/// Returns the undulator gap detector emulator.
+	AMBasicControlDetectorEmulator* undulatorGapDetector() const { return undulatorGapDetector_; }
+	/// Returns the ring current detector emulator.
+	AMBasicControlDetectorEmulator* ringCurrentDetector() const { return ringCurrentDetector_; }
+
 signals:
 
 
@@ -294,6 +299,11 @@ protected:
 
 	/// The variable aperture mask.
 	PGMVariableApertureMask* vam_;
+
+	/// The undulator gap detector emulator.
+	AMBasicControlDetectorEmulator *undulatorGapDetector_;
+	/// The ring current detector emulator.
+	AMBasicControlDetectorEmulator *ringCurrentDetector_;
 };
 
 #endif // PGMBEAMLINE_H

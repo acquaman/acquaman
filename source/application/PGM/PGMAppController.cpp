@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/PGM/PGM.h"
 
 #include "beamline/AMControl.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -155,6 +156,8 @@ void PGMAppController::setupScanConfigurations()
 	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0EndstationBladeCurrentDetector")->toInfo());
 	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0BeamlineBladeCurrentDetector")->toInfo());
 //	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("photodiodeBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(PGMBeamline::pgm()->undulatorGapDetector()->toInfo());
+	xasScanConfiguration_->addDetector(PGMBeamline::pgm()->ringCurrentDetector()->toInfo());
 
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(91);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.1);
