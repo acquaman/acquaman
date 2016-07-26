@@ -12,6 +12,22 @@ AMToolButton::~AMToolButton()
 
 }
 
+QString AMToolButton::colorStateToString(AMToolButton::ColorState state) const
+{
+	QString result = "";
+
+	if (state == AMToolButton::None)
+		result = "None";
+	else if (state == AMToolButton::Good)
+		result = "Good";
+	else if (state == AMToolButton::Bad)
+		result = "Bad";
+	else if (state == AMToolButton::Neutral)
+		result = "Neutral";
+
+	return result;
+}
+
 void AMToolButton::setColorState(AMToolButton::ColorState newState)
 {
 	if (colorState_ != newState) {

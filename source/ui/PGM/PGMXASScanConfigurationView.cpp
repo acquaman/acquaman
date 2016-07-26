@@ -27,8 +27,11 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 
 	regionsView_ = new AMStepScanAxisView("VLS-PGM Region Configuration", configuration_, 0, "Min", "Max");
 
+	QVBoxLayout *regionsGroupLayout = new QVBoxLayout;
+	regionsGroupLayout->addWidget(regionsView_);
+
 	QGroupBox *regionsGroupBox = new QGroupBox("Regions");
-	regionsGroupBox->setLayout(regionsView_->layout());
+	regionsGroupBox->setLayout(regionsGroupLayout);
 
 	// Estimated scan time to display.
 

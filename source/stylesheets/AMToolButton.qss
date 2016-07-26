@@ -10,6 +10,7 @@ border-color: #ffffff;
 padding: 6px;
 min-width: 10px;
 min-height: 10px;
+qproperty-checkable: false;
 }
 
 AMToolButton:pressed {

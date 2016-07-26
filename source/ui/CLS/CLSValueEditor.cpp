@@ -227,7 +227,7 @@ void CLSValueEditor::updateEditAction()
 	if (!readOnly_)
 		enabled = true;
 
-	editAction_->setEnabled(true);
+	editAction_->setEnabled(enabled);
 }
 
 void CLSValueEditor::edit()

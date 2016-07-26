@@ -12,9 +12,6 @@ class BioXASXASScanConfiguration : public BioXASGenericStepScanConfiguration
 {
     Q_OBJECT
 
-	Q_PROPERTY(AMDbObject *configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
-	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
-
 	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS XAS Scan Configuration")
 
 public:

@@ -22,12 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "ui/AMToolButton.h"
+#include "ui/beamline/AMControlToolButton.h"
 #include "ui/CLS/CLSControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
+#include "ui/BioXAS/BioXASBeamStatusButtonBar.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -47,25 +48,18 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Create the beam status view.
 
-	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamStatus();
+	BioXASBeamStatusButtonBar *beamStatusButtonBar = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
+	connect( beamStatusButtonBar, SIGNAL(componentClicked(AMControl*)), this, SIGNAL(beamStatusControlClicked(AMControl*)) );
 
-	if (beamlineStatus) {
-		CLSBeamlineStatusView * beamlineStatusView = new CLSBeamlineStatusView(true);
-		connect(beamlineStatusView, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(beamlineStatusControlClicked(AMControl*)) );
+	QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
+	beamStatusBoxLayout->addStretch();
+	beamStatusBoxLayout->addWidget(beamStatusButtonBar);
+	beamStatusBoxLayout->addStretch();
 
-		mainViewLayout->addWidget(beamlineStatusView);
-	}
+	QGroupBox *beamStatusBox = new QGroupBox("Beam status");
+	beamStatusBox->setLayout(beamStatusBoxLayout);
 
-	 // Create kill switch status view.
-
-        AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
-
-        if(endStationKillSwitchStatus){
-
-			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
-			killSwitchEditor->setTitle("Endstation Motors Disabled");
-	    mainViewLayout->addWidget(killSwitchEditor);
-        }
+	mainViewLayout->addWidget(beamStatusBox);
 
 	// Create mono view.
 
@@ -83,6 +77,29 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		mainViewLayout->addWidget(monoBox);
 	}
+
+	// Create endstation shutter view.
+
+	CLSExclusiveStatesControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+
+	if (soeShutter) {
+		CLSControlEditor *soeShutterEditor = new CLSControlEditor(soeShutter);
+		soeShutterEditor->setTitle("SOE shutter");
+
+		mainViewLayout->addWidget(soeShutterEditor);
+	}
+
+	// Create kill switch status view.
+
+	   AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
+
+	   if (endStationKillSwitchStatus) {
+
+		   CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
+		   killSwitchEditor->setTitle("Endstation motors kill-switch");
+
+		   mainViewLayout->addWidget(killSwitchEditor);
+	   }
 
 	// Create fast shutter view.
 
@@ -110,15 +127,10 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
 
-    // Create end station shutter view.
-	CLSControlEditor *soeShutter = new CLSControlEditor(BioXASBeamline::bioXAS()->soeShutter());
-    if(soeShutter){
-		mainViewLayout->addWidget(soeShutter);
-    }
-
 	// Create the scaler channels view.
 
 	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
 	if (scaler) {
 		BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler);
 
@@ -138,7 +150,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Current settings.
 
-	refresh();
+	updateView();
 }
 
 BioXASPersistentView::~BioXASPersistentView()
@@ -146,7 +158,7 @@ BioXASPersistentView::~BioXASPersistentView()
 
 }
 
-void BioXASPersistentView::refresh()
+void BioXASPersistentView::updateView()
 {
 	updateCryostatBox();
 }
@@ -156,6 +168,7 @@ void BioXASPersistentView::updateCryostatBox()
 	if (BioXASBeamline::bioXAS()->usingCryostat()) {
 		cryostatView_->setControl(BioXASBeamline::bioXAS()->cryostat());
 		cryostatBox_->show();
+
 	} else {
 		cryostatBox_->hide();
 	}

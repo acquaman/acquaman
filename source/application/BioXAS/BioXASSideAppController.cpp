@@ -65,8 +65,6 @@ void BioXASSideAppController::setupUserInterfaceImplementation()
 {
 	BioXASAppController::setupUserInterfaceImplementation();
 
-	// Side specific setup.
-
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
 	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
