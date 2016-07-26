@@ -7,10 +7,12 @@
 
 #include <QString>
 
-#define AMHDF5FILE_INVALID_FILE_OPTION 666000
+#define AMHDF5FILE_INVALID_CREATE_OPTION 666000
 #define AMHDF5FILE_FILE_ALREADY_OPEN 666001
 #define AMHDF5FILE_FILE_ALREADY_CLOSED 666002
 #define AMHDF5FILE_NOT_HDF5_FILE 666003
+#define AMHDF5FILE_INVALID_OPEN_OPTION 666004
+#define AMHDF5FILE_FLUSH_FILE_NOT_OPEN 666005
 
 /// This is the base class that will relate all the other pieces of the HDF5 library.  Nothing can work
 /// without having an open HDF5 file instance.
@@ -47,6 +49,8 @@ public:
 	bool isHDF5File() const;
 	/// Returns whether the file is currently open.
 	bool isOpen() const;
+	/// Returns the size of the HDF5 file in megabytes (MB).  Only valid if open.
+	int fileSize() const;
 
 signals:
 
@@ -57,6 +61,8 @@ public slots:
 	bool openHDF5File(AMHDF5File::OpenOption option = ReadWrite);
 	/// Closes the HDF5 file if it still has a valid, open file id.  Returns false if file is already closed.
 	bool closeHDF5File();
+	/// Flushes the current HDF5 file to disk.  Only valid when the file is open.  Not necessary to call prior to closing the file.
+	bool flushHDF5File();
 
 protected:
 	/// The path and name of HDF5 file.

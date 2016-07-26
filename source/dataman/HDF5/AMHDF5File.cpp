@@ -36,6 +36,25 @@ bool AMHDF5File::isOpen() const
 	return id_ > 0;
 }
 
+int AMHDF5File::fileSize() const
+{
+	if (!isOpen())
+		return -1;
+
+	hsize_t size = 0;
+	herr_t status = H5Fget_filesize(id_, &size);
+
+	if (status < 0){
+
+		// HDF5 File error + error mon.
+		return -1;
+	}
+
+	int sizeInMegaBytes = int(size*1e-6);
+
+	return sizeInMegaBytes;
+}
+
 bool AMHDF5File::createHDF5File(AMHDF5File::CreateOption option)
 {
 	if (id_ != 0){
@@ -123,5 +142,24 @@ bool AMHDF5File::closeHDF5File()
 		// HDF5 error + error mon.
 		return false;
 	}
+}
+
+bool AMHDF5File::flushHDF5File()
+{
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FLUSH_FILE_NOT_OPEN, QString("%1 can't be flushed because it is not open.").arg(name_));
+		return false;
+	}
+
+	herr_t status = H5Fflush(id_, H5F_SCOPE_GLOBAL);
+
+	if (status < 0){
+
+		// HDF5 error + error mon.
+		return false;
+	}
+
+	return true;
 }
 
