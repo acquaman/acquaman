@@ -15,6 +15,8 @@
 #include "ui/PGM/PGMBPMStatusView.h"
 
 
+#include "util/AMHDF5Driver.h"
+
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -26,6 +28,25 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(persistentViewGroupBox);
+
+	QVector<double> data = QVector<double>(5);
+	AMHDF5Driver test;
+//	hid_t fileId = test.createFile();
+	hid_t fileId = test.openFile();
+//	hid_t spaceId = test.addDataSpace();
+//	hid_t dataSetId = test.addDataSet(fileId, spaceId);
+	hid_t dataSetId = test.openDataSet(fileId);
+	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
+	qDebug() << data;
+	data.fill(24);
+	qDebug() << "Write: " << test.writeDataSet(dataSetId, data.data());
+	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
+	qDebug() << data;
+	hid_t attributeId = test.addAttribute(dataSetId, test.getDataSpace(dataSetId));
+	test.closeAttribute(attributeId);
+	test.closeDataSet(dataSetId);
+//	test.closeDataSpace(spaceId);
+	test.closeFile(fileId);
 
 	setLayout(mainViewLayout);
 

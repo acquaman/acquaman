@@ -8,12 +8,13 @@
 # to alter in there.
 #################################################
 
-# Load Defaults
-AM_ENABLE_BOUNDS_CHECKING = 1
-
 # Location of the CDF header and library files
 CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
 CDF_LIB_DIR = /home/beamline/tools/cdf/lib
+
+# Location of the CDF header and library files
+HDF5_INCLUDE_DIR = /home/beamline/tools/hdf5/include
+HDF5_LIB_DIR = /home/beamline/tools/hdf5/lib
 	
 # Location of the EPICS base header and library files
 EPICS_INCLUDE_DIR = /home/epics/src/R3.14.12/base/include \
