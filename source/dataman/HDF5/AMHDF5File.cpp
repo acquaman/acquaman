@@ -97,6 +97,12 @@ bool AMHDF5File::openHDF5File(AMHDF5File::OpenOption option)
 		return false;
 	}
 
+	if (!isHDF5File()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_NOT_HDF5_FILE, QString("%1 is not a valid file name.").arg(name_));
+		return false;
+	}
+
 	hid_t fileId = 0;
 
 	if (option == ReadWrite)
