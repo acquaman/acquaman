@@ -472,7 +472,8 @@ HEADERS += \
     source/beamline/AMBeamlineControl.h \
 	source/ui/AMWindowPaneProxyModel.h \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.h \
-    $$PWD/source/util/AMHDF5Driver.h
+    $$PWD/source/util/AMHDF5Driver.h \
+    $$PWD/source/dataman/HDF5/AMHDF5File.h
 
 FORMS += \
 
@@ -907,7 +908,8 @@ SOURCES += \
     source/beamline/AMBeamlineControl.cpp \
 	source/ui/AMWindowPaneProxyModel.cpp \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp \
-    $$PWD/source/util/AMHDF5Driver.cpp
+    $$PWD/source/util/AMHDF5Driver.cpp \
+    $$PWD/source/dataman/HDF5/AMHDF5File.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \
