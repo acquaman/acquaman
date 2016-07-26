@@ -1,6 +1,5 @@
 #include "SXRMBPersistentView.h"
 
-#include <QPushButton>
 #include <QBoxLayout>
 #include <QGroupBox>
 
@@ -22,8 +21,8 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	beamOffAction_ = 0; //NULL
 
 	// create persistent view component container
-	mainVL_ = new QVBoxLayout();
-	mainVL_->setContentsMargins(4, 2, 4, 2);
+	contentLayout_ = new QVBoxLayout();
+	contentLayout_->setContentsMargins(4, 2, 4, 2);
 
 	layoutBeamlineStatus();
 	layoutBeamlineEnergy();
@@ -32,20 +31,20 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	layoutHVControls();
 
 	// add stretch for display purpose
-	mainVL_->addStretch();
+	contentLayout_->addStretch();
 
-	mainGroupBox_ = new QGroupBox("SXRMB Beamline");
-	mainGroupBox_->setLayout(mainVL_);
+	// create the persistent view group box
+	QGroupBox *persistentViewGroupBox_ = new QGroupBox("SXRMB Beamline");
+	persistentViewGroupBox_->setLayout(contentLayout_);
 
-	mainGroupBoxVL_ = new QVBoxLayout();
-	mainGroupBoxVL_->addWidget(mainGroupBox_);
+	/// Main layout holding overall group box
+	QVBoxLayout *widgetLayout = new QVBoxLayout();
+	widgetLayout->addWidget(persistentViewGroupBox_);
 
-	setLayout(mainGroupBoxVL_);
+	setLayout(widgetLayout);
 	setFixedWidth(400);
 
-	// connect to signals
-	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
-	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+	// connect to signals and initialization
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 
 	onBeamlineEndstationChanged(SXRMBBeamline::sxrmb()->currentEndstation(), SXRMBBeamline::sxrmb()->currentEndstation());
@@ -53,52 +52,6 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 
 SXRMBPersistentView::~SXRMBPersistentView()
 {
-}
-
-void SXRMBPersistentView::onBeamOnButtonClicked(){
-	if(beamOnAction_)
-		return;
-
-	beamOnAction_ = SXRMBBeamline::sxrmb()->createBeamOnActions();
-	if (beamOnAction_) {
-		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
-		beamOnAction_->start();
-	}
-}
-
-void SXRMBPersistentView::onBeamOnActionFinished(){
-	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
-
-	beamOnAction_->deleteLater();
-	beamOnAction_ = 0; //NULL
-}
-
-void SXRMBPersistentView::onBeamOnActionFailed(){
-	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
-	onBeamOnActionFinished();
-}
-
-
-void SXRMBPersistentView::onBeamOffButtonClicked(){
-	if(beamOffAction_)
-		return;
-
-	beamOffAction_ = SXRMBBeamline::sxrmb()->createBeamOffActions();
-	if (beamOffAction_) {
-		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-		beamOffAction_->start();
-	}
-}
-
-void SXRMBPersistentView::onBeamOffActionFinished(){
-	disconnect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-	disconnect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-
-	beamOffAction_->deleteLater();
-	beamOffAction_ = 0; //NULL
 }
 
 void SXRMBPersistentView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
@@ -120,34 +73,30 @@ void SXRMBPersistentView::onBeamlineEndstationChanged(SXRMB::Endstation fromEnds
 
 void SXRMBPersistentView::layoutBeamlineStatus()
 {
+	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
+
 	// create beamline endstation label
 	endstationLabel_ = new QLabel("Endstation: ");
 	endstationLabel_->setMargin(5);
-	mainVL_->addWidget(endstationLabel_);
 
-	QWidget *beamlineStatusView = new CLSBeamlineStatusView(SXRMBBeamline::sxrmb()->beamlineStatus(), true, true);
-	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
-	mainVL_->addWidget(beamlineStatusView);
+	// create the beamline status view with beam on/off actions
+	CLSBeamlineStatusView *beamlineStatusView = new CLSBeamlineStatusView(true, true);
+	beamlineStatusView->enableBeamOnOffActions();
+	connect(beamlineStatusView, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(beamlineStatusControlClicked(AMControl*)) );
 
-	//create and add beam on/off buttons
-	beamOnButton_ = new QPushButton("Beam On");
-	beamOffButton_ = new QPushButton("Beam Off");
-
-	QHBoxLayout *beamOnOffHL = new QHBoxLayout();
-	beamOnOffHL->addWidget(beamOnButton_);
-	beamOnOffHL->addWidget(beamOffButton_);
-
-	mainVL_->addLayout(beamOnOffHL);
+	// layout the components
+	contentLayout_->addWidget(endstationLabel_);
+	contentLayout_->addWidget(beamlineStatusView);
 }
 
 void SXRMBPersistentView::layoutBeamlineEnergy()
 {
 	// create energy component
-	energyControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
-	energyControlEditor_->setControlFormat('f', 2);
-	energyControlEditor_->setUnits("eV");
+	AMExtendedControlEditor *energyControlEditor = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
+	energyControlEditor->setControlFormat('f', 2);
+	energyControlEditor->setUnits("eV");
 
-	mainVL_->addWidget(energyControlEditor_);
+	contentLayout_->addWidget(energyControlEditor);
 }
 
 void SXRMBPersistentView::layoutMotorGroup()
@@ -161,10 +110,10 @@ void SXRMBPersistentView::layoutMotorGroup()
 	motorGroupLayout->setContentsMargins(4, 0, 4, 0);
 	motorGroupLayout->addWidget(motorGroupView_);
 
-	QGroupBox *motorGroupBox = new QGroupBox("MotorGroup");
+	QGroupBox *motorGroupBox = new QGroupBox("Motor Group");
 	motorGroupBox->setLayout(motorGroupLayout);
 
-	mainVL_->addWidget(motorGroupBox);
+	contentLayout_->addWidget(motorGroupBox);
 }
 
 void SXRMBPersistentView::layoutScalers()
@@ -200,13 +149,13 @@ void SXRMBPersistentView::layoutScalers()
 	QGroupBox *scalerGroupBox = new QGroupBox("Scalers");
 	scalerGroupBox->setLayout(scalerGroupLayout);
 
-	mainVL_->addWidget(scalerGroupBox);
+	contentLayout_->addWidget(scalerGroupBox);
 }
 
 void SXRMBPersistentView::layoutHVControls()
 {
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(SXRMBBeamline::sxrmb()->beamlinePersistentHVControlSet(), true);
 
-	mainVL_->addWidget(hvControlView);
+	contentLayout_->addWidget(hvControlView);
 
 }

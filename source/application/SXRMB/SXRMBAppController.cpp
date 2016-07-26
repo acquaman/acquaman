@@ -150,12 +150,6 @@ void SXRMBAppController::onBeamlineInitializeFinished()
 	userConfiguration_ = sxrmbUserConfiguration_;
 }
 
-void SXRMBAppController::onBeamControlShuttersTimeout()
-{
-	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
-	AMErrorMon::alert(this, ERR_SXRMB_SHUTTERS_TIMEOUT, errorMessage, true);
-}
-
 void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
 	Q_UNUSED(fromEndstation)
@@ -206,7 +200,6 @@ void SXRMBAppController::initializeBeamline()
 	// Initialize central beamline object
 	SXRMBBeamline * sxrmbBL = SXRMBBeamline::sxrmb();
 
-	connect(sxrmbBL, SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
 }
 
@@ -298,10 +291,15 @@ void SXRMBAppController::setupUserConfiguration()
 		onBeamlineInitializeFinished();
 }
 
+void SXRMBAppController::setupUserInterfaceImplementation()
+{
+	mw_->setWindowTitle("Acquaman - SXRMB");
+}
+
 void SXRMBAppController::createPersistentView()
 {
 	sxrmbPersistentView_ = new SXRMBPersistentView();
-	connect( sxrmbPersistentView_, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+	connect( sxrmbPersistentView_, SIGNAL(beamlineStatusControlClicked(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 
 	mw_->addRightWidget(sxrmbPersistentView_);
 }
@@ -310,7 +308,8 @@ void SXRMBAppController::createGeneralPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
-	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), false);
+	beamlineStatusView_ = new CLSBeamlineStatusView(false);
+	beamlineStatusView_->enableBeamOnOffActions();
 	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);
@@ -500,21 +499,6 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 
 		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
 		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
-	}
-}
-
-void SXRMBAppController::goToBeamlineStatusView(AMControl *control)
-{
-	if (beamlineStatusView_) {
-
-		// Set the given control as the view's selected control.
-
-		beamlineStatusView_->setSelectedComponent(control);
-
-		// Set the beam status pane as the current pane.
-		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
-		if (windowPane)
-			mw_->setCurrentPane(windowPane);
 	}
 }
 

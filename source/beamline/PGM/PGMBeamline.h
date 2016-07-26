@@ -77,12 +77,6 @@ public:
 	PGMBPMControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
 	PGMBPMControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
 
-	/// returns the current beamline connected state
-	virtual bool isConnected() const;
-
-	/// Returns the beam status.
-	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
-
 	/// The control for the branch A exit slit position
 	AMPVwStatusControl *exitSlitBranchAPosition() const;
 
@@ -159,13 +153,6 @@ public:
 	AMControlSet *branchAHVControlSet() const { return branchAHVControlSet_; }
 	AMControlSet *branchBHVControlSet() const { return branchBHVControlSet_; }
 
-signals:
-
-
-protected slots:
-	/// slot to handle connection changed signals of the control
-	void onControlConnectionChanged();
-
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
@@ -190,9 +177,13 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
+	/// helper funtion to create beamline status and beamline shutters and beamline valves
+	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
+
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
+protected:
 	// Detectors
 	PGMPicoAmmeter *exitSlitLowerBladeCurrentADetector_;
 	PGMPicoAmmeter *exitSlitUpperBladeCurrentADetector_;
@@ -210,16 +201,6 @@ protected:
 
 	// Synchronized dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
-
-	/// flag to identify whether the beamline controls were connected or not
-	bool connected_;
-
-	/// The beam status.
-	CLSBeamlineStatus *beamlineStatus_;
-	/// The shutters control.
-	CLSShutters *beamlineShutters_;
-	/// The valves control.
-	CLSValves *beamlineValves_;
 
 	/// Storage ring current
 	AMReadOnlyPVControl *ringCurrent_;
@@ -283,8 +264,6 @@ protected:
 	CLSHVControl *branchB101HVControl_;
 	CLSHVControl *branchB102HVControl_;
 
-	/// The controls which are required to be connected for the beamline to return connected
-	AMControlSet* requiredControls_;
 	/// The control set of the HV controls
 	AMControlSet* branchAHVControlSet_;
 	AMControlSet* branchBHVControlSet_;

@@ -3,6 +3,13 @@
 
 #include "beamline/CLS/CLSTriStateGroup.h"
 
+#define CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION 30010401
+
+#define CLS_VALVE_OPEN 1
+#define CLS_VALVE_CLOSED 4
+
+class AMListAction3;
+
 class CLSValves : public CLSTriStateGroup
 {
     Q_OBJECT
@@ -15,6 +22,9 @@ public:
 	explicit CLSValves(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~CLSValves();
+
+	/// helper function to create a beam on action list
+	AMListAction3* createBeamOnActionList();
 
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;
@@ -37,7 +47,8 @@ signals:
 
 public slots:
 	/// Adds a valve control.
-	bool addValve(AMControl *newValve, double openStateValue, double closedStateValue);
+	/// @param beamOnOrder: the order to open a shutter when doing beam on/off. The smaller, the earlier. -1, if a shutter is not invovled in beam on/off
+	bool addValve(AMControl *newValve, double openStateValue, double closedStateValue, int beamOnOrder=-1);
 	/// Removes a valve control.
 	bool removeValve(AMControl *newValve);
 	/// Clears all valve controls.
@@ -51,6 +62,11 @@ protected:
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
+
+protected:
+	/// the order of the valves in the beam on action. If a valve is not invovled in the beam on/off action, the order is -1
+	QMap<int, AMControl*> valvesBeamOnOrderMap_;
+
 };
 
 #endif // CLSVALVES_H

@@ -135,7 +135,7 @@ bool CLSBiStateGroup::addBiStateControl(AMControl *control, double state1Value)
 {
 	bool result = false;
 
-	if (addChildControl(control)){
+	if (AMEnumeratedControl::addChildControl(control)){
 		controlState1ValueMap_.insert(control, state1Value);
 		result = true;
 	}

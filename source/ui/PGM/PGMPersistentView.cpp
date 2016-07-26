@@ -39,8 +39,8 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 QLayout* PGMPersistentView::createPersistentLayout()
 {
 	// create the beamline status view
-	QWidget *beamlineStatusView = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), true);
-	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
+	CLSBeamlineStatusView *beamlineStatusView = new CLSBeamlineStatusView(true);
+	connect(beamlineStatusView, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(beamlineStatusControlClicked(AMControl*)) );
 
 // NOTES:  remove this from the persistent view for this moment. We will decide what we want later..
 //	// create the PGM blade current view

@@ -159,7 +159,6 @@ int AMSingleEnumeratedControl::currentIndex() const
 		// If there are multiple indices, pick the first.
 
 		QList<int> indices = indicesContaining(control_->value());
-
 		if (!indices.isEmpty())
 			currentIndex = indices.first();
 	}

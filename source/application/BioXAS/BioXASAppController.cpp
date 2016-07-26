@@ -5,6 +5,7 @@
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
+#include "ui/CLS/CLSBeamlineStatusView.h"
 
 BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *parent) :
 	CLSAppController(beamlineName, parent)

@@ -6,9 +6,11 @@
 
 #include "util/AMPeriodicTable.h"
 
+class AMControl;
+class CLSBeamlineStatusView;
 class CLSUserConfiguration;
 
-#define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
+#define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30010101
 
 class CLSAppController : public AMAppController
 {
@@ -29,6 +31,9 @@ protected slots:
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
+
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamlineStatusView(AMControl *control);
 
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }
@@ -96,6 +101,9 @@ protected:
 
 	/// Mapping between views and window panes. Used for switching the current pane.
 	QMap<QWidget*, QWidget*> viewPaneMapping_;
+
+	/// the beamline status view
+	CLSBeamlineStatusView *beamlineStatusView_;
 };
 
 #endif // CLSAPPCONTROLLER_H

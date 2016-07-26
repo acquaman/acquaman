@@ -5,8 +5,17 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 
-#define CLSBEAMLINE_VALVE_OPEN 1
-#define CLSBEAMLINE_VALVE_CLOSED 4
+#define CLSBEAMLINE_ERR_BEAM_ON_FAILED 30010201
+#define CLSBEAMLINE_ERR_BEAM_ON_ALREADY_ON 30010202
+#define CLSBEAMLINE_ERR_BEAM_ON_UNCONNECTED_PV 30010203
+#define CLSBEAMLINE_ERR_BEAM_ON_CLOSED_SAFETY_SHUTTER 30010204
+#define CLSBEAMLINE_ERR_BEAM_OFF_UNCONNECTED_PV 30010210
+#define CLSBEAMLINE_ERR_BEAM_OFF_ALREADY_OFF 30010211
+
+class AMAction3;
+class CLSBeamlineStatus;
+class CLSShutters;
+class CLSValves;
 
 class CLSBeamline : public AMBeamline
 {
@@ -17,7 +26,7 @@ public:
 	static CLSBeamline *clsBeamline()
 	{
 		if (!instance_) {
-			instance_ = new CLSBeamline("CLS Beamline");
+			instance_ = new CLSBeamline("CLSBeamline", "CLS Beamline");
 			instance_->initializeBeamlineSupport();
 		}
 
@@ -27,12 +36,87 @@ public:
 	/// Destructor.
 	virtual ~CLSBeamline();
 
+	/// Retuns whether the beamline components are connected or not
+	virtual bool isConnected() const;
+	/// Returns the latest beam status
+	bool isBeamAvailable() const { return wasBeamOn_; }
+
+	/// Returns the beamline status component
+	CLSBeamlineStatus* beamlineStatus() const;
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
+signals:
+	/// signal to indicate beam availability changed
+	void beamAvaliabilityChanged(bool beamOn);
+
+public slots:
+	/// Handles turning beam on when button clicked
+	void onTurningBeamOnRequested();
+	/// Handles turning beam off when button clicked
+	void onTurningBeamOffRequested();
+
+protected slots:
+	/// Slot to check the connected status of the beamline components
+	void onBeamlineComponentConnected();
+
+	/// Updates the beam status changed
+	void updateBeamStatus();
+
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFinished();
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFailed();
+
+	/// Handles disconnecting signals and deleting when beam off action is done
+	void onBeamOffActionFinished();
+
 protected:
 	/// Protected constructor, for singleton pattern.
-	CLSBeamline(const QString &controlName);
+	CLSBeamline(const QString &beamlineName, const QString &controlName);
+
+	/// set the beamline name
+	void setBeamlineName(const QString &name) { beamlineName_ = name; }
+
+	/// helper funtion to create beamline status and beamline shutters and beamline valves
+	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
+
+	/// helpfer function to initialize beamline component values
+	void initializeBeamline();
+
+	/// helper function to setup the beamline status component
+	void setBeamlineStatus(CLSBeamlineStatus *beamlineStatus);
+
+	/// Returns the list of actions to turn the beam on. Each beamline will have their own implementation.
+	virtual AMListAction3* createBeamOnActions() const;
+	/// Returns the list of actions to turn the beam off.  Each beamline will have their own implementation.
+	virtual AMListAction3* createBeamOffActions() const;
+
+protected:
+	/// The name of the beamline
+	QString beamlineName_;
+
+	/// The latest connectivity status
+	bool wasConnected_;
+	/// The latest beam status
+	bool wasBeamOn_;
+
+	/// The controls which are required to be connected for the beamline to return connected
+	AMControlSet* requiredControls_;
+	/// The detectors which are required to be connected for the beamline to return connected
+	AMDetectorSet* requiredDetector_;
+
+	/// The beamline status component
+	CLSBeamlineStatus *beamlineStatus_;
+	/// The shutters control.
+	CLSShutters *beamlineShutters_;
+	/// The valves control.
+	CLSValves *beamlineValves_;
+
+	/// Our copy of the beam on action
+	AMAction3 *beamOnAction_;
+	/// Our copy of the beam off action
+	AMAction3 *beamOffAction_;
 
 };
 

@@ -32,10 +32,10 @@ CLSValueEditor::CLSValueEditor(QWidget *parent) :
 
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(valueLabel_);
+	contentLayout_ = new QVBoxLayout();
+	contentLayout_->addWidget(valueLabel_);
 
-	setLayout(layout);
+	setLayout(contentLayout_);
 
 	// Make connections.
 

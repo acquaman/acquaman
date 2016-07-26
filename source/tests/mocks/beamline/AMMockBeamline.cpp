@@ -20,7 +20,7 @@ AMMotorGroup * AMMockBeamline::sampleStageMotorGroup() const
 }
 
 AMMockBeamline::AMMockBeamline() :
-    CLSBeamline("Mock Beamline")
+	CLSBeamline("MockBeamline", "Mock Beamline")
 {
 	setupComponents();
 	setupDetectors();

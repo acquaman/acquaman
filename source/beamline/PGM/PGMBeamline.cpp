@@ -24,10 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMBranchSelectionControl.h"
 
 PGMBeamline::PGMBeamline()
-	: CLSBeamline("PGM Beamline")
+	: CLSBeamline("VLS-PGM", "VLS-PGM Beamline")
 {
-	connected_ = false;
-
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -41,17 +39,12 @@ PGMBeamline::PGMBeamline()
 	setupExposedDetectors();
 
 	// update the connection changed flag and emit the signal to indicate whether conneciton is changed
-	onControlConnectionChanged();
+	initializeBeamline();
 }
 
 PGMBeamline::~PGMBeamline()
 {
 
-}
-
-bool PGMBeamline::isConnected() const
-{
-	return requiredControls_->isConnected();
 }
 
 AMPVwStatusControl *PGMBeamline::exitSlitBranchAPosition() const
@@ -114,16 +107,6 @@ AMControl *PGMBeamline::gratingSelectionControl() const
 	return gratingSelectionControl_;
 }
 
-void PGMBeamline::onControlConnectionChanged()
-{
-	bool isConnectedNow = isConnected();
-	if (connected_ != isConnectedNow) {
-		connected_ = isConnectedNow;
-
-		emit connected(connected_);
-	}
-}
-
 void PGMBeamline::setupDiagnostics()
 {
 
@@ -157,10 +140,7 @@ void PGMBeamline::setupDetectors()
 }
 
 void PGMBeamline::setupControlSets()
-{	
-	requiredControls_ = new AMControlSet(this);
-
-	requiredControls_->addControl(beamlineStatus_);
+{
 	requiredControls_->addControl(exitSlitBranchAPosition_);
 	requiredControls_->addControl(exitSlitBranchAGap_);
 	requiredControls_->addControl(exitSlitBranchBPosition_);
@@ -171,7 +151,7 @@ void PGMBeamline::setupControlSets()
 	requiredControls_->addControl(undulatorGap_);
 	requiredControls_->addControl(branchSelectionControl_);
 
-	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
+	requiredDetector_->addDetector(oceanOpticsDetector_);
 }
 
 void PGMBeamline::setupMono()
@@ -182,33 +162,10 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-	// ==== set up the beamline status
-	//       Photon Shutters
-	AMControl *photonShutter1 = new AMReadOnlyPVControl("PhotonShutter1", "PSH1411-I00-01:state", this, "Photon Shutter 1");
-	AMControl *photonShutter2 = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", this, "Photon Shutter 2");
-	AMControl *photonShutter3 = new CLSExclusiveStatesControl("PhotonShutter3", "PSH1611-3-I20-01:state", "PSH1611-3-I20-01:opr:open", "PSH1611-3-I20-01:opr:close", this, "Photon Shutter 3");
-	AMControl *safetyShutter1 = new CLSExclusiveStatesControl("SafetyShutter1", "SSH1411-I00-01:state",  "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", this, "Safety Shutter 1");
+	// set up the beamline status
+	createBeamlineStatus();
 
-	beamlineShutters_ = new CLSShutters(QString("PGM Shutters"), this);
-	beamlineShutters_->addShutter(photonShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(photonShutter2, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(photonShutter3, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(safetyShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-
-	//      set up the valves
-	AMControl *branchAValve = new CLSExclusiveStatesControl("BranchAValves", "VVR1611-4-I22-04:state",  "VVR1611-4-I22-04:opr:open",  "VVR1611-4-I22-04:opr:close", this, "Branch A Valve");
-	AMControl *branchBValve = new CLSExclusiveStatesControl("BranchBValves", "VVR1611-4-I21-04:state",  "VVR1611-4-I21-04:opr:open",  "VVR1611-4-I21-04:opr:close", this, "Branch B Valve");
-
-	beamlineValves_ = new CLSValves(QString("PGM Valves"), this);
-	beamlineValves_->addValve(branchAValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineValves_->addValve(branchBValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-
-	//       set up the Beamline status.
-	beamlineStatus_ = new CLSBeamlineStatus("PGM BeamlineStatus", this);
-
-	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
-	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
-
+	// set up synchronized dwell time
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-2:dwell", this);
 	synchronizedDwellTime_->addElement(0);
 	synchronizedDwellTime_->addElement(1);
@@ -231,7 +188,6 @@ void PGMBeamline::setupComponents()
 	bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
 
 	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
-	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
 
 	// ==== set up the slits
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
@@ -325,4 +281,27 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedScientificDetector(oceanOpticsDetector_);
 	addExposedScientificDetector(teyBladeCurrentDetector_);
 	addExposedScientificDetector(flyBladeCurrentDetector_);
+}
+
+void PGMBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
+{
+	CLSBeamline::createBeamlineStatus(shutters, valves);
+
+	//       Photon Shutters
+	AMControl *photonShutter1 = new AMReadOnlyPVControl("PhotonShutter1", "PSH1411-I00-01:state", this, "Photon Shutter 1");
+	AMControl *photonShutter2 = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", this, "Photon Shutter 2");
+	AMControl *photonShutter3 = new CLSExclusiveStatesControl("PhotonShutter3", "PSH1611-3-I20-01:state", "PSH1611-3-I20-01:opr:open", "PSH1611-3-I20-01:opr:close", this, "Photon Shutter 3");
+	AMControl *safetyShutter1 = new CLSExclusiveStatesControl("SafetyShutter1", "SSH1411-I00-01:state",  "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", this, "Safety Shutter 1");
+
+	beamlineShutters_->addShutter(photonShutter1, CLS_SHUTTER_OPEN, CLS_SHUTTER_CLOSED);
+	beamlineShutters_->addShutter(photonShutter2, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	beamlineShutters_->addShutter(photonShutter3, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	beamlineShutters_->addShutter(safetyShutter1, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+	//      set up the valves
+	AMControl *branchAValve = new CLSExclusiveStatesControl("BranchAValves", "VVR1611-4-I22-04:state",  "VVR1611-4-I22-04:opr:open",  "VVR1611-4-I22-04:opr:close", this, "Branch A Valve");
+	AMControl *branchBValve = new CLSExclusiveStatesControl("BranchBValves", "VVR1611-4-I21-04:state",  "VVR1611-4-I21-04:opr:open",  "VVR1611-4-I21-04:opr:close", this, "Branch B Valve");
+
+	beamlineValves_->addValve(branchAValve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	beamlineValves_->addValve(branchBValve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 }

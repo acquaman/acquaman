@@ -531,19 +531,6 @@ bool BioXASBeamline::clearGe32Detectors()
 	return true;
 }
 
-void BioXASBeamline::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connectedChanged(connected_);
-	}
-}
-
-void BioXASBeamline::updateConnected()
-{
-	setConnected( isConnected() );
-}
-
 void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
 	if (utilities_)
@@ -770,7 +757,7 @@ bool BioXASBeamline::setDiodeDetector(CLSBasicScalerChannelDetector *detector)
 		diodeDetector_ = detector;
 
 		if (diodeDetector_)
-			connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 		result = true;
 
@@ -814,7 +801,7 @@ bool BioXASBeamline::setPIPSDetector(CLSBasicScalerChannelDetector *detector)
 		pipsDetector_ = detector;
 
 		if (pipsDetector_)
-			connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 		result = true;
 
@@ -858,7 +845,7 @@ bool BioXASBeamline::setLytleDetector(CLSBasicScalerChannelDetector *detector)
 		lytleDetector_ = detector;
 
 		if (lytleDetector_)
-			connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 		result = true;
 
@@ -885,7 +872,7 @@ bool BioXASBeamline::setScalerDwellTimeDetector(AMDetector *detector)
 		scalerDwellTimeDetector_ = detector;
 
 		if (scalerDwellTimeDetector_) {
-			connect( scalerDwellTimeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( scalerDwellTimeDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 			addExposedDetector(scalerDwellTimeDetector_);
 			addDefaultXASScanDetector(scalerDwellTimeDetector_);
@@ -1135,8 +1122,9 @@ void BioXASBeamline::setupComponents()
 	// Utilities.
 
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
+	// Beam status.
 	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
 	beamStatus_->addComponent(utilities_->beampathValves(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
 
@@ -1146,8 +1134,8 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end beampath valves.
 
-	addBeampathValve(new AMReadOnlyPVControl("VVR1407-I00-01", "VVR1407-I00-01:state", this), BIOXASBEAMLINE_VALVE_OPEN, BIOXASBEAMLINE_VALVE_CLOSED);
-	addBeampathValve(new AMReadOnlyPVControl("VVF1407-I00-01", "VVF1407-I00-01:state", this), BIOXASBEAMLINE_FASTVALVE_OPEN, BIOXASBEAMLINE_FASTVALVE_CLOSED);
+	addBeampathValve(new AMReadOnlyPVControl("VVR1407-I00-01", "VVR1407-I00-01:state", this), CLS_VALVE_OPEN, CLS_VALVE_CLOSED);
+	addBeampathValve(new AMReadOnlyPVControl("VVF1407-I00-01", "VVF1407-I00-01:state", this), CLS_VALVE_OPEN, CLS_VALVE_CLOSED);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I00-01", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I22-01", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I21-01", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
@@ -1328,12 +1316,12 @@ void BioXASBeamline::setupComponents()
 	// Detector stage motors.
 
 	detectorStageLateralMotors_ = new AMControlSet(this);
-	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// 32Ge detectors.
 
 	ge32Detectors_ = new AMDetectorSet(this);
-	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// The default detectors sets for XAS scans.
 
@@ -1379,13 +1367,10 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 	}
 }
 
-BioXASBeamline::BioXASBeamline(const QString &controlName) :
-	CLSBeamline(controlName)
+BioXASBeamline::BioXASBeamline(const QString &beamlineName, const QString &controlName) :
+	CLSBeamline(beamlineName, controlName)
 {
 	// Initialize member variables.
-
-	connected_ = false;
-
 	beamStatus_ = 0;
 
 	wiggler_ = 0;
@@ -1414,6 +1399,5 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	scalerDwellTimeDetector_ = 0;
 
 	// Setup procedures.
-
 	setupComponents();
 }

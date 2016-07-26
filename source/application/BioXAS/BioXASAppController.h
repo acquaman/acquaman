@@ -114,6 +114,7 @@ protected slots:
 
 	/// Sets the beam status view as the current view, with the given control as the selected control.
 	void goToBeamStatusView(AMControl *control);
+
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.

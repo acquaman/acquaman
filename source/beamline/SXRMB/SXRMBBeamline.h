@@ -48,10 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
-#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 290301
-#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 290302
-#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 290303
-#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 290304
+//#define SXRMBBEAMLINE_ERR_xxx 300902xx
 
 class SXRMBBeamline : public CLSBeamline
 {
@@ -69,8 +66,8 @@ public:
 		return static_cast<SXRMBBeamline*>(instance_);
 	}
 
-	/// Enumeration of the possible value states.
-	enum BeamStatus{ BeamNotReady = 0, BeamReady = 1 };
+	/// Enumeration of the possible states values of the beamlien status PV.
+	enum BeamStatus { BeamNotReady = 0, BeamReady = 1 };
 
 	/// Destructor.
 	virtual ~SXRMBBeamline();
@@ -141,9 +138,6 @@ public:
 	/// Returns the motorGroup name of the current running endstation
 	QString currentMotorGroupName() const;
 
-	/// Returns the SXRMB overall status
-	CLSBeamlineStatus* beamlineStatus() const;
-
 	/// Returns the cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator() const;
 	/// Returns the crystal selection model.
@@ -186,14 +180,8 @@ public:
 	/// Returns the ambiant IC1 HV control
 	CLSHVControl *ambiantIC1HVControl() const;
 
-	/// Returns the list of actions to turn the beam on
-	AMAction3* createBeamOnActions() const;
-	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
-	AMAction3* createBeamOffActions() const;
-
 signals:
 	void beamAvaliability(bool beamOn);
-	void beamlineControlShuttersTimeout();
 
 	void endstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 
@@ -232,33 +220,20 @@ protected:
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
 
-	/// Helper function to check for the beam availability
-	void beamAvailabilityHelper();
-	/// Helper function to detemine the current connected endstation if it is NOT preset
-	void sampleStageConnectHelper();
-
 protected slots:
-	/// Helper function to check for changes in the connected state
-	void onPVConnectedHelper();
 
-	/// Handles the beamAvailability signal of the Storage ring
-	void onStorageRingBeamAvailabilityChanged(bool value);
-	/// Handles value changed signal of the beamline status
-	void onBeamlineStatusPVValueChanged(double value);
-	/// Handles connected status of the beamline status
-	void onBeamlineStatusPVConnected(bool);
 	/// Handles PhotonShutter State changed signal, turn off TEY HV Control
 	void onPhotonShutterStateChanged();
 	/// Handles connected status of the SXRMB Endstation PV
 	void onEndstationPVConnected(bool);
 	/// Handles value change of the SXRMB Endstation PV
 	void onEndstationPVValueChanged(double);
-	/// Handles connected status of the energy
-	void onEnergyPVConnected(bool);
 	/// Handles connected status of all of the sample stage controls
 	void onSampleStagePVsConnected(bool);
-	/// Handles connected status of all of the beam on/off control shutters
-	void onBeamlineControlShuttersConnected(bool);
+
+protected:
+	/// helper funtion to create beamline status and beamline shutters and beamline valves
+	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
 
 protected:
 	/// the lowest energy range for bruker detector
@@ -267,13 +242,6 @@ protected:
 	double beamlineEnergyHighEnd_;
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
-
-	/// The beam status.
-	CLSBeamlineStatus *beamlineStatus_;
-	/// The shutters control.
-	CLSShutters *beamlineShutters_;
-	/// The valves control.
-	CLSValves *beamlineValves_;
 
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
@@ -342,16 +310,10 @@ protected:
 	/// Motor group.  Holds sets of motors that are used together.
 	AMMotorGroup *motorGroup_;
 
-//	/// SXRMB overall status control
-//	AMReadOnlyPVControl *beamlineStatusPV_;
-
 	/// The cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator_;
 	/// The crystal selection model.
 	SXRMBCrystalChangeModel *crystalSelection_;
-
-	/// Previous connected state for the whole SXRMB beamline
-	bool wasConnected_;
 
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;
@@ -373,17 +335,7 @@ protected:
 	/// The ambiant IC1 HV control
 	CLSHVControl *ambiantIC1HVControl_;
 
-	/// Beamline valves, the valves involved in the Beam on/off action
-	AMControlSet * beamlineControlShutterSet_;
-	AMControl *SSH1406B1001Shutter_; // the FE safety shutter
 	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
-	CLSExclusiveStatesControl *VVR16064B1003Valve_;
-	CLSExclusiveStatesControl *VVR16064B1004Valve_;
-	// NOT THIS ONE! It's connected to the pump on the mono
-	//CLSBiStateControl *VVR16064B1005Valve_;
-	CLSExclusiveStatesControl *VVR16064B1006Valve_;
-	CLSExclusiveStatesControl *VVR16064B1007Valve_;
-	CLSExclusiveStatesControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H

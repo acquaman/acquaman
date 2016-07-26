@@ -54,12 +54,6 @@
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-#define BIOXASBEAMLINE_VALVE_OPEN 1
-#define BIOXASBEAMLINE_VALVE_CLOSED 4
-#define BIOXASBEAMLINE_FASTVALVE_OPEN 1
-#define BIOXASBEAMLINE_FASTVALVE_CLOSED 4
-
-class AMStepScanConfiguration;
 
 class BioXASBeamline : public CLSBeamline
 {
@@ -70,7 +64,7 @@ public:
 	static BioXASBeamline *bioXAS()
 	{
 		if (!instance_) {
-			instance_ = new BioXASBeamline("BioXAS Beamline");
+			instance_ = new BioXASBeamline("BioXAS", "BioXAS Beamline");
 			instance_->initializeBeamlineSupport();
 		}
 
@@ -276,11 +270,6 @@ public slots:
 	virtual bool useLytleDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
 
 protected slots:
-	/// Sets the cached connected state.
-	void setConnected(bool isConnected);
-	/// Updates the cached connected state.
-	void updateConnected();
-
 	/// Adds a shutter.
 	void addShutter(AMControl *newControl, double openValue, double closedValue);
 	/// Removes a shutter.
@@ -425,12 +414,9 @@ protected:
 	void addControlAsDetector(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
 
 	/// Protected constructor.
-	BioXASBeamline(const QString &controlName);
+	BioXASBeamline(const QString &beamlineName, const QString &controlName);
 
 protected:
-	/// The current connected state.
-	bool connected_;
-
 	/// The wiggler.
 	BioXASWiggler *wiggler_;
 

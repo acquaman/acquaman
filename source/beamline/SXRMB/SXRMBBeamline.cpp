@@ -24,14 +24,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
+
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
 #include "util/AMErrorMonitor.h"
 
 SXRMBBeamline::SXRMBBeamline()
-	: CLSBeamline("SXRMB Beamline")
+	: CLSBeamline("SXRMB", "SXRMB Beamline")
 {
 	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
 	beamlineEnergyHighEnd_ = 10000; // ---
@@ -51,9 +53,7 @@ SXRMBBeamline::SXRMBBeamline()
 	setupExposedDetectors();
 	setupConnections();
 
-	wasConnected_ = false;
-	onPVConnectedHelper();
-	onEndstationPVConnected(endstationControl_->isConnected());
+	initializeBeamline();
 }
 
 SXRMBBeamline::~SXRMBBeamline()
@@ -301,6 +301,41 @@ AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageZ() const
 	return microprobeSampleStageZ_;
 }
 
+AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
+{
+	return ambiantTableHeight_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const
+{
+	return ambiantSampleStageX_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageZ() const
+{
+	return ambiantSampleStageZ_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderZ() const
+{
+	return ambiantSampleHolderZ_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderR() const
+{
+	return ambiantSampleHolderR_;
+}
+
+CLSCrossHairGeneratorControl * SXRMBBeamline::crossHairGenerator() const
+{
+	return crossHairGenerator_;
+}
+
+SXRMBCrystalChangeModel * SXRMBBeamline::crystalSelection() const
+{
+	return crystalSelection_;
+}
+
 AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageX() const
 {
 	return solidStateSampleStageX_;
@@ -376,11 +411,6 @@ QString SXRMBBeamline::currentMotorGroupName() const
 	return motorGroupName;
 }
 
-CLSBeamlineStatus* SXRMBBeamline::beamlineStatus() const
-{
-	return beamlineStatus_;
-}
-
 bool SXRMBBeamline::isConnected() const
 {
 	// check whether the sample stage is connected or not
@@ -408,8 +438,7 @@ bool SXRMBBeamline::isConnected() const
 	}
 
 	// return whether the expected PVs are connected or not
-	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected() && jjSlits_->isConnected()
-			&& sampleStageConnected;
+	return CLSBeamline::isConnected() && sampleStageConnected;
 }
 
 
@@ -497,133 +526,13 @@ CLSHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 	return ambiantIC1HVControl_;
 }
 
-AMAction3* SXRMBBeamline::createBeamOnActions() const
-{
-	if(!beamlineControlShutterSet_->isConnected()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
-		return 0;
-	}
-
-	if (SSH1406B1001Shutter_->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
-		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
-		return 0;
-	}
-
-	// if all the valves are already open, we don't need to do that again
-	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_OPENED_SHUTTER, QString("Failed to create the beam on actions, since we think all the valves/shutters are open already."), true);
-		return 0;
-	}
-
-	// stage 1: open / wait the valves action list
-	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open action list", "SXRMB Valve Open"), AMListAction3::Sequential);
-	AMListAction3 *valveWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Wait action list", "SXRMB Valve Wait"), AMListAction3::Parallel);
-
-	if (VVR16064B1003Valve_->isClosed()) {
-		AMAction3 *VVR16064B1003ValveSetpointOpenAction = AMActionSupport::buildControlMoveAction(VVR16064B1003Valve_, 1);
-		valveOpenActionsList->addSubAction(VVR16064B1003ValveSetpointOpenAction);
-
-		AMAction3 *VVR16064B1003ValveWaitAction = AMActionSupport::buildControlWaitAction(VVR16064B1003Valve_, 1);
-		valveWaitActionsList->addSubAction(VVR16064B1003ValveWaitAction);
-	}
-
-	if (VVR16064B1004Valve_->isClosed()) {
-		AMAction3 *VVR16064B1004ValveSetpointOpenAction = AMActionSupport::buildControlMoveAction(VVR16064B1004Valve_, 1);
-		valveOpenActionsList->addSubAction(VVR16064B1004ValveSetpointOpenAction);
-
-		AMAction3 *VVR16064B1004ValveWaitAction = AMActionSupport::buildControlWaitAction(VVR16064B1004Valve_, 1);
-		valveWaitActionsList->addSubAction(VVR16064B1004ValveWaitAction);
-	}
-
-	if (VVR16064B1006Valve_->isClosed()) {
-		AMAction3 *VVR16064B1006ValveSetpointOpenAction = AMActionSupport::buildControlMoveAction(VVR16064B1006Valve_, 1);
-		valveOpenActionsList->addSubAction(VVR16064B1006ValveSetpointOpenAction);
-
-		AMAction3 *VVR16064B1006ValveWaitAction = AMActionSupport::buildControlWaitAction(VVR16064B1006Valve_, 1);
-		valveWaitActionsList->addSubAction(VVR16064B1006ValveWaitAction);
-	}
-
-	if (VVR16064B1007Valve_->isClosed()) {
-		AMAction3 *VVR16064B1007ValveSetpointOpenAction = AMActionSupport::buildControlMoveAction(VVR16064B1007Valve_, 1);
-		valveOpenActionsList->addSubAction(VVR16064B1007ValveSetpointOpenAction);
-
-		AMAction3 *VVR16064B1007ValveWaitAction = AMActionSupport::buildControlWaitAction(VVR16064B1007Valve_, 1);
-		valveWaitActionsList->addSubAction(VVR16064B1007ValveWaitAction);
-	}
-
-	if (VVR16065B1001Valve_->isClosed()) {
-		AMAction3 *VVR16065B1001ValveSetpointOpenAction = AMActionSupport::buildControlMoveAction(VVR16065B1001Valve_, 1);
-		valveOpenActionsList->addSubAction(VVR16065B1001ValveSetpointOpenAction);
-
-		AMAction3 *VVR16065B1001ValveWaitAction = AMActionSupport::buildControlWaitAction(VVR16065B1001Valve_, 1);
-		valveWaitActionsList->addSubAction(VVR16065B1001ValveWaitAction);
-	}
-
-	AMListAction3 *openValvesActionsList = 0;
-	if (valveOpenActionsList->subActionCount() > 0) {
-		AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
-		openValvesActionsList->addSubAction(valveOpenActionsList);
-		openValvesActionsList->addSubAction(valveWaitActionsList);
-	}
-
-	// stage 2: open/wait photon shutter action list, which MUST run after the valves open actions
-	AMListAction3 *openPhotonShutterActionsList = 0;
-	if (PSH1406B1002Shutter_->isClosed()) {
-		AMAction3 *PSH1406B1002ShutterOpenAction = AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 1);
-		AMAction3 *PSH1406B1002ShutterWaitAction = AMActionSupport::buildControlWaitAction(PSH1406B1002Shutter_, 1);
-
-		openPhotonShutterActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 2"), AMListAction3::Parallel);
-		openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterOpenAction);
-		openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
-	}
-
-	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
-	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Sequential);
-	if (openValvesActionsList) {
-		beamOnActionsList->addSubAction(openValvesActionsList);
-	}
-	if (openPhotonShutterActionsList) {
-		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
-	}
-
-	return beamOnActionsList;
-}
-
-AMAction3* SXRMBBeamline::createBeamOffActions() const
-{
-	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
-		return 0;
-	}
-
-	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
-	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
-
-	AMListAction3 *beamOffControlWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off Wait action list", "SXRMB Beam off"), AMListAction3::Parallel);
-	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlWaitAction(PSH1406B1002Shutter_, 0));
-
-	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
-	beamOffActionsList->addSubAction(beamOffControlActionsList);
-	beamOffActionsList->addSubAction(beamOffControlWaitActionsList);
-
-	return beamOffActionsList;
-}
-
 void SXRMBBeamline::setupSynchronizedDwellTime()
 {
 }
 
 void SXRMBBeamline::setupComponents()
 {
-	AMReadOnlyPVControl *beamlineStatusPV = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
-	beamlineShutters_ = new CLSShutters(QString("SXRMB Valves"), this);
-	beamlineValves_ = new CLSValves(QString("SXRMB Valves"), this);
-
-	beamlineStatus_ = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
-	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, SXRMBBeamline::BeamReady);
-	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
-	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
+	createBeamlineStatus();
 
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
@@ -670,32 +579,26 @@ void SXRMBBeamline::setupComponents()
 void SXRMBBeamline::setupDiagnostics()
 {
 	// the shutters used for Beam on/off control
-	SSH1406B1001Shutter_ = new AMReadOnlyPVControl("FE Safety Shutter", "SSH1406-B10-01:state", this);
+	AMReadOnlyPVControl * SSH1406B1001Shutter = new AMReadOnlyPVControl("FE Safety Shutter", "SSH1406-B10-01:state", this);
 	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this, "Photon Shutter 2");
 
-	VVR16064B1003Valve_ = new CLSExclusiveStatesControl("VVR16064B1003", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", this, "VVR1606-4-B10-03 Valve");
-	VVR16064B1004Valve_ = new CLSExclusiveStatesControl("VVR16064B1004", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", this, "VVR1606-4-B10-04 Valve");
-	VVR16064B1006Valve_ = new CLSExclusiveStatesControl("VVR16064B1006", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", this, "VVR1606-4-B10-06 Valve");
-	VVR16064B1007Valve_ = new CLSExclusiveStatesControl("VVR16064B1007", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", this, "VVR1606-4-B10-07 Valve");
-	VVR16065B1001Valve_ = new CLSExclusiveStatesControl("VVR16065B1001", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", this, "VVR1606-5-B10-01 Valve");
+	beamlineShutters_->setSafetyShutter(SSH1406B1001Shutter, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	beamlineShutters_->addShutter(PSH1406B1002Shutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed, 1);
 
-	beamlineControlShutterSet_ = new AMControlSet(this);
-	beamlineControlShutterSet_->addControl(SSH1406B1001Shutter_);
-	beamlineControlShutterSet_->addControl(PSH1406B1002Shutter_);
-	beamlineControlShutterSet_->addControl(VVR16064B1003Valve_);
-	beamlineControlShutterSet_->addControl(VVR16064B1004Valve_);
-	beamlineControlShutterSet_->addControl(VVR16064B1006Valve_);
-	beamlineControlShutterSet_->addControl(VVR16064B1007Valve_);
-	beamlineControlShutterSet_->addControl(VVR16065B1001Valve_);
+	// the valves used for Beam on/off control
+	CLSExclusiveStatesControl* VVR16064B1003Valve = new CLSExclusiveStatesControl("VVR16064B1003", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", this, "VVR1606-4-B10-03 Valve");
+	CLSExclusiveStatesControl* VVR16064B1004Valve = new CLSExclusiveStatesControl("VVR16064B1004", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", this, "VVR1606-4-B10-04 Valve");
+	// NOT THIS ONE! It's connected to the pump on the mono
+	//CLSBiStateControl *VVR16064B1005Valve;
+	CLSExclusiveStatesControl* VVR16064B1006Valve = new CLSExclusiveStatesControl("VVR16064B1006", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", this, "VVR1606-4-B10-06 Valve");
+	CLSExclusiveStatesControl* VVR16064B1007Valve = new CLSExclusiveStatesControl("VVR16064B1007", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", this, "VVR1606-4-B10-07 Valve");
+	CLSExclusiveStatesControl* VVR16065B1001Valve = new CLSExclusiveStatesControl("VVR16065B1001", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", this, "VVR1606-5-B10-01 Valve");
 
-	beamlineShutters_->addShutter(SSH1406B1001Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(PSH1406B1002Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-
-	beamlineValves_->addValve(VVR16064B1003Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineValves_->addValve(VVR16064B1004Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineValves_->addValve(VVR16064B1006Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineValves_->addValve(VVR16064B1007Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineValves_->addValve(VVR16065B1001Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(VVR16064B1003Valve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed, 1);
+	beamlineValves_->addValve(VVR16064B1004Valve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed, 2);
+	beamlineValves_->addValve(VVR16064B1006Valve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed, 3);
+	beamlineValves_->addValve(VVR16064B1007Valve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed, 4);
+	beamlineValves_->addValve(VVR16065B1001Valve, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed, 5);
 }
 
 void SXRMBBeamline::setupSampleStage()
@@ -766,7 +669,9 @@ void SXRMBBeamline::setupDetectors()
 
 void SXRMBBeamline::setupControlSets()
 {
-
+	requiredControls_->addControl(endstationControl_);
+	requiredControls_->addControl(energy_);
+	requiredControls_->addControl(jjSlits_);
 }
 
 void SXRMBBeamline::setupMono()
@@ -880,85 +785,24 @@ void SXRMBBeamline::setupExposedDetectors()
 
 void SXRMBBeamline::setupConnections()
 {
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
-	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
-	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
-	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
+	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
 
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
 
-	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
 	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(ambiantWithGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(ambiantWithoutGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
-	connect(beamlineControlShutterSet_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
-	connect(beamlineControlShutterSet_, SIGNAL(controlSetTimedOut()), this, SIGNAL(beamlineControlShuttersTimeout()));
 
-	if (beamlineStatus_->isConnected()) {
-		onBeamlineStatusPVConnected(true);
-	}
 	if (endstationControl_->isConnected()) {
 		onEndstationPVValueChanged(endstationControl_->value());
 	}
 }
 
-void SXRMBBeamline::beamAvailabilityHelper()
-{
-	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->isOn());
-
-	emit beamAvaliability(beamOn);
-}
-
-void SXRMBBeamline::sampleStageConnectHelper()
-{
-
-	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndstation_ == SXRMB::UnkownEndstation) {
-		if (microprobeSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::Microprobe );
-
-		else if (solidStateSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::SolidState );
-
-		else if (ambiantWithGasChamberSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::AmbiantWithGasChamber );
-
-		else if (ambiantWithoutGasChamberSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::AmbiantWithoutGasChamber );
-	}
-}
-
-void SXRMBBeamline::onPVConnectedHelper(){
-	if (wasConnected_ && !isConnected()) {
-		emit connected(false);
-		wasConnected_ = false;
-	} else if (!wasConnected_ && isConnected()) {
-		emit connected(true);
-		wasConnected_ = true;
-	}
-}
-
-void SXRMBBeamline::onStorageRingBeamAvailabilityChanged(bool)
-{
-	beamAvailabilityHelper();
-}
-
-void SXRMBBeamline::onBeamlineStatusPVValueChanged(double)
-{
-	beamAvailabilityHelper();
-}
-
-void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
-	onPVConnectedHelper();
-
-	if (value) {
-		beamAvailabilityHelper();
-	}
-}
+/// ==================== protected slots =======================
 
 void SXRMBBeamline::onPhotonShutterStateChanged()
 {
@@ -973,8 +817,6 @@ void SXRMBBeamline::onEndstationPVConnected(bool value)
 	if (value) {
 		switchEndstation(SXRMB::Endstation(endstationControl_->value()));
 	}
-
-	onPVConnectedHelper();;
 }
 
 void SXRMBBeamline::onEndstationPVValueChanged(double value)
@@ -984,50 +826,29 @@ void SXRMBBeamline::onEndstationPVValueChanged(double value)
 	switchEndstation(SXRMB::Endstation(endstationControl_->value()));
 }
 
-void SXRMBBeamline::onEnergyPVConnected(bool) {
-	onPVConnectedHelper();
-}
-
 void SXRMBBeamline::onSampleStagePVsConnected(bool) {
-	sampleStageConnectHelper();
-	onPVConnectedHelper();
+	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
+	if (currentEndstation_ == SXRMB::UnkownEndstation) {
+		if (microprobeSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::Microprobe );
+
+		else if (solidStateSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::SolidState );
+
+		else if (ambiantWithGasChamberSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::AmbiantWithGasChamber );
+
+		else if (ambiantWithoutGasChamberSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::AmbiantWithoutGasChamber );
+	}
+
+	onBeamlineComponentConnected();
 }
 
-void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
-	onPVConnectedHelper();
-}
-
-AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
+void SXRMBBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
 {
-	return ambiantTableHeight_;
-}
+	CLSBeamline::createBeamlineStatus(shutters, valves);
 
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const
-{
-	return ambiantSampleStageX_;
-}
-
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageZ() const
-{
-	return ambiantSampleStageZ_;
-}
-
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderZ() const
-{
-	return ambiantSampleHolderZ_;
-}
-
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderR() const
-{
-	return ambiantSampleHolderR_;
-}
-
-CLSCrossHairGeneratorControl * SXRMBBeamline::crossHairGenerator() const
-{
-	return crossHairGenerator_;
-}
-
-SXRMBCrystalChangeModel * SXRMBBeamline::crystalSelection() const
-{
-	return crystalSelection_;
+	AMReadOnlyPVControl *beamlineStatusPV = new AMReadOnlyPVControl("SXRMB Beamline Status PV", "BL1606-B01:ready:status", this);
+	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, SXRMBBeamline::BeamReady);
 }

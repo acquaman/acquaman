@@ -199,6 +199,8 @@ protected:
 	/// The edit action.
 	QAction *editAction_;
 
+	/// the content layout to contain the UI components
+	QVBoxLayout *contentLayout_;
 	/// The value label.
 	CLSValueProgressLabel *valueLabel_;
 };

@@ -3,6 +3,13 @@
 
 #include "beamline/CLS/CLSTriStateGroup.h"
 
+#define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 30010301
+
+#define CLS_SHUTTER_OPEN 1
+#define CLS_SHUTTER_CLOSED 4
+
+class AMListAction3;
+
 class CLSShutters : public CLSTriStateGroup
 {
 	Q_OBJECT
@@ -16,10 +23,20 @@ public:
 	/// Destructor.
 	virtual ~CLSShutters();
 
+	/// helper function to create a beam on action list
+	AMListAction3* createBeamOnActionList();
+	/// helper function to create a beam off action list
+	AMListAction3* createBeamOffActionList();
+
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;
 	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isClosed() const;
+	/// Returns whether the safety shutter is open. If safety shutter is not presented, return ture
+	bool isSafetyShutterOpen() const;
+
+	/// Returns the safety shutter control
+	AMControl *safetyShutter() const { return safetyShutter_;}
 
 	/// Returns true if the given control is one of the shutters, false otherwise.
 	bool hasShutter(AMControl *control) const;
@@ -30,10 +47,15 @@ public:
 signals:
 	/// Notifier that the shutters have changed.
 	void shuttersChanged();
+	/// Notifier that the safety shutter control has changed.
+	void safetyShutterChanged(AMControl *newControl);
 
 public slots:
+	/// set the safety shutter
+	void setSafetyShutter(AMControl *safetyShutter, double openStateValue, double closedStateValue);
 	/// Adds a shutter control.
-	bool addShutter(AMControl *newShutter, double openStateValue, double closedStateValue);
+	/// @param beamOnOrder: the order to open a shutter when doing beam on/off. The smaller, the earlier. -1, if a shutter is not invovled in beam on/off
+	bool addShutter(AMControl *newShutter, double openStateValue, double closedStateValue, int beamOnOrder=-1);
 	/// Removes a shutter control.
 	bool removeShutter(AMControl *newValve);
 	/// Clears all shutter controls.
@@ -60,6 +82,13 @@ protected:
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
+
+protected:
+	/// the safety shutter of a beamline
+	AMControl *safetyShutter_;
+
+	/// the order of the shutters in the beam on action. If a shutter is not invovled in the beam on/off action, the order is -1
+	QMap<int, AMControl*> shuttersBeamOnOrderMap_;
 };
 
 #endif // CLSSHUTTERS_H

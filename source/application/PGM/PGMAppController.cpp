@@ -110,21 +110,6 @@ bool PGMAppController::setupDataFolder()
 						       QStringList());            //extra data directory
 }
 
-void PGMAppController::goToBeamlineStatusView(AMControl *control)
-{
-	if (beamlineStatusView_) {
-
-		// Set the given control as the view's selected control.
-
-		beamlineStatusView_->setSelectedComponent(control);
-
-		// Set the beam status pane as the current pane.
-		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
-		if (windowPane)
-			mw_->setCurrentPane(windowPane);
-	}
-}
-
 void PGMAppController::initializeBeamline()
 {
 	// Initialize central beamline object
@@ -186,14 +171,14 @@ void PGMAppController::setupUserInterfaceImplementation()
 void PGMAppController::createPersistentView()
 {
 	PGMPersistentView *pgmPersistentView = new PGMPersistentView;
-	connect( pgmPersistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+	connect( pgmPersistentView, SIGNAL(beamlineStatusControlClicked(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 	mw_->addRightWidget(pgmPersistentView);
 }
 
 void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
-	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
+	beamlineStatusView_ = new CLSBeamlineStatusView(false);
 	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
