@@ -109,10 +109,10 @@ int PGMBranchSelectionControl::currentIndex() const
 	if (!isMoving() && intValue == Between){
 
 		if (branchMotorFeedbackControl_->value() > 20000)
-			return BranchA;
+			intValue =  BranchA;
 
 		else if (branchMotorFeedbackControl_->value() < -14500)
-			return BranchB;
+			intValue = BranchB;
 	}
 
 	// Else we can just map the PV value to our enum
