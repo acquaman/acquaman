@@ -183,16 +183,6 @@ AMAction3* CLSTriStateGroup::createMoveChildToState2Action(AMControl *child)
 	return result;
 }
 
-AMAction3* CLSTriStateGroup::createWaitChildMoveToState2Action(AMControl *child)
-{
-	AMAction3 *result = 0;
-
-	if (child && child->isConnected() && controlState2ValueMap_.contains(child))
-		result = AMActionSupport::buildControlWaitAction(child, controlState2ValueMap_.value(child));
-
-	return result;
-}
-
 AMAction3* CLSTriStateGroup::createCheckChildAtState2Action(AMControl *child, double timeoutSec)
 {
 	AMAction3 *result = 0;

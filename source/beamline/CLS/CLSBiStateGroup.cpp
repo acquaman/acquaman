@@ -301,16 +301,6 @@ AMAction3* CLSBiStateGroup::createMoveChildToState1Action(AMControl *child)
 	return result;
 }
 
-AMAction3* CLSBiStateGroup::createWaitChildToMoveState1Action(AMControl *child)
-{
-	AMAction3 *result = 0;
-
-	if (child && child->isConnected() && controlState1ValueMap_.contains(child))
-		result = AMActionSupport::buildControlWaitAction(child, controlState1ValueMap_.value(child));
-
-	return result;
-}
-
 AMAction3* CLSBiStateGroup::createCheckChildAtState1Action(AMControl *child, double timeoutSec)
 {
 	AMAction3 *result = 0;

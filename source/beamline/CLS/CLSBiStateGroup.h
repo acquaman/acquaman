@@ -50,8 +50,6 @@ protected:
 	AMAction3* createMoveChildrenToState1Action();
 	/// Creates and returns a new action that moves the given child control to state 1.
 	AMAction3* createMoveChildToState1Action(AMControl *child);
-	/// Creates and returns a new action that wait the given child control moves to state 1.
-	AMAction3* createWaitChildToMoveState1Action(AMControl *child);
 
 	/// Creates and returns a new action that waits for the given child control to reach state 1.
 	AMAction3* createCheckChildAtState1Action(AMControl *child, double timeoutSec = 10);

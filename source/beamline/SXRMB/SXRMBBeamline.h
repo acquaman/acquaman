@@ -47,8 +47,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBiHash.h"
 
 class AMBasicControlDetectorEmulator;
-class CLSBeamStatusShutters;
-class CLSBeamStatusValves;
 
 //#define SXRMBBEAMLINE_ERR_xxx 300902xx
 
@@ -244,11 +242,6 @@ protected:
 	double beamlineEnergyHighEnd_;
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
-
-	/// The shutters control.
-	CLSBeamStatusShutters *beamStatusShutters_;
-	/// The valves control.
-	CLSBeamStatusValves *beamStatusValves_;
 
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
