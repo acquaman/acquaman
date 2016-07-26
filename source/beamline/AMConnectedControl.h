@@ -13,11 +13,6 @@ public:
 	/// Destructor.
 	virtual ~AMConnectedControl();
 
-	/// Adds a given control to the list of child controls.
-	virtual bool addChildControl(AMControl *control);
-	/// Removes a given control from the list of child controls.
-	virtual bool removeChildControl(AMControl *control);
-
 	/// Returns the current connected state, considers the connected state of each child.
 	virtual bool isConnected() const { return connected_; }
 
@@ -26,6 +21,11 @@ protected slots:
 	void setConnected(bool isConnected);
 	/// Updates the connected state.
 	virtual void updateConnected();
+
+	/// Adds a child control: connects to child's connected signal.
+	virtual bool addChildControl(AMControl *control);
+	/// Removes a child control: disconnects from all signals from the child.
+	virtual bool removeChildControl(AMControl *control);
 
 protected:
 	/// Returns true if the child controls are connected.

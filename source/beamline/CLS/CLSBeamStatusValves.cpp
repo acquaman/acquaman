@@ -21,7 +21,7 @@ bool CLSBeamStatusValves::addValve(AMControl *newValve, double openStateValue, d
 		if (beamOnOrder > 0) {
 			AMControl * control = valvesBeamOnOrderMap_.value(beamOnOrder);
 			if (control) {
-				AMErrorMon::alert(this, CLSBEAMSTATUSVALVES_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on valves beam on/off list: (%1, %2) -- (%3, %4)")
+				AMErrorMon::alert(this, CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on valves beam on/off list: (%1, %2) -- (%3, %4)")
 								  .arg(beamOnOrder).arg(control->name()).arg(beamOnOrder).arg(newValve->name()));
 			} else {
 				valvesBeamOnOrderMap_.insert(beamOnOrder, newValve);

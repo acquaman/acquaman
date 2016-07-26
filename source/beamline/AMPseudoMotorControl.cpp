@@ -112,7 +112,7 @@ bool AMPseudoMotorControl::addChildControl(AMControl *control)
 
 bool AMPseudoMotorControl::removeChildControl(AMControl *control)
 {
-	if (AMConnectedControl::removeChildControl(control)){
+	if (AMControl::removeChildControl(control)){
 		updateStates();
 		return true;
 	}

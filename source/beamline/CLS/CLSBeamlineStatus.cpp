@@ -15,6 +15,10 @@ CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	// Setup the basic value options.
 	addOption(On, "Beam is ON", true);
 	addOption(Off, "Beam is OFF", true);
+
+	connect(this, SIGNAL(connected(bool)), this, SLOT(updateBeamlineStatus()));
+	connect(this, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineStatus()));
+	connect(this, SIGNAL(componentsChanged()), this, SLOT(updateBeamlineStatus()));
 }
 
 CLSBeamlineStatus::~CLSBeamlineStatus()
@@ -57,7 +61,7 @@ void CLSBeamlineStatus::setBeamlineStatusPVControl(AMControl *control, double be
 	if ( addComponent(control, beamOnValue) ) {
 		beamlineStatusPVControl_ = control;
 
-		emit beamStatusChanged(isOn());
+		updateBeamlineStatus();
 	}
 }
 
@@ -99,17 +103,8 @@ bool CLSBeamlineStatus::addMonoMaskControl(AMControl *newControl, double beamOnV
 
 /// ========================  protected memembers =====================
 
-void CLSBeamlineStatus::updateConnected()
+void CLSBeamlineStatus::updateBeamlineStatus()
 {
-	CLSBiStateGroup::updateConnected();
-
-	emit beamStatusChanged(isOn());
-}
-
-void CLSBeamlineStatus::updateValue()
-{
-	CLSBiStateGroup::updateValue();
-
 	emit beamStatusChanged(isOn());
 }
 

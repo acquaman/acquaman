@@ -5,7 +5,7 @@
 
 class AMListAction3;
 
-#define CLSBEAMSTATUSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 30010301
+#define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 30010301
 
 class CLSBeamStatusShutters : public CLSShutters
 {
@@ -14,6 +14,8 @@ public:
 	explicit CLSBeamStatusShutters(const QString &name, QObject *parent = 0);
 	~CLSBeamStatusShutters();
 
+	/// Returns whether the safety shutter is open. If safety shutter is not presented, return false
+	bool isSafetyShutterOpen() const;
 	/// Returns whether it is safe to open the shutters, default True
 	virtual bool isSafeToOpenShutters() const;
 

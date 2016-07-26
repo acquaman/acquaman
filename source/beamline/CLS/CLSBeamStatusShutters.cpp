@@ -17,10 +17,18 @@ CLSBeamStatusShutters::~CLSBeamStatusShutters()
 	shuttersBeamOnOrderMap_.clear();
 }
 
-bool CLSBeamStatusShutters::isSafeToOpenShutters() const
+bool CLSBeamStatusShutters::isSafetyShutterOpen() const
 {
 	if (safetyShutter_) {
-		// safe to open shutters when the safety shutter is open or the safety shutter is in the beam on shutters list (then we can open it programatically)
+		return safetyShutter_->isConnected() && isChildState1(safetyShutter_);
+	}
+
+	return false;
+}
+
+bool CLSBeamStatusShutters::isSafeToOpenShutters() const
+{
+	if (safetyShutter_) { // when the safety shutter is open or the safety shutter is in the beam on shutters list (then we can open it programatically)
 		return safetyShutter_->isConnected()
 			&& (isChildState1(safetyShutter_) || shuttersBeamOnOrderMap_.values().contains(safetyShutter_));
 	}
@@ -36,7 +44,7 @@ bool CLSBeamStatusShutters::addShutter(AMControl *newShutter, double openStateVa
 		if (beamOnOrder > 0) {
 			AMControl * control = shuttersBeamOnOrderMap_.value(beamOnOrder);
 			if (control) {
-				AMErrorMon::alert(this, CLSBEAMSTATUSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on shutters beam on/off list: (%1, %2) -- (%3, %4)")
+				AMErrorMon::alert(this, CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on shutters beam on/off list: (%1, %2) -- (%3, %4)")
 								  .arg(beamOnOrder).arg(control->name()).arg(beamOnOrder).arg(newShutter->name()));
 			} else {
 				shuttersBeamOnOrderMap_.insert(beamOnOrder, newShutter);
