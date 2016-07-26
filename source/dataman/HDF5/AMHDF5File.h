@@ -28,6 +28,16 @@ public:
 		DoNotOverwrite = 1
 	};
 
+	/// Enum that handles how file read/write capabilities are used when opening an existing file.
+	/*!
+	 *	ReadWrite - opens the file in a mode where you can read and write to the file.
+	 *	ReadOnly - opens the file such that you can only read from it.
+	*/
+	enum OpenOption {
+		ReadWrite = 0,
+		ReadOnly = 1
+	};
+
 	/// Constructor.  Takes the name (path) of the HDF5 file.  Note that this does not open the file.
 	explicit AMHDF5File(const QString &name, QObject *parent = 0);
 	/// Destructor.
@@ -41,8 +51,10 @@ public:
 signals:
 
 public slots:
-	/// Creates an HDF5 file with the specified name.  If successful, this will double as opening a file for the extent that it is open.
+	/// Creates an HDF5 file.  If successful, this will double as opening a file for the extent that it is open.
 	bool createHDF5File(AMHDF5File::CreateOption option = DoNotOverwrite);
+	/// Opens an existing HDF5 file.  Returns false if it failed to open.
+	bool openHDF5File(AMHDF5File::OpenOption option = ReadWrite);
 	/// Closes the HDF5 file if it still has a valid, open file id.  Returns false if file is already closed.
 	bool closeHDF5File();
 

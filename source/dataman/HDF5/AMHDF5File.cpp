@@ -40,7 +40,7 @@ bool AMHDF5File::createHDF5File(AMHDF5File::CreateOption option)
 {
 	if (id_ != 0){
 
-		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("%1 is already open.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("Create: %1 is already open.").arg(name_));
 		return false;
 	}
 
@@ -60,11 +60,44 @@ bool AMHDF5File::createHDF5File(AMHDF5File::CreateOption option)
 
 	else if (fileId == 0){
 
-		AMErrorMon::alert(this, AMHDF5FILE_INVALID_FILE_OPTION, "The provided options to the HDF5 file where not correctly specified.");
+		AMErrorMon::alert(this, AMHDF5FILE_INVALID_CREATE_OPTION, "The provided options to the HDF5 file where not correctly specified.");
 		return false;
 	}
 
 	// We have a valid file handle now.
+	id_ = fileId;
+
+	return true;
+}
+
+bool AMHDF5File::openHDF5File(AMHDF5File::OpenOption option)
+{
+	if (id_ != 0){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("Open: %1 is already open.").arg(name_));
+		return false;
+	}
+
+	hid_t fileId = 0;
+
+	if (option == ReadWrite)
+		fileId = H5Fopen(name_.toUtf8().constData(), H5F_ACC_RDWR, H5P_DEFAULT);
+
+	else if (option == ReadOnly)
+		fileId = H5Fopen(name_.toUtf8().constData(), H5F_ACC_RDONLY, H5P_DEFAULT);
+
+	if (fileId < 0){
+
+		// HDF5 file error + error mon.
+		return false;
+	}
+
+	else if (fileId == 0){
+
+		AMErrorMon::alert(this, AMHDF5FILE_INVALID_OPEN_OPTION, "The provided options to the HDF5 file where not correctly specified.");
+		return false;
+	}
+
 	id_ = fileId;
 
 	return true;
