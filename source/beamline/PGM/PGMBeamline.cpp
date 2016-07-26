@@ -258,10 +258,14 @@ void PGMBeamline::setupControlsAsDetectors()
 	// The undulator gap.
 
 	undulatorGapDetector_ = new AMBasicControlDetectorEmulator("PGMUndulatorGapDetector", "Undulator gap", undulatorGap_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	undulatorGapDetector_->setHiddenFromUsers(true);
+	undulatorGapDetector_->setIsVisible(false);
 
 	// The ring current.
 
 	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("PGMRingCurrentDetector", "Ring current", ringCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ringCurrentDetector_->setHiddenFromUsers(true);
+	ringCurrentDetector_->setIsVisible(false);
 }
 
 void PGMBeamline::setupHVControls()
