@@ -7,12 +7,27 @@
 
 #include <QString>
 
+#define AMHDF5FILE_INVALID_FILE_OPTION 666000
+#define AMHDF5FILE_FILE_ALREADY_OPEN 666001
+#define AMHDF5FILE_FILE_ALREADY_CLOSED 666002
+#define AMHDF5FILE_NOT_HDF5_FILE 666003
+
 /// This is the base class that will relate all the other pieces of the HDF5 library.  Nothing can work
 /// without having an open HDF5 file instance.
 class AMHDF5File : public QObject
 {
 	Q_OBJECT
 public:
+	/// Enum that handles how file creation should work.  Choices are either open and erase if duplicate or fail if already exists.
+	/*!
+	 *	OverwriteExisting - if an HDF5 file already exists with the provided name then it will be overwritten and contents deleted.
+	 *	DoNotOverwrite - if an HDF5 file already exists with the provided name then it will fail the creation.
+	 */
+	enum CreateOption {
+		OverwriteExisting = 0,
+		DoNotOverwrite = 1
+	};
+
 	/// Constructor.  Takes the name (path) of the HDF5 file.  Note that this does not open the file.
 	explicit AMHDF5File(const QString &name, QObject *parent = 0);
 	/// Destructor.
@@ -20,9 +35,16 @@ public:
 
 	/// Returns whether the provided name points to an actual HDF5 file.
 	bool isHDF5File() const;
+	/// Returns whether the file is currently open.
+	bool isOpen() const;
+
 signals:
 
 public slots:
+	/// Creates an HDF5 file with the specified name.  If successful, this will double as opening a file for the extent that it is open.
+	bool createHDF5File(AMHDF5File::CreateOption option = DoNotOverwrite);
+	/// Closes the HDF5 file if it still has a valid, open file id.  Returns false if file is already closed.
+	bool closeHDF5File();
 
 protected:
 	/// The path and name of HDF5 file.
