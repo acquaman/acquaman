@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASPersistentView.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 #include "ui/AMToolButton.h"
@@ -39,7 +40,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Create SR1 current view.
 
-	CLSControlEditor *sr1CurrentEditor = new CLSControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
+	CLSControlEditor *sr1CurrentEditor = new CLSControlEditor(CLSStorageRing::sr1()->ringCurrentControl());
 	sr1CurrentEditor->setTitle("SR1 current");
 	sr1CurrentEditor->setReadOnly(true);
 

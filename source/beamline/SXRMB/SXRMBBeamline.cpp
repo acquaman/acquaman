@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 

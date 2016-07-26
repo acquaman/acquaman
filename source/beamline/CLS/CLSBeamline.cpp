@@ -21,7 +21,7 @@ void CLSBeamline::initializeBeamline()
 {
 	AMBeamline::initializeBeamline();
 
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(updateBeamAvailabilityStatus()));
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(updateBeamAvailabilityStatus()));
 
 	updateBeamAvailabilityStatus();
 }

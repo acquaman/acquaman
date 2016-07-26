@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASAppController.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
 

@@ -9,7 +9,6 @@
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMBeamlineControlGroup.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"

@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
 #include "beamline/AMControl.h"
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
 #include "actions3/AMActionRunner3.h"

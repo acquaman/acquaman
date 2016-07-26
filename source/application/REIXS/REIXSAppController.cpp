@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
 #include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
 #include "application/AMAppControllerSupport.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
