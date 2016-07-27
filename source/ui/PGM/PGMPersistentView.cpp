@@ -17,6 +17,7 @@
 
 #include "util/AMHDF5Driver.h"
 #include "dataman/HDF5/AMHDF5File.h"
+#include "dataman/HDF5/AMHDF5Group.h"
 
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -30,10 +31,17 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(persistentViewGroupBox);
 
+//	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
 //	AMHDF5File *file = new AMHDF5File("/Users/hunterd/beamline/programming/hdf5-data/test.h5");
 //	file->createHDF5File();
 //	file->closeHDF5File();
 //	file->deleteLater();
+
+//	AMHDF5Group *group = new AMHDF5Group("TestGroup");
+//	group->createHDF5Group(0);
+//	group->openHDF5Group(0);
+//	group->isOpen();
+//	group->closeHDF5Group();
 
 	QVector<double> data = QVector<double>(5);
 	AMHDF5Driver test;

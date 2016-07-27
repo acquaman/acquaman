@@ -29,6 +29,7 @@ bool AMHDF5Group::createHDF5Group(hid_t file)
 
 	if(!file > 0){
 		AMErrorMon::alert(this, 0, QString("Create: Cannot create group %1 in a closed file.").arg(name_));
+		return false;
 	}
 
 	hid_t grpID = 0;
@@ -50,10 +51,12 @@ bool AMHDF5Group::openHDF5Group(hid_t file)
 {
 	if(groupID_ != 0){
 		AMErrorMon::alert(this, 0, QString("Open: Group %1 is already open.").arg(name_));
+		return false;
 	}
 
 	if(!file > 0){
 		AMErrorMon::alert(this, 0, QString("Open: Group %1 cannot be opened from a closed file!").arg(name_));
+		return false;
 	}
 
 	hid_t grpID = 0;
