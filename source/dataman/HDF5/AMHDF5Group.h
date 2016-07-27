@@ -31,6 +31,8 @@ public:
 	virtual ~AMHDF5Group();
 	/// Checks if a group is currently open.
 	bool isOpen() const;
+	/// Returns the group ID currently held by AMHDF5Group.
+	hid_t groupID() const { return groupID_;}
 
 signals:
 

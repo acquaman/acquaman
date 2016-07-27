@@ -1,6 +1,5 @@
 #include "AMHDF5File.h"
 
-#include "dataman/HDF5/AMHDF5Group.h"
 #include "util/AMErrorMonitor.h"
 
 AMHDF5File::AMHDF5File(const QString &name, QObject *parent)
@@ -172,19 +171,59 @@ bool AMHDF5File::flushHDF5File()
 
 bool AMHDF5File::addGroup(const QString &groupName)
 {
-	AMHDF5Group* group = new AMHDF5Group(groupName);
-	if(group->createHDF5Group(id_))
+	AMHDF5Group *group = new AMHDF5Group(groupName);
+
+	if(isOpen() && group->createHDF5Group(id_)){
+
+		groups_.insert(groupName, group);
 		return true;
-	else
-		return false;
+
+	}
+
+	group->deleteLater();
+	return false;
 }
 
 bool AMHDF5File::openGroup(const QString &groupName)
 {
-	AMHDF5Group* group = new AMHDF5Group(groupName);
-	if(group->openHDF5Group(id_)){
+	if(isOpen() && !groups_.contains(groupName)){
+
+		AMHDF5Group *groupToOpen = new AMHDF5Group(groupName);
+
+		if(!groupToOpen->openHDF5Group(id_)){
+			groupToOpen->deleteLater();
+			return false;
+		}
+
+		groups_.insert(groupName, groupToOpen);
+
 		return true;
 	}
+
+	return false;
+}
+
+AMHDF5Group* AMHDF5File::findOpenGroup(const QString &groupName)
+{
+	if(isOpen() && groups_.contains(groupName)){
+		return groups_.value(groupName);
+	}
+
+	return NULL;
+}
+
+bool AMHDF5File::closeGroup(const QString &groupName)
+{
+	if(isOpen() && groups_.contains(groupName)){
+
+		AMHDF5Group* groupToClose = groups_.value(groupName);
+
+		if(groupToClose->closeHDF5Group()){
+			groupToClose->deleteLater();
+			return true;
+		}
+	}
+
 	return false;
 }
 

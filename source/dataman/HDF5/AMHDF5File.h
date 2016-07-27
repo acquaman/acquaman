@@ -6,6 +6,9 @@
 #include <hdf5.h>
 
 #include <QString>
+#include <QMap>
+
+#include "dataman/HDF5/AMHDF5Group.h"
 
 #define AMHDF5FILE_INVALID_CREATE_OPTION 666000
 #define AMHDF5FILE_FILE_ALREADY_OPEN 666001
@@ -13,6 +16,8 @@
 #define AMHDF5FILE_NOT_HDF5_FILE 666003
 #define AMHDF5FILE_INVALID_OPEN_OPTION 666004
 #define AMHDF5FILE_FLUSH_FILE_NOT_OPEN 666005
+
+class AMHDF5Group;
 
 /// This is the base class that will relate all the other pieces of the HDF5 library.  Nothing can work
 /// without having an open HDF5 file instance.
@@ -63,16 +68,24 @@ public slots:
 	bool closeHDF5File();
 	/// Flushes the current HDF5 file to disk.  Only valid when the file is open.  Not necessary to call prior to closing the file.
 	bool flushHDF5File();
-	/// Adds a group to the current file.
+
+	/// Adds a group to the current file. Returns reference to the group if successful.
 	bool addGroup(const QString &groupName);
-	/// Opens the associated group for the file.
+	/// Opens the associated group for the file. Returns reference to the group if successful.
 	bool openGroup(const QString &groupName);
+	/// Closes the associated group for this file.
+	bool closeGroup(const QString &groupName);
+	/// Returns an open group with a specified name if it exists.
+	AMHDF5Group* findOpenGroup(const QString &groupName);
 
 protected:
 	/// The path and name of HDF5 file.
 	QString name_;
 	/// The file id.  This is heavily used by all the other parts of the API to create and associate objects in the HDF5 system.
 	hid_t id_;
+
+	/// Map of groups currently open in the file.
+	QMap<QString, AMHDF5Group *> groups_;
 };
 
 #endif // AMHDF5FILE_H
