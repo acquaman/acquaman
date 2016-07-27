@@ -56,6 +56,8 @@ public:
 	bool isOpen() const;
 	/// Returns the size of the HDF5 file in megabytes (MB).  Only valid if open.
 	int fileSize() const;
+	/// Returns an open group with a specified name if it exists.
+	AMHDF5Group* findOpenGroup(const QString &groupName) const;
 
 signals:
 
@@ -75,8 +77,8 @@ public slots:
 	bool openGroup(const QString &groupName);
 	/// Closes the associated group for this file.
 	bool closeGroup(const QString &groupName);
-	/// Returns an open group with a specified name if it exists.
-	AMHDF5Group* findOpenGroup(const QString &groupName);
+	/// Flushes the specified group to disk.
+	bool flushGroup(const QString &groupName);
 
 protected:
 	/// The path and name of HDF5 file.

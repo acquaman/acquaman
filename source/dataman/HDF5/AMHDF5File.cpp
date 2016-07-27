@@ -203,7 +203,7 @@ bool AMHDF5File::openGroup(const QString &groupName)
 	return false;
 }
 
-AMHDF5Group* AMHDF5File::findOpenGroup(const QString &groupName)
+AMHDF5Group* AMHDF5File::findOpenGroup(const QString &groupName) const
 {
 	if(isOpen() && groups_.contains(groupName)){
 		return groups_.value(groupName);
@@ -220,6 +220,20 @@ bool AMHDF5File::closeGroup(const QString &groupName)
 
 		if(groupToClose->closeHDF5Group()){
 			groupToClose->deleteLater();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool AMHDF5File::flushGroup(const QString &groupName)
+{
+	if(isOpen() && groups_.contains(groupName)){
+
+		AMHDF5Group* groupToFlush = groups_.value(groupName);
+
+		if(groupToFlush->flushHDF5Group()){
 			return true;
 		}
 	}
