@@ -63,6 +63,10 @@ public slots:
 	bool closeHDF5File();
 	/// Flushes the current HDF5 file to disk.  Only valid when the file is open.  Not necessary to call prior to closing the file.
 	bool flushHDF5File();
+	/// Adds a group to the current file.
+	bool addGroup(const QString &groupName);
+	/// Opens the associated group for the file.
+	bool openGroup(const QString &groupName);
 
 protected:
 	/// The path and name of HDF5 file.

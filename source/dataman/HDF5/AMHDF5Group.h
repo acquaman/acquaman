@@ -9,6 +9,13 @@
 
 #include "AMHDF5File.h"
 
+#define AMHDF5GROUP_INVALID_CREATE_OPTION 667000
+#define AMHDF5GROUP_GROUP_ALREADY_OPEN 667001
+#define AMHDF5GROUP_FILE_IN_BAD_STATE 667002
+#define AMHDF5GROUP_GROUP_OPEN_FAILED 667003
+#define AMHDF5GROUP_GROUP_ALREADY_CLOSED 667004
+#define AMHDF5GROUP_GROUP_CLOSE_FAILED 667005
+#define AMHDF5GROUP_GROUP_FLUSH_FAILED 667006
 
 /// This class allows for adding groups to AMHDF5 files. Groups are the highest level of data
 /// organiziation in an HDF5 file and every HDF5 file must have at least one group.
@@ -29,11 +36,13 @@ signals:
 
 public slots:
 	/// Create the HDF5 group for a specified file and associates that group handle with this object.
-	bool createHDF5Group(hid_t file);
+	bool createHDF5Group(hid_t fileID);
 	/// Opens an existing HDF5 group for access and associates the handle with this object.
-	bool openHDF5Group(hid_t file);
+	bool openHDF5Group(hid_t fileID);
 	/// Closes a currently open HDF5 group and resets the group handle ID.
 	bool closeHDF5Group();
+	/// Flushes the group and associated file to disk.
+	bool flushHDF5Group();
 
 protected:
 	/// The name of the group to be made.

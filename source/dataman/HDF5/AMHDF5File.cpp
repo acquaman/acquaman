@@ -1,5 +1,6 @@
 #include "AMHDF5File.h"
 
+#include "dataman/HDF5/AMHDF5Group.h"
 #include "util/AMErrorMonitor.h"
 
 AMHDF5File::AMHDF5File(const QString &name, QObject *parent)
@@ -11,7 +12,7 @@ AMHDF5File::AMHDF5File(const QString &name, QObject *parent)
 
 AMHDF5File::~AMHDF5File()
 {
-	if (!isOpen())
+	if (isOpen())
 		closeHDF5File();
 }
 
@@ -167,5 +168,23 @@ bool AMHDF5File::flushHDF5File()
 	}
 
 	return true;
+}
+
+bool AMHDF5File::addGroup(const QString &groupName)
+{
+	AMHDF5Group* group = new AMHDF5Group(groupName);
+	if(group->createHDF5Group(id_))
+		return true;
+	else
+		return false;
+}
+
+bool AMHDF5File::openGroup(const QString &groupName)
+{
+	AMHDF5Group* group = new AMHDF5Group(groupName);
+	if(group->openHDF5Group(id_)){
+		return true;
+	}
+	return false;
 }
 
