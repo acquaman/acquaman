@@ -70,27 +70,6 @@ bool AMHDF5DataSet::writeData(double *data)
 	return true;
 }
 
-bool AMHDF5DataSet::fill(double value, double *data)
-{
-	if (!isOpen()){
-
-		AMErrorMon::alert(this, 0, QString("Can not write to %1 because it is not open.").arg(name_));
-		return false;
-	}
-
-	hid_t spaceId = dataSpaceId();
-	herr_t status = H5Dfill(&value, H5T_NATIVE_DOUBLE, data, H5T_NATIVE_DOUBLE, spaceId);
-	AMHDF5DataSpace::close(spaceId);
-
-	if (status < 0) {
-
-		// HDF5 error + error mon.
-		return false;
-	}
-
-	return true;
-}
-
 bool AMHDF5DataSet::create(int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum)
 {
 	if (isOpen()){

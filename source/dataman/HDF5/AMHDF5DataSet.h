@@ -30,8 +30,6 @@ public:
 	bool readData(double *data) const;
 	/// Writes data to the HDF5 file buffer.  Note that the data needs to be flushed or the data set closed before the data is written to disk.
 	bool writeData(double *data);
-	/// Fills the data with a specific value.
-	bool fill(double value, double *data);
 
 signals:
 
