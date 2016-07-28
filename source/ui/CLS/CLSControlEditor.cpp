@@ -17,7 +17,9 @@ CLSControlEditor::CLSControlEditor(AMControl *control, QWidget *parent) :
 	useControlValuesAsValues_ = true;
 	useControlMoveValuesAsMoveValues_ = true;
 	useControlUnitsAsUnits_ = true;
-	useControlMovingAsProgress_ = true;
+	useControlMovingAsDisplayProgress_ = true;
+	useControlMoveProgressAsProgress_ = true;
+	useControlMovingAsDisplayProgress_ = true;
 
 	stopAction_ = new QAction("Stop", this);
 	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
@@ -73,18 +75,8 @@ void CLSControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumValue()) );
 			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
 
-			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMinimum()) );
-			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMaximum()) );
-			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateDisplayProgress()) );
-			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMinimum()) );
-			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMaximum()) );
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateProgressValue()) );
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateDisplayProgress()) );
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateInitiatedCurrentMove()) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateProgressValue()) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateDisplayProgress()) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateInitiatedCurrentMove()) );
+			connect( control_, SIGNAL(moveProgressPercentChanged(double)), this, SLOT(updateProgressValue()) );
+			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(updateDisplayProgress()) );
 		}
 
 		updateTitleText();
@@ -96,8 +88,6 @@ void CLSControlEditor::setControl(AMControl *newControl)
 		updateMoveValues();
 		updateUnits();
 
-		updateProgressValueMinimum();
-		updateProgressValueMaximum();
 		updateProgressValue();
 		updateDisplayProgress();
 
@@ -232,19 +222,35 @@ void CLSControlEditor::setUseControlUnitsAsUnits(bool useUnits)
 	}
 }
 
-void CLSControlEditor::setDisplayProgress(bool displayProgress)
+void CLSControlEditor::setProgressValue(double newValue)
 {
-	setUseControlMovingStateToDisplayProgress(false);
-	CLSValueEditor::setDisplayProgress(displayProgress);
+	setUseControlMoveProgressAsProgress(false);
+	CLSValueEditor::setProgressValue(newValue);
 }
 
-void CLSControlEditor::setUseControlMovingStateToDisplayProgress(bool useState)
+void CLSControlEditor::setUseControlMoveProgressAsProgress(bool useProgress)
 {
-	if (useControlMovingAsProgress_ != useState) {
-		useControlMovingAsProgress_ = useState;
+	if (useControlMoveProgressAsProgress_ != useProgress) {
+		useControlMoveProgressAsProgress_ = useProgress;
 		updateValueLabel();
 
-		emit useControlMovingStateToDisplayProgressChanged(useControlMovingAsProgress_);
+		emit useControlMoveProgressAsProgressChanged(useControlMoveProgressAsProgress_);
+	}
+}
+
+void CLSControlEditor::setDisplayProgress(bool showProgress)
+{
+	setUseControlMovingAsDisplayProgress(false);
+	CLSValueEditor::setDisplayProgress(showProgress);
+}
+
+void CLSControlEditor::setUseControlMovingAsDisplayProgress(bool useState)
+{
+	if (useControlMovingAsDisplayProgress_ != useState) {
+		useControlMovingAsDisplayProgress_ = useState;
+		updateValueLabel();
+
+		emit useControlMovingAsDisplayProgressChanged(useControlMovingAsDisplayProgress_);
 	}
 }
 
@@ -309,27 +315,15 @@ void CLSControlEditor::updateUnits()
 		CLSValueEditor::setUnits(control_->units());
 }
 
-void CLSControlEditor::updateProgressValueMinimum()
-{
-	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
-		CLSValueEditor::setProgressValueMinimum(control_->value());
-}
-
-void CLSControlEditor::updateProgressValueMaximum()
-{
-	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
-		CLSValueEditor::setProgressValueMaximum(control_->setpoint());
-}
-
 void CLSControlEditor::updateProgressValue()
 {
-	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
-		CLSValueEditor::setProgressValue(control_->value());
+	if (control_ && useControlMoveProgressAsProgress_)
+		CLSValueEditor::setProgressValue(control_->moveProgressPercent());
 }
 
 void CLSControlEditor::updateDisplayProgress()
 {
-	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
+	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
 		CLSValueEditor::setDisplayProgress(true);
 	else
 		CLSValueEditor::setDisplayProgress(false);

@@ -416,6 +416,14 @@ The Control abstraction provides two different properties (and associated signal
 
 */
 	virtual bool moveInProgress() const { return false; }
+	/// Returns the move start value.
+	double moveStart() const { return moveStart_; }
+	/// Returns the move value.
+	double moveValue() const { return moveValue_; }
+	/// Returns the move end value.
+	double moveEnd() const { return moveEnd_; }
+	/// Returns the current move progress, a percent value between 0 and 1.
+	double moveProgressPercent() const { return moveProgressPercent_; }
 
 	/// indicates whether the units is initiazted
 	bool isUnitsInitialized() { return units_.length() != 0 && units_ != "?"; }
@@ -568,6 +576,16 @@ signals:
 	//@{
 	/// Announce changes in "isMoving()".
 	void movingChanged(bool isMoving);
+	/// Notifier that the move start value has changed.
+	void moveStartChanged(double newValue);
+	/// Notifier that the move value has changed.
+	void moveValueChanged(double newValue);
+	/// Notifier that the move end value has changed.
+	void moveEndChanged(double newValue);
+	/// Notifier that the move progress percent has changed.
+	void moveProgressPercentChanged(double newValue);
+	/// Notifier that the move progress has changed.
+	void moveProgressChanged(double startValue, double value, double endValue);
 	/// Announces when the position/value of the control "value()" has changed.
 	void valueChanged(double newValue);
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
@@ -610,6 +628,10 @@ signals:
 	void maximumValueChanged(double newValue);
 
 protected:
+	/// Calculates the move progress percent, a value between 0 and 1, as a function of the move progress minimum, value, and maximum. Assumes a linear relationship, subclasses can reimplement for their own progress behavior.
+	virtual double calculateMoveProgressPercent() const;
+
+protected:
 	/// List of pointers to our subcontrols
 	QList<AMControl*> children_;
 	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default. Subclassses should change this if required.
@@ -618,6 +640,14 @@ protected:
 	/// A flag to tell controls whether or not to attempt a move when they are already within tolerance
 	bool attemptMoveWhenWithinTolerance_;
 
+	/// The control value when a move starts, used to calculate the move progres.
+	double moveStart_;
+	/// The control value as its moving, used to calculate the move progress.
+	double moveValue_;
+	/// The move destination value, used to calculate the move progress.
+	double moveEnd_;
+	/// The move progress, a value between 0 and 1, calculated from the move start, value, and end by default.
+	double moveProgressPercent_;
 
 protected slots:
 	/// This is used internally by subclasses to set the unit text:
@@ -632,6 +662,26 @@ protected slots:
 	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
 	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
+
+	/// Sets the move start value.
+	void setMoveStart(double newValue);
+	/// Updates the move start value.
+	virtual void updateMoveStart();
+
+	/// Sets the move value.
+	void setMoveValue(double newValue);
+	/// Updates the move value.
+	virtual void updateMoveValue();
+
+	/// Sets the move end value.
+	void setMoveEnd(double newValue);
+	/// Updates the move end value.
+	virtual void updateMoveEnd();
+
+	/// Sets the move progress percent..
+	void setMoveProgressPercent(double newValue);
+	/// Updates the move progress with the result of calculateMoveProgressPercent(...).
+	virtual void updateMoveProgressPercent();
 
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.

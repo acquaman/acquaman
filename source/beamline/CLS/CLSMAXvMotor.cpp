@@ -1051,6 +1051,12 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 	// This is our new target:
 	setpoint_ = setpoint;
 
+	// Update the move progress values.
+
+	updateMoveStart();
+	updateMoveValue();
+	updateMoveEnd();
+
 	// Normal move:
 	// Issue the move command, check on attemptMoveWhenWithinTolerance
 	if(!attemptMoveWhenWithinTolerance_ && inPosition())

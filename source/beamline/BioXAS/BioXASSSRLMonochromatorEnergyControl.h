@@ -88,6 +88,9 @@ protected:
 	/// Creates and returns a calibration action.
 	virtual AMAction3* createCalibrateAction(double oldEnergy, double newEnergy);
 
+	/// Calculates and returns the move progress percent, a value between 0 and 1.
+	virtual double calculateMoveProgressPercent() const;
+
 	/// Returns the bragg angle calculation result for region A, from the bragg motor position.
 	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the bragg angle calculation result for region B, from the bragg motor position.

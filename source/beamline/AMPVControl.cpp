@@ -177,6 +177,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
+	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(updateMoveValue()) );
 
 	// Do we have a stopPV?
 	noStopPV_ = stopPVname.isEmpty();
@@ -249,6 +250,13 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 			return NotConnectedFailure;
 		}
 		setpoint_ = setpoint;
+
+		// Update the move progress values.
+
+		updateMoveStart();
+		updateMoveValue();
+		updateMoveEnd();
+
 		writePV_->setValue(setpoint_);
 		completionTimer_.start(int(completionTimeout_*1000.0)); // restart the completion timer... Since this might be another move, give it some more time.
 		// re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the first move.
@@ -303,6 +311,12 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 // Start a move to the value setpoint:
 AMControl::FailureExplanation AMPVControl::move(const QString &stringSetPoint)
 {
+	// Update the move progress values.
+
+	updateMoveStart();
+	updateMoveValue();
+	updateMoveEnd();
+
 	writePV_->setValue(stringSetPoint);
 	return NoFailure;
 }
@@ -437,6 +451,8 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	moveStartTimeout_ = moveStartTimeoutSeconds;
 	hardwareWasMoving_ = false;
 
+	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(updateMoveValue()) );
+
 	// create new setpoint PV. Monitor it, in case someone else changes it
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 
@@ -528,6 +544,13 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = Setpoint;
+
+		// Update the move progress values.
+
+		updateMoveStart();
+		updateMoveValue();
+		updateMoveEnd();
+
 		writePV_->setValue(setpoint_);
 
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
@@ -548,6 +571,12 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// This is our new target:
 		setpoint_ = Setpoint;
+
+		// Update the move progress values.
+
+		updateMoveStart();
+		updateMoveValue();
+		updateMoveEnd();
 
 		// Normal move:
 		// Issue the move command, check on attemptMoveWhenWithinTolerance

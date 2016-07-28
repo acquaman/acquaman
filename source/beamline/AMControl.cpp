@@ -29,6 +29,11 @@ AMControl::AMControl(const QString& name, const QString& units, QObject* parent,
 	attemptMoveWhenWithinTolerance_ = true;
 	allowsMovesWhileMoving_ = false;
 	displayPrecision_ = 3;
+
+	moveStart_ = 0;
+	moveValue_ = 0;
+	moveEnd_ = 1;
+	moveProgressPercent_ = 0;
 }
 
 QString AMControl::toString() const
@@ -237,4 +242,79 @@ bool AMControl::clearChildControls()
 		}
 	}
 	return result;
+}
+
+double AMControl::calculateMoveProgressPercent() const
+{
+	double result = 0;
+
+	if (moveStart_ != moveEnd_)
+		result = qAbs(moveValue() - moveStart()) / qAbs(moveEnd() - moveStart());
+
+	return result;
+}
+
+void AMControl::setMoveStart(double newValue)
+{
+	if (moveStart_ != newValue) {
+		moveStart_ = newValue;
+
+		emit moveStartChanged(moveStart_);
+		emit moveProgressChanged(moveStart_, moveValue_, moveEnd_);
+
+		updateMoveProgressPercent();
+	}
+}
+
+void AMControl::updateMoveStart()
+{
+	setMoveStart( value() );
+}
+
+void AMControl::setMoveValue(double newValue)
+{
+	if (moveValue_ != newValue) {
+		moveValue_ = newValue;
+
+		emit moveValueChanged(moveValue_);
+		emit moveProgressChanged(moveStart_, moveValue_, moveEnd_);
+
+		updateMoveProgressPercent();
+	}
+}
+
+void AMControl::updateMoveValue()
+{
+	setMoveValue( value() );
+}
+
+void AMControl::setMoveEnd(double newValue)
+{
+	if (moveEnd_ != newValue) {
+		moveEnd_ = newValue;
+
+		emit moveEndChanged(moveEnd_);
+		emit moveProgressChanged(moveStart_, moveValue_, moveEnd_);
+
+		updateMoveProgressPercent();
+	}
+}
+
+void AMControl::updateMoveEnd()
+{
+	setMoveEnd( setpoint() );
+}
+
+void AMControl::setMoveProgressPercent(double newValue)
+{
+	if (moveProgressPercent_ != newValue) {
+		moveProgressPercent_ = newValue;
+
+		emit moveProgressPercentChanged(moveProgressPercent_);
+	}
+}
+
+void AMControl::updateMoveProgressPercent()
+{
+	setMoveProgressPercent( calculateMoveProgressPercent() );
 }

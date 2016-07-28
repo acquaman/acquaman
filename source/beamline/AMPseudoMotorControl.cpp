@@ -39,7 +39,6 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 
 	calibrationSucceededMapper_ = new QSignalMapper(this);
 	connect( calibrationSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationSucceeded(QObject*)) );
-
 }
 
 AMPseudoMotorControl::~AMPseudoMotorControl()
@@ -164,6 +163,12 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	// Update the setpoint.
 
 	setSetpoint(setpoint);
+
+	// Update the move progress values.
+
+	updateMoveStart();
+	updateMoveValue();
+	updateMoveEnd();
 
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
@@ -334,6 +339,9 @@ void AMPseudoMotorControl::setValue(double newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
+
+		updateMoveValue();
+
 		emit valueChanged(value_);
 	}
 }
