@@ -343,19 +343,6 @@ void AMAction3::setSkipped()
 	setSucceeded();
 }
 
-void AMAction3::setState(AMAction3::State newState)
-{
-	if (!canChangeState(newState))
-		return;
-
-	AMAction3::State fromState = state_;
-
-	state_ = newState;
-	setStatusText(stateDescription(state_));
-
-	emit stateChanged(fromState, state_);
-}
-
 bool AMAction3::canChangeState(State newState) const
 {
 	bool canTransition = false;
@@ -418,4 +405,17 @@ bool AMAction3::canChangeState(State newState) const
 	}
 
 	return canTransition;
+}
+
+void AMAction3::setState(AMAction3::State newState)
+{
+	if (!canChangeState(newState))
+		return;
+
+	AMAction3::State fromState = state_;
+
+	state_ = newState;
+	setStatusText(stateDescription(state_));
+
+	emit stateChanged(fromState, state_);
 }

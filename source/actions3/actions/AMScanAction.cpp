@@ -164,6 +164,7 @@ void AMScanAction::pauseImplementation()
 	if (controller_->pause()){
 
 		setStatusText("Paused");
+		qDebug() << "===== AMScanAction::pauseImplementation() is me?";
 		setPaused();
 	}
 }
@@ -418,26 +419,28 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 
 	switch (toState) {
 	case AMScanController::Running:
-		if (fromState == AMScanController::Resuming)
+		if (fromState == AMScanController::Resuming && canChangeState(AMAction3::Running))
 			setResumed();
-		else
-			qDebug() << QString("==== AMScanAction::onControllerStateChanged() : controlling is running, what am I doing? ").arg(state());
 
 		break;
 
 	case AMScanController::Pausing:
-		pause();
+		if (canChangeState(AMAction3::Pausing))
+			pause();
 		break;
 
 	case AMScanController::Paused:
-		if (!isPaused())
+		if (canChangeState(AMAction3::Paused)) {
+			qDebug() << "===== AMScanAction::onControllerStateChanged() or is me?";
 			setPaused();
+		}
 		else
 			qDebug() << "==== ==== AMScanAction::onControllerStateChanged(): AMScanAction is already paused";
 		break;
 
 	case AMScanController::Resuming:
-		resume();
+		if (canChangeState(AMAction3::Resuming))
+			resume();
 		break;
 
 	}

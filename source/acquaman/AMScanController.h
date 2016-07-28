@@ -454,6 +454,13 @@ protected:
 	  */
 	virtual void stopImplementation(const QString &command = QString("")) = 0;
 
+	/*!
+	  * Whether a transition from the current state to newState is allowed.
+	  * \returns True if transitioning from the current state to newState can
+	  * be performed, false otherwise.
+	  */
+	bool canChangeStateTo(ScanState newState);
+
 protected:
 	/*!
 	  * The configuration for the scan which the scan controller is controlling.
@@ -466,12 +473,6 @@ protected:
 	AMScan *scan_;
 
 private:
-	/*!
-	  * Whether a transition from the current state to newState is allowed.
-	  * \returns True if transitioning from the current state to newState can
-	  * be performed, false otherwise.
-	  */
-	bool canChangeStateTo(ScanState newState);
 
 	/*!
 	  * Changes the state of the scan controller to the provided newState if a

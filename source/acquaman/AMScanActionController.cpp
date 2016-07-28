@@ -274,17 +274,20 @@ void AMScanActionController::onScanningActionsStateChanged(int fromState, int to
 	qDebug() << QString("==== AMScanActionController::onScanningActionsStateChanged() : from %1 to %2").arg(fromState).arg(toState);
 	switch(toState) {
 	case AMAction3::Running:
-		if (fromState == AMAction3::Resuming)
+		if (fromState == AMAction3::Resuming && canChangeStateTo(AMScanController::Running))
 			setResumed();
 		break;
 	case AMAction3::Pausing:
-		setPausing();
+		if(canChangeStateTo(AMScanController::Pausing))
+			setPausing();
 		break;
 	case AMAction3::Paused:
-		setPaused();
+		if(canChangeStateTo(AMScanController::Paused))
+			setPaused();
 		break;
 	case AMAction3::Resuming:
-		setResuming();
+		if(canChangeStateTo(AMScanController::Resuming))
+			setResuming();
 		break;
 	}
 }

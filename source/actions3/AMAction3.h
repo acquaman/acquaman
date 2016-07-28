@@ -348,6 +348,9 @@ protected:
 	/// Call this after receiving skipImplementation() to inform the base class that the action has is now being skipped and we should go from Skipping to Succeeded.
 	void setSkipped();
 
+	/// Checks whether you can make the the transition to the new state.
+	bool canChangeState(State newState) const;
+
 protected:
 	/// The list of skip options that the scan can perform.
 	QStringList skipOptions_;
@@ -358,8 +361,6 @@ protected:
 private:
 	/// Changes states (if possible).
 	void setState(State newState);
-	/// Checks whether you can make the the transition to the new state.
-	bool canChangeState(State newState) const;
 
 	/// The current state.
 	State state_;
