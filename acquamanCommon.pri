@@ -473,7 +473,8 @@ HEADERS += \
 	source/ui/AMWindowPaneProxyModel.h \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.h \
     $$PWD/source/util/AMHDF5Driver.h \
-    $$PWD/source/dataman/HDF5/AMHDF5File.h
+    $$PWD/source/dataman/HDF5/AMHDF5File.h \
+    $$PWD/source/dataman/HDF5/AMHDF5Group.h
 
 FORMS += \
 
@@ -909,7 +910,8 @@ SOURCES += \
 	source/ui/AMWindowPaneProxyModel.cpp \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp \
     $$PWD/source/util/AMHDF5Driver.cpp \
-    $$PWD/source/dataman/HDF5/AMHDF5File.cpp
+    $$PWD/source/dataman/HDF5/AMHDF5File.cpp \
+    $$PWD/source/dataman/HDF5/AMHDF5Group.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \

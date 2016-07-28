@@ -11,7 +11,7 @@ AMHDF5File::AMHDF5File(const QString &name, QObject *parent)
 
 AMHDF5File::~AMHDF5File()
 {
-	if (!isOpen())
+	if (isOpen())
 		closeHDF5File();
 }
 
@@ -124,7 +124,6 @@ bool AMHDF5File::openHDF5File(AMHDF5File::OpenOption option)
 	}
 
 	id_ = fileId;
-
 	return true;
 }
 
@@ -138,7 +137,7 @@ bool AMHDF5File::closeHDF5File()
 
 	herr_t status = H5Fclose(id_);
 
-	if (status > 0){
+	if (status >= 0){
 
 		id_ = 0;
 		return true;
@@ -167,5 +166,77 @@ bool AMHDF5File::flushHDF5File()
 	}
 
 	return true;
+}
+
+bool AMHDF5File::addGroup(const QString &groupName)
+{
+	AMHDF5Group *group = new AMHDF5Group(groupName);
+
+	if(isOpen() && group->createHDF5Group(id_)){
+
+		groups_.insert(groupName, group);
+		return true;
+
+	}
+
+	group->deleteLater();
+	return false;
+}
+
+bool AMHDF5File::openGroup(const QString &groupName)
+{
+	if(isOpen() && !groups_.contains(groupName)){
+
+		AMHDF5Group *groupToOpen = new AMHDF5Group(groupName);
+
+		if(!groupToOpen->openHDF5Group(id_)){
+			groupToOpen->deleteLater();
+			return false;
+		}
+
+		groups_.insert(groupName, groupToOpen);
+
+		return true;
+	}
+
+	return false;
+}
+
+AMHDF5Group* AMHDF5File::findOpenGroup(const QString &groupName) const
+{
+	if(isOpen() && groups_.contains(groupName)){
+		return groups_.value(groupName);
+	}
+
+	return NULL;
+}
+
+bool AMHDF5File::closeGroup(const QString &groupName)
+{
+	if(isOpen() && groups_.contains(groupName)){
+
+		AMHDF5Group* groupToClose = groups_.take(groupName);
+
+		if(groupToClose->closeHDF5Group()){
+			groupToClose->deleteLater();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool AMHDF5File::flushGroup(const QString &groupName)
+{
+	if(isOpen() && groups_.contains(groupName)){
+
+		AMHDF5Group* groupToFlush = groups_.value(groupName);
+
+		if(groupToFlush->flushHDF5Group()){
+			return true;
+		}
+	}
+
+	return false;
 }
 
