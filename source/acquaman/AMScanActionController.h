@@ -144,7 +144,7 @@ protected slots:
 	  * Handles the cleanup after the initialization actions fail.
 	  */
 	virtual void onInitializationActionsListFailed();
-	virtual void onInitializationActionsListStateChanged(int toState, int fromState);
+	virtual void onInitializationActionsListStateChanged(int fromState, int toState);
 
 	/*!
 	  * Handles the cleanup after the cleanup actions succeed.
@@ -177,7 +177,7 @@ protected slots:
 	  * Handles the scan actions tree failing. Starts the cleanup actions list.
 	  */
 	virtual void onScanningActionsFailed();
-	void onScanningActionsStateChanged(int toState, int fromState);
+	void onScanningActionsStateChanged(int fromState, int toState);
 
 	/*!
 	  * Handles the file writer's busy state being altered.

@@ -331,7 +331,7 @@ void AMAction3::setState(AMAction3::State newState) {
 	previousState_ = state_;
 	state_ = newState;
 	setStatusText(stateDescription(state_));
-	emit stateChanged(state_, previousState_);
+	emit stateChanged(previousState_, state_);
 }
 
 bool AMAction3::canChangeState(State newState) const

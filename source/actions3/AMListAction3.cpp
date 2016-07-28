@@ -317,7 +317,7 @@ void AMListAction3::skipImplementation(const QString &command)
 	}
 }
 
-void AMListAction3::internalOnSubActionStateChanged(int toState, int fromState)
+void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 {
 	Q_UNUSED(fromState)
 

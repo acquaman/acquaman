@@ -118,7 +118,7 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 	emit scanActionFinished(scanAction);
 }
 
-void AMActionRunner3::onCurrentActionStateChanged(int toState, int fromState)
+void AMActionRunner3::onCurrentActionStateChanged(int fromState, int toState)
 {
 	updateActionRunnerPausable();
 
@@ -324,7 +324,7 @@ void AMActionRunner3::runActionImmediately(AMAction3 *action)
 	action->start();
 }
 
-void AMActionRunner3::onImmediateActionStateChanged(int toState, int fromState)
+void AMActionRunner3::onImmediateActionStateChanged(int fromState, int toState)
 {
 	Q_UNUSED(fromState)
 

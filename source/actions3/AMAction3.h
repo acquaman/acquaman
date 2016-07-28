@@ -264,7 +264,7 @@ public:
 signals:
 
 	/// Emitted whenever the state() of the action changes
-	void stateChanged(int toState, int fromState);
+	void stateChanged(int fromState, int toState);
 
 	// convenience synonyms for state changed to a final state.
 	//////////////////////////

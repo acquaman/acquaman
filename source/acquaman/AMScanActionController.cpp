@@ -223,7 +223,7 @@ void AMScanActionController::onInitializationActionsListFailed()
 		setFailed();
 }
 
-void AMScanActionController::onInitializationActionsListStateChanged(int toState, int fromState)
+void AMScanActionController::onInitializationActionsListStateChanged(int fromState, int toState)
 {
 	qDebug() << QString("==== AMScanActionController::onInitializationActionsListStateChanged() : from %1 to %2").arg(fromState).arg(toState);
 }
@@ -269,7 +269,7 @@ void AMScanActionController::onScanningActionsFailed()
 		setFailed();
 }
 
-void AMScanActionController::onScanningActionsStateChanged(int toState, int fromState)
+void AMScanActionController::onScanningActionsStateChanged(int fromState, int toState)
 {
 	qDebug() << QString("==== AMScanActionController::onScanningActionsStateChanged() : from %1 to %2").arg(fromState).arg(toState);
 	switch(toState) {

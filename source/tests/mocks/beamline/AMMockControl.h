@@ -40,7 +40,7 @@ protected slots:
 	/// Handles changes in state from the AMMockMoveAction which simulates the move.
 	/// Sets this control's state to moving when the newActionState is Running,
 	/// and sets it to not moving when it is Cancelled, Paused, Succeeded or Failed.
-	void onMoveActionStateChanged(int newActionState, int oldActionState);
+	void onMoveActionStateChanged(int fromState, int toState);
 
 protected:
 	/// Creates an AMMockMoveAction which simulates the motion of this control.

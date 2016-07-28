@@ -206,10 +206,10 @@ protected slots:
 	void onScanActionFinished(AMScanAction *);
 
 	/// Respond internally whenever the state of the currently-running action changes.
-	void onCurrentActionStateChanged(int toState, int fromState);
+	void onCurrentActionStateChanged(int fromState, int toState);
 
 	/// Respond internally whenever the state of any immediate-run action changes.
-	void onImmediateActionStateChanged(int toState, int fromState);
+	void onImmediateActionStateChanged(int fromState, int toState);
 
 protected:
 	/// Helper method that returns whether the current action is a scan action or not.
