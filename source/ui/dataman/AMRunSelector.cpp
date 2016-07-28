@@ -180,6 +180,7 @@ void AMRunSelector::showAddRunDialog() {
 		newRunDialog_ = 0;
 	}
 	newRunDialog_ = new AMNewRunDialog(database_);
+	newRunDialog_->setModal(true);
 	newRunDialog_->show();
 	connect(newRunDialog_, SIGNAL(dialogBoxClosed(int)), this, SLOT(onAddRunDialogClosed(int)));
 }
