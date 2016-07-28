@@ -340,10 +340,8 @@ protected:
 	/// Call this to inform the base class that the action has failed. It should be OK to delete the action after receiving this.
 	void setFailed(const QString& = QString());
 	/// Call this after receiving pauseImplementation() to inform the base class that the action has been paused, and we should go from Pausing to Paused.
-	void setPausing();
 	void setPaused();
 	/// Call this after receiving resumeImplementation() to inform the base class that the action has been resumed, and we should go from Resuming to Running.
-	void setResuming();
 	void setResumed();
 	/// Call this after receiving cancelImplementation() to inform the base class that the action has been cancelled, and we should go from Cancelling to Cancelled.
 	void setCancelled();
