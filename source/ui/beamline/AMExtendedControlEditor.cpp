@@ -274,7 +274,7 @@ void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
 
-	if (control_ && control_->isConnected()) {
+	if (control_ && control_->canMeasure()) {
 		if(control_ && control_->isEnum()){
 			valueLabel_->setText(control_->enumNameAt(newVal));
 			unitsLabel_->setText("");

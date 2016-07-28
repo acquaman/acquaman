@@ -10,6 +10,7 @@
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
 #include "ui/PGM/PGMBeamStatusView.h"
 #include "ui/PGM/PGMBPMStatusView.h"
