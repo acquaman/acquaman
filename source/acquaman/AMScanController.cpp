@@ -28,7 +28,6 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	scan_ = 0;
 
 	state_ = AMScanController::Constructed;
-	lastState_ = AMScanController::Constructed;
 }
 
 AMScanController::~AMScanController()
@@ -41,34 +40,9 @@ AMScanController::ScanState AMScanController::state() const
 	return state_;
 }
 
-AMScanController::ScanState AMScanController::lastState() const
-{
-	return lastState_;
-}
-
-bool AMScanController::isInitializing() const
-{
-	return state_ == AMScanController::Initializing;
-}
-
-bool AMScanController::isInitialized() const
-{
-	return state_ == AMScanController::Initialized;
-}
-
-bool AMScanController::isStarting() const
-{
-	return state_ == AMScanController::Starting;
-}
-
 bool AMScanController::isRunning() const
 {
 	return state_ == AMScanController::Running;
-}
-
-bool AMScanController::isPausing() const
-{
-	return state_ == AMScanController::Pausing;
 }
 
 bool AMScanController::isPaused() const
@@ -76,34 +50,9 @@ bool AMScanController::isPaused() const
 	return state_ == AMScanController::Paused;
 }
 
-bool AMScanController::isResuming() const
-{
-	return state_ == AMScanController::Resuming;
-}
-
 bool AMScanController::isStopping() const
 {
 	return state_ == AMScanController::Stopping;
-}
-
-bool AMScanController::isCancelling() const
-{
-	return state_ == AMScanController::Cancelling;
-}
-
-bool AMScanController::isCancelled() const
-{
-	return state_ == AMScanController::Cancelled;
-}
-
-bool AMScanController::isFinished() const
-{
-	return state_ == AMScanController::Finished;
-}
-
-bool AMScanController::isFailed() const
-{
-	return state_ == AMScanController::Failed;
 }
 
 //bool AMScanController::isReadyForDeletion() const
@@ -166,6 +115,8 @@ void AMScanController::scheduleForDeletion()
 	deleteLater();
 }
 
+/// ============== protected slots/ functions =======================
+
 bool AMScanController::setInitialized()
 {
 	if(canChangeStateTo(AMScanController::Initialized)){
@@ -198,31 +149,11 @@ bool AMScanController::setStarted()
 	return false;
 }
 
-bool AMScanController::setPausing()
-{
-	if(changeState(AMScanController::Pausing)){
-
-		return true;
-	}
-
-	return false;
-}
-
 bool AMScanController::setPaused()
 {
 	if(changeState(AMScanController::Paused)){
 
 		emit paused();
-		return true;
-	}
-
-	return false;
-}
-
-bool AMScanController::setResuming()
-{
-	if(changeState(AMScanController::Resuming)){
-
 		return true;
 	}
 
@@ -289,6 +220,7 @@ void AMScanController::setFailed()
 bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 {
 	bool canTransition = false;
+
 	// Check the permissible transitions
 	switch (newState) {
 
@@ -301,17 +233,17 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Initialized :
-		if(isInitializing())
+		if(state_ == AMScanController::Initializing)
 			canTransition = true;
 		break;
 
 	case AMScanController::Starting :
-		if(isInitialized())
+		if(state_ == AMScanController::Initialized)
 			canTransition = true;
 		break;
 
 	case AMScanController::Running :
-		if(isStarting() || isResuming())
+		if(state_ == AMScanController::Starting || state_ == AMScanController::Resuming)
 			canTransition = true;
 		break;
 
@@ -322,7 +254,7 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Paused :
-		if(isPausing())
+		if(state_ == AMScanController::Pausing)
 			canTransition = true;
 		break;
 
@@ -341,7 +273,8 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Cancelled :
-		canTransition = true;
+		if (state_ == Cancelling)
+			canTransition = true;
 		break;
 
 	case AMScanController::Finished :
@@ -357,19 +290,17 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 	return canTransition;
 }
 
-#include <QDebug>
 bool AMScanController::changeState(ScanState newState)
 {
 	if(canChangeStateTo(newState)) {
-		qDebug() << " ==== AMScanController::changeState() " << newState;
 
-		lastState_ = state_;
+		AMScanController::ScanState lastState = state_;
 		state_= newState;
-		emit stateChanged(lastState_, newState);
+
+		emit stateChanged(lastState, newState);
 
 		return true;
 	}
-	qDebug() << " ==== AMScanController::changeState() failed to change to " << newState;
 
 	return false;
 }

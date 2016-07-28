@@ -396,7 +396,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 				setResumed();
 			return;
 		case Pausing:
-			if(canChangeState(Pausing))
+			if (canChangeState(Pausing))
 				pause();
 			return;
 		case Paused:
@@ -409,7 +409,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			}
 			return;
 		case Resuming:
-			if(canChangeState(Resuming))
+			if (canChangeState(Resuming))
 				resume();
 			return;
 		case Cancelling:

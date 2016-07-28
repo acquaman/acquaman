@@ -278,16 +278,16 @@ void AMScanActionController::onScanningActionsStateChanged(int fromState, int to
 			setResumed();
 		break;
 	case AMAction3::Pausing:
-		if(canChangeStateTo(AMScanController::Pausing))
-			setPausing();
+		if (canChangeStateTo(AMScanController::Pausing))
+			pause();
 		break;
 	case AMAction3::Paused:
 		if(canChangeStateTo(AMScanController::Paused))
 			setPaused();
 		break;
 	case AMAction3::Resuming:
-		if(canChangeStateTo(AMScanController::Resuming))
-			setResuming();
+		if (canChangeStateTo(AMScanController::Resuming))
+			resume();
 		break;
 	}
 }

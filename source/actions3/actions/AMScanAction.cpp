@@ -431,7 +431,6 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 
 	case AMScanController::Paused:
 		if (canChangeState(AMAction3::Paused)) {
-			qDebug() << "===== AMScanAction::onControllerStateChanged() or is me?";
 			setPaused();
 		}
 		else
