@@ -286,8 +286,10 @@ void AMActionRunner3::internalDoNextAction()
 
 		AMAction3* newAction = removeActionFromQueue(0);
 		setCurrentAction(newAction);
-		if (!validateAction(newAction, QString("Ignore this warning and run"), QString("Cancel running this action")))
+		if (!validateAction(newAction, QString("Ignore this warning and run"), QString("Cancel running this action"))) {
+			cancelCurrentAction();
 			return;
+		}
 
 		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
 		if (listAction){
@@ -424,7 +426,6 @@ bool AMActionRunner3::validateAction(AMAction3 *newAction, const QString &okButt
 
 		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false); //default cancel
 		if (!confirmToAddAction) { // cancel butttton is clicked
-			cancelCurrentAction();
 			return false;
 		}
 	}
