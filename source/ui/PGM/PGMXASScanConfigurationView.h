@@ -39,7 +39,7 @@ protected slots:
 	void onEstimatedTimeChanged(double newTime);
 
 	/// Handles changes of the auto export check box.
-	void onExportSelectionChanged(QAbstractButton *button);
+	void onExportSelectionChanged();
 
 protected:
 	/// The configuration.

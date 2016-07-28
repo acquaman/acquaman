@@ -111,7 +111,7 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	// Setup connections
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-	connect(exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect(exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onExportSelectionChanged()) );
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
 	onEstimatedTimeChanged(configuration_->totalTime());
 
@@ -128,7 +128,7 @@ void PGMXASScanConfigurationView::onEstimatedTimeChanged(double newTime)
 	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(newTime));
 }
 
-void PGMXASScanConfigurationView::onExportSelectionChanged(QAbstractButton *button)
+void PGMXASScanConfigurationView::onExportSelectionChanged()
 {
-	configuration_->setAutoExportEnabled(button->isChecked());
+	configuration_->setAutoExportEnabled(exportSpectraCheckBox_->isChecked());
 }
