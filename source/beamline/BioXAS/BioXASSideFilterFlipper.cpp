@@ -8,7 +8,7 @@ BioXASSideFilterFlipper::BioXASSideFilterFlipper(QObject *parent) :
 	setSlideChangeStatus(new AMReadOnlyPVControl("PFIL1607-6-I22-05:Status", "PFIL1607-6-I22-05:Status", this));
 	setRunMode(new AMSinglePVControl("PFIL1607-6-I22-05:RunMode", "PFIL1607-6-I22-05:RunMode", this));
 	setNextStepTrigger(new AMSinglePVControl("PFIL1607-6-I22-05:goToNextStep", "PFIL1607-6-I22-05:goToNextStep", this));
-	setReceiverStatus(new AMReadOnlyPVControl("BFF1607-6-01:Slide:InReceiver", "BFF1607-6-01:Slide:InReceiver", this));
+//	setReceiverStatus(new AMReadOnlyPVControl("BFF1607-6-01:Slide:InReceiver", "BFF1607-6-01:Slide:InReceiver", this));
 //	setReceiverStageCWLimit(new AMReadOnlyPVControl("SMTR1607-6-I22-20:cw", "SMTR1607-6-I22-20:cw", this));
 //	setReceiverStageCCWLimit(new AMReadOnlyPVControl("SMTR1607-6-I22-20:ccw", "SMTR1607-6-I22-20:ccw", this));
 //	setCartridgeStageCWLimit(new AMReadOnlyPVControl("SMTR1607-6-I22-21:cw", "SMTR1607-6-I22-21:cw", this));
