@@ -85,7 +85,7 @@ AMAction3::ActionValidity AMScanAction::isValid(){
 	return AMAction3::ActionCurrentlyValid;
 }
 
-QString AMScanAction::notValidWarning(){
+QString AMScanAction::validationWarningMessage(){
 	QString retVal;
 
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
@@ -426,7 +426,7 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 		break;
 
 	case AMScanController::Pausing:
-		setPausing();
+		pause();
 		break;
 
 	case AMScanController::Paused:
@@ -437,7 +437,7 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 		break;
 
 	case AMScanController::Resuming:
-		setResuming();
+		resume();
 		break;
 
 	}

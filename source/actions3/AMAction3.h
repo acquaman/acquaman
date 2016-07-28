@@ -111,7 +111,7 @@ public:
 	AMAction3(AMActionInfo3* info, QObject *parent = 0);
 
 	/// Copy constructor. Takes care of making copies of the info and prerequisites. NOTE that the state() is reset to Constructed: the copy should look like a new action that hasn't been run yet.
-	AMAction3(const AMAction3& other);
+	AMAction3(const AMAction3& other, QObject *parent = 0);
 
 	/// This virtual function takes the role of a virtual copy constructor. This implementation always returns 0 therefore, all actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
 	/*! It's recommended to make use of the copy constructor when implementing this, to ensure that the base class is copied properly.*/
@@ -143,13 +143,13 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	QDateTime startDateTime() const { return startDateTime_; }
 	/// Returns the date and time when this action finished, or an invalid QDateTime if it hasn't finished yet.
 	QDateTime endDateTime() const { return endDateTime_; }
-	/// Returns the total number of seconds since this action was start()ed, or -1 if it hasn't started running yet. As long as the action has started, this will be equivalent to QDateTime::currentDateTime() - startDateTime().
+	/// Returns the total number of seconds since this action was start()ed, or 0 if it hasn't started running yet. As long as the action has started, this will be equivalent to QDateTime::currentDateTime() - startDateTime().
 	/*! \note This will include all the time spent in the Paused state as well as WaitingForPrereqs. To get just the actual running time, \see runningTime(). */
-	double elapsedTime() const { if(!startDateTime_.isValid()) return -1.0; return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0; }
+	double elapsedTime() const;
 	/// Returns the number of seconds that this action has been in the Paused and Pausing states for.
 	double pausedTime() const;
 	/// Returns the number of seconds that this action has actually been running for, <i>excluding</i> time spent in the Paused (and Pausing) and WaitingForPrereqs states.
-	double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime(); }
+	double runningTime() const;
 
 	/// Returns a description of the action's status, for example, "Waiting for the beamline energy to reach the setpoint".  Implementations should update this while the action is running using setStatusText().
 	/*! Even if you don't ever call this, the base class implementation will at at least call it on every state change with the name of the state. (For example: when the state changes to running, the status text will change to "Running".) You can always call it again after the state change/in-between state changes to provide more details to the user.*/
@@ -157,7 +157,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// Returns an ActionValidity enum for whether this action is valid. Default is AMAction3::ActionCurrentlyValid
 	virtual AMAction3::ActionValidity isValid() { return AMAction3::ActionCurrentlyValid; }
-	virtual QString notValidWarning() { return ""; }
+	virtual QString validationWarningMessage() { return ""; }
 
 
 	// States
@@ -165,20 +165,19 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// Returns the current state of the action
 	State state() const { return state_; }
-	/// Returns the state the action was in before the current state
-	State previousState() const { return previousState_; }
 	/// Returns a string describing the given \c state
 	QString stateDescription(State state);
 
 	/// Returns whether the action is in a final state (Succeeded, Failed, or Cancelled). All cleanup should be done before entering these states, so it should be OK to delete an action once it is in a final state.
 	bool inFinalState() const { return state_ == Succeeded || state_ == Failed || state_ == Cancelled; }
-	/// Returns whether the action is running or not
-	bool isRunning() const { return state_ == Running; }
+//	/// Returns whether the action is running or not
+//	bool isRunning() const { return state_ == Running; }
+
 	/// Returns whether the action is paused or not
 	bool isPaused() const { return state_ == Paused; }
-
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
 	virtual bool canPause() const { return false; }
+
 	/// This virtual function can be reimplemented to specify whether the action can be placed inside a parallel list.  By default, it returns true (eg: can be parallelized).
 	virtual bool canParallelize() const { return true; }
 
@@ -298,11 +297,11 @@ signals:
 
 protected slots:
 	/// Implementations should call this to notify of their progress.   \c numerator gives the amount done, relative to the total expected amount \c denominator. For example, \c numerator could be a percentage value, and \c denominator could be 100.  If you don't know the level of progress, call this with (0,0).
-	void setProgress(double numerator, double denominator) { progress_ = QPair<double,double>(numerator,denominator); emit progressChanged(numerator, denominator); }
+	void setProgress(double numerator, double denominator);
 	/// Implementations should call this to notify of the expected total duration (in seconds) of the action. If you don't know how long the action will take, call this with -1.
-	void setExpectedDuration(double expectedTotalTimeInSeconds) { info_->setExpectedDuration(expectedTotalTimeInSeconds); }
+	void setExpectedDuration(double expectedTotalTimeInSeconds);
 	/// Implementations should call this to describe the action's status while running, for example, "Moving motor X to 30.4mm"
-	void setStatusText(const QString& statusText) { emit statusTextChanged(statusText_ = statusText); }
+	void setStatusText(const QString& statusText);
 
 protected:
 

@@ -422,7 +422,7 @@ bool AMActionRunner3::validateAction(AMAction3 *newAction, const QString &okButt
 			information = "\n\nYou won't see this message.";
 		}
 
-		message = "The '" % newAction->info()->typeDescription() % "' action you're about to run reports:\n" % newAction->notValidWarning();
+		message = "The '" % newAction->info()->typeDescription() % "' action you're about to run reports:\n" % newAction->validationWarningMessage();
 
 		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false); //default cancel
 		if (!confirmToAddAction) { // cancel butttton is clicked

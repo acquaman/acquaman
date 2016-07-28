@@ -98,7 +98,7 @@ public:
 	  * A human readable message indicating why the scan action is not currently
 	  * valid.
 	  */
-	virtual QString notValidWarning();
+	virtual QString validationWarningMessage();
 
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////

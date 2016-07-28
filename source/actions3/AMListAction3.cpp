@@ -396,7 +396,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 				setResumed();
 			return;
 		case Pausing:
-			setPausing();
+			pause();
 			return;
 		case Paused:
 			// the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
@@ -408,7 +408,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			}
 			return;
 		case Resuming:
-			setResuming();
+			resume();
 			return;
 		case Cancelling:
 			return;

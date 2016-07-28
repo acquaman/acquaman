@@ -30,7 +30,7 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 {
 	info_ = info;
 	progress_ = QPair<double,double>(-1.0, -1.0);
-	state_ = previousState_ = Constructed;
+	state_ = Constructed;
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
@@ -46,11 +46,11 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 }
 
 // Copy constructor. Takes care of making copies of the info and prerequisites.
-AMAction3::AMAction3(const AMAction3& other)
-	: QObject()
+AMAction3::AMAction3(const AMAction3& other, QObject *parent )
+	: QObject(parent)
 {
 	progress_ = QPair<double,double>(-1.0, -1.0);
-	state_ = previousState_ = Constructed;
+	state_ = Constructed;
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
@@ -82,6 +82,34 @@ bool AMAction3::isScheduledForDeletion() const{
 
 bool AMAction3::isLoggingFinished() const{
 	return isLoggingFinished_;
+}
+
+double AMAction3::elapsedTime() const
+{
+	if(!startDateTime_.isValid())
+		return 0;
+
+	return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0;
+}
+
+double AMAction3::pausedTime() const
+{
+	if(!startDateTime_.isValid())
+		return 0;
+
+	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break
+	if(isPaused())
+		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
+	else
+		return secondsSpentPaused_;
+}
+
+double AMAction3::runningTime() const
+{
+	if(!startDateTime_.isValid())
+		return 0;
+
+	return elapsedTime() - pausedTime();
 }
 
 bool AMAction3::start()
@@ -178,6 +206,23 @@ void AMAction3::setIsLoggingFinished(bool isLoggingFinished){
 		if(isLoggingFinished_)
 			emit loggingIsFinished();
 	}
+}
+
+/// ================ protected =====================
+void AMAction3::setProgress(double numerator, double denominator)
+{
+	progress_ = QPair<double,double>(numerator,denominator);
+	emit progressChanged(numerator, denominator);
+}
+
+void AMAction3::setExpectedDuration(double expectedTotalTimeInSeconds)
+{
+	info_->setExpectedDuration(expectedTotalTimeInSeconds);
+}
+
+void AMAction3::setStatusText(const QString& statusText)
+{
+	emit statusTextChanged(statusText_ = statusText);
 }
 
 void AMAction3::scheduleForDeletionImplementation(){
@@ -289,10 +334,6 @@ void AMAction3::setSkipped()
 	setSucceeded();
 }
 
-#include <QMessageBox>
-#include <QStringBuilder>
-#include <QPushButton>
-
 QString AMAction3::stateDescription(AMAction3::State state)
 {
 	switch(state) {
@@ -328,10 +369,11 @@ void AMAction3::setState(AMAction3::State newState) {
 	if (!canChangeState(newState))
 		return;
 
-	previousState_ = state_;
+	AMAction3::State fromState = state_;
 	state_ = newState;
 	setStatusText(stateDescription(state_));
-	emit stateChanged(previousState_, state_);
+
+	emit stateChanged(fromState, state_);
 }
 
 bool AMAction3::canChangeState(State newState) const
@@ -396,16 +438,4 @@ bool AMAction3::canChangeState(State newState) const
 	}
 
 	return canTransition;
-}
-
-double AMAction3::pausedTime() const
-{
-	if(!startDateTime_.isValid())
-		return -1.0;
-
-	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break
-	if(state() == Paused)
-		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
-	else
-		return secondsSpentPaused_;
 }
