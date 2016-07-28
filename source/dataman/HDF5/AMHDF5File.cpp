@@ -124,7 +124,6 @@ bool AMHDF5File::openHDF5File(AMHDF5File::OpenOption option)
 	}
 
 	id_ = fileId;
-
 	return true;
 }
 
@@ -138,7 +137,7 @@ bool AMHDF5File::closeHDF5File()
 
 	herr_t status = H5Fclose(id_);
 
-	if (status > 0){
+	if (status >= 0){
 
 		id_ = 0;
 		return true;

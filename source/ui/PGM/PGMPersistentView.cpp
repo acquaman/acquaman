@@ -45,23 +45,23 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 //	group->closeHDF5Group();
 
 	QVector<double> data = QVector<double>(5);
-	AMHDF5Driver test;
-	hid_t fileId = test.createFile();
+//	AMHDF5Driver test;
+//	hid_t fileId = test.createFile();
 //	hid_t fileId = test.openFile();
-	hid_t spaceId = test.addDataSpace();
-	hid_t dataSetId = test.addDataSet(fileId, spaceId);
+//	hid_t spaceId = test.addDataSpace();
+//	hid_t dataSetId = test.addDataSet(fileId, spaceId);
 //	hid_t dataSetId = test.openDataSet(fileId);
 //	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
 //	qDebug() << data;
-	data.fill(24);
-	qDebug() << "Write: " << test.writeDataSet(dataSetId, data.data());
+//	data.fill(24);
+//	qDebug() << "Write: " << test.writeDataSet(dataSetId, data.data());
 //	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
 //	qDebug() << data;
-	hid_t attributeId = test.addAttribute(dataSetId, test.getDataSpace(dataSetId));
-	test.closeAttribute(attributeId);
-	test.closeDataSet(dataSetId);
-	test.closeDataSpace(spaceId);
-	test.closeFile(fileId);
+//	hid_t attributeId = test.addAttribute(dataSetId, test.getDataSpace(dataSetId));
+//	test.closeAttribute(attributeId);
+//	test.closeDataSet(dataSetId);
+//	test.closeDataSpace(spaceId);
+//	test.closeFile(fileId);
 
 	setLayout(mainViewLayout);
 
