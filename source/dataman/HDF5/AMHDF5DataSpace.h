@@ -7,6 +7,8 @@
 
 #include <QVector>
 
+#include "dataman/HDF5/AMHDF5DataSpaceInfo.h"
+
 #define AMHDF5DATASPACE_SPACE_ALREADY_OPEN 669000
 #define AMHDF5DATASPACE_INVALID_SPACE_TYPE 669001
 #define AMHDF5DATASPACE_SPACE_ALREADY_CLOSED 669002
@@ -21,20 +23,8 @@ class AMHDF5DataSpace : public QObject
 	Q_OBJECT
 
 public:
-	/// Data space type.  This specifies how the data space should be defined.
-	/*!
-	 *	Scaler - single data element
-	 *	Simple - normal array of data elements
-	 *	Null - no data elements
-	 */
-	enum Type {
-		Scaler = 0,
-		Simple = 1,
-		Null = 2
-	};
-
 	/// Constructor.
-	explicit AMHDF5DataSpace(AMHDF5DataSpace::Type type, QObject *parent = 0);
+	explicit AMHDF5DataSpace(AMHDF5DataSpaceInfo::Type type, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMHDF5DataSpace();
 
@@ -48,7 +38,7 @@ signals:
 public slots:
 	/// Creates a data space with the type provided in the constructor.
 	bool create();
-	/// Convenience method.  Creates a simple data space.  Must be of Type Simple otherwise this will return false.
+	/// Convenience method.  Creates a simple data space.  Overwrites the Type to Simple if it was previously set.
 	bool createSimple(int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum = QVector<hsize_t>());
 	/// Closes an open data space.
 	bool close();
@@ -58,7 +48,7 @@ public slots:
 
 protected:
 	/// The type of this data space.
-	Type type_;
+	AMHDF5DataSpaceInfo::Type type_;
 	/// The id of the space.
 	hid_t id_;
 };

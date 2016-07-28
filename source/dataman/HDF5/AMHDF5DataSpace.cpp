@@ -2,7 +2,7 @@
 
 #include "util/AMErrorMonitor.h"
 
-AMHDF5DataSpace::AMHDF5DataSpace(Type type, QObject *parent)
+AMHDF5DataSpace::AMHDF5DataSpace(AMHDF5DataSpaceInfo::Type type, QObject *parent)
 	: QObject(parent)
 {
 	type_ = type;
@@ -35,13 +35,13 @@ bool AMHDF5DataSpace::create()
 
 	hid_t spaceId = 0;
 
-	if (type_ == Scaler)
+	if (type_ == AMHDF5DataSpaceInfo::Scaler)
 		spaceId = H5Screate(H5S_SCALAR);
 
-	else if (type_ == Simple)
+	else if (type_ == AMHDF5DataSpaceInfo::Simple)
 		spaceId = H5Screate(H5S_SIMPLE);
 
-	else if (type_ == Null)
+	else if (type_ == AMHDF5DataSpaceInfo::Null)
 		spaceId = H5Screate(H5S_NULL);
 
 	if (spaceId < 0){
@@ -64,11 +64,8 @@ bool AMHDF5DataSpace::create()
 
 bool AMHDF5DataSpace::createSimple(int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum)
 {
-	if (type_ != Simple){
-
-		AMErrorMon::alert(this, AMHDF5DATASPACE_INVALID_SPACE_TYPE, "Data space must be of type Simple to use this method.");
-		return false;
-	}
+	if (type_ != AMHDF5DataSpaceInfo::Simple)
+		type_ = AMHDF5DataSpaceInfo::Simple;
 
 	if (create()){
 
@@ -117,7 +114,7 @@ bool AMHDF5DataSpace::setDimensionality(int rank, const QVector<hsize_t> &initia
 		return false;
 	}
 
-	if (type_ != Simple){
+	if (type_ != AMHDF5DataSpaceInfo::Simple){
 
 		AMErrorMon::alert(this, AMHDF5DATASPACE_INVALID_SPACE_TYPE, "Only Simple data spaces can have dimensions set to them.");
 		return false;
