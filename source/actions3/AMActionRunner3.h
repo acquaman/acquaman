@@ -150,7 +150,7 @@ signals:
 	/// Forward the expectedDurationChanged() signal from the current action, for convenience
 	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
 	/// Forward the stateChanged() signal from the current action, for convenience
-	void currentActionStateChanged(int state, int previousState);
+	void currentActionStateChanged(int toState, int fromState);
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
@@ -206,10 +206,10 @@ protected slots:
 	void onScanActionFinished(AMScanAction *);
 
 	/// Respond internally whenever the state of the currently-running action changes.
-	void onCurrentActionStateChanged(int state, int previousState);
+	void onCurrentActionStateChanged(int toState, int fromState);
 
 	/// Respond internally whenever the state of any immediate-run action changes.
-	void onImmediateActionStateChanged(int state, int previousState);
+	void onImmediateActionStateChanged(int toState, int fromState);
 
 protected:
 	/// Helper method that returns whether the current action is a scan action or not.

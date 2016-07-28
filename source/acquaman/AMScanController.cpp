@@ -198,11 +198,31 @@ bool AMScanController::setStarted()
 	return false;
 }
 
+bool AMScanController::setPausing()
+{
+	if(changeState(AMScanController::Pausing)){
+
+		return true;
+	}
+
+	return false;
+}
+
 bool AMScanController::setPaused()
 {
 	if(changeState(AMScanController::Paused)){
 
 		emit paused();
+		return true;
+	}
+
+	return false;
+}
+
+bool AMScanController::setResuming()
+{
+	if(changeState(AMScanController::Resuming)){
+
 		return true;
 	}
 
@@ -337,9 +357,11 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 	return canTransition;
 }
 
+#include <QDebug>
 bool AMScanController::changeState(ScanState newState)
 {
 	if(canChangeStateTo(newState)) {
+		qDebug() << " ==== AMScanController::changeState() " << newState;
 
 		lastState_ = state_;
 		state_= newState;
@@ -347,6 +369,7 @@ bool AMScanController::changeState(ScanState newState)
 
 		return true;
 	}
+	qDebug() << " ==== AMScanController::changeState() failed to change to " << newState;
 
 	return false;
 }

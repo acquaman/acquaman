@@ -160,7 +160,7 @@ signals:
 
 protected slots:
 	/// Called when any of the sub-actions changes state.
-	virtual void internalOnSubActionStateChanged(int newstate, int oldstate);
+	virtual void internalOnSubActionStateChanged(int toState, int fromState);
 	/// Called when any of the sub-actions emit progressChanged(). Time to re-calculate our progress.
 	virtual void internalOnSubActionProgressChanged(double numerator, double denominator);
 	/// Called when any of the sub-actions emits statusTextChanged()

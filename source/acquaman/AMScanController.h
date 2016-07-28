@@ -172,7 +172,7 @@ signals:
 	  * \param oldState ~ The state which the scan controller moved from.
 	  * \param newState ~ The state which the scan controller has moved to.
 	  */
-	void stateChanged(int oldState, int newState);
+	void stateChanged(int fromState, int toState);
 
 	// The following signals are emitted for convenience for certain commonly-useful
 	// occurences of stateChanged().
@@ -355,6 +355,7 @@ protected slots:
 	  * \returns True if the scan controller can make the state transition,
 	  * false otherwise.
 	  */
+	bool setPausing();
 	bool setPaused();
 
 	/*!
@@ -363,6 +364,7 @@ protected slots:
 	  * \returns True if the scan controller can make the state transition,
 	  * false otherwise.
 	  */
+	bool setResuming();
 	bool setResumed();
 
 	/*!

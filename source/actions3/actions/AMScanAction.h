@@ -190,7 +190,7 @@ protected slots:
 	  * Handles the controller signaling that it has made a state transition.
 	  * Updates the status text to reflect the new state.
 	  */
-	void onControllerStateChanged();
+	void onControllerStateChanged(int fromState, int toState);
 
 	/*!
 	  * Prepares the scan action for deletion. The scan action will be added to

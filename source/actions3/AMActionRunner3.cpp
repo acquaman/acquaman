@@ -118,19 +118,19 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 	emit scanActionFinished(scanAction);
 }
 
-void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
+void AMActionRunner3::onCurrentActionStateChanged(int toState, int fromState)
 {
 	updateActionRunnerPausable();
 
-	emit currentActionStateChanged(state, previousState);
+	emit currentActionStateChanged(toState, fromState);
 
-	switch (state) {
+	switch (toState) {
 	case AMAction3::Starting:
 		onCurrentActionStarting();
 		break;
 
 	case AMAction3::Running:
-		if ( previousState != AMAction3::Resuming )
+		if ( fromState != AMAction3::Resuming )
 			onCurrentActionRunning();
 
 		break;
@@ -146,9 +146,9 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 
 	// for all three final states, this is how we wrap things up for the current action:
-	if(    state == AMAction3::Failed
-		|| state == AMAction3::Cancelled
-		|| state == AMAction3::Succeeded) {
+	if(    toState == AMAction3::Failed
+		|| toState == AMAction3::Cancelled
+		|| toState == AMAction3::Succeeded) {
 		onCurrentActionFinished();
 	}
 }
@@ -324,15 +324,15 @@ void AMActionRunner3::runActionImmediately(AMAction3 *action)
 	action->start();
 }
 
-void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState)
+void AMActionRunner3::onImmediateActionStateChanged(int toState, int fromState)
 {
-	Q_UNUSED(previousState)
+	Q_UNUSED(fromState)
 
 	AMAction3* action = qobject_cast<AMAction3*>(sender());
 	if(!action)
 		return;
 
-	if(state == AMAction3::Failed) {
+	if(toState == AMAction3::Failed) {
 		// What should we do?
 		int failureResponse = action->failureResponseInActionRunner();
 		if(failureResponse == AMAction3::PromptUserResponse)
@@ -348,9 +348,9 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 	}
 
 	// for all three final states, this is how we wrap things up for the current action:
-	if(state == AMAction3::Failed ||
-			state == AMAction3::Cancelled ||
-			state == AMAction3::Succeeded) {
+	if(toState == AMAction3::Failed ||
+			toState == AMAction3::Cancelled ||
+			toState == AMAction3::Succeeded) {
 
 		// remove from the list of current immediate actions
 		immediateActions_.removeAll(action);

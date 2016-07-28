@@ -317,11 +317,11 @@ void AMListAction3::skipImplementation(const QString &command)
 	}
 }
 
-void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
+void AMListAction3::internalOnSubActionStateChanged(int toState, int fromState)
 {
-	Q_UNUSED(oldState)
+	Q_UNUSED(fromState)
 
-	if(newState == AMListAction3::Starting){
+	if(toState == AMListAction3::Starting){
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 
@@ -337,7 +337,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			}
 		}
 	}
-	else if(newState == AMListAction3::Succeeded || newState == AMListAction3::Cancelled || newState == AMListAction3::Failed){
+	else if(toState == AMListAction3::Succeeded || toState == AMListAction3::Cancelled || toState == AMListAction3::Failed){
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction && loggingDatabase_){
@@ -377,7 +377,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	// sequential mode: could only come from the current action
 	if(subActionMode() == Sequential) {
 
-		switch(newState) {
+		switch(toState) {
 		case Starting:
 
 			if (isScanAction())
@@ -396,6 +396,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 				setResumed();
 			return;
 		case Pausing:
+			setPausing();
 			return;
 		case Paused:
 			// the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
@@ -407,6 +408,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			}
 			return;
 		case Resuming:
+			setResuming();
 			return;
 		case Cancelling:
 			return;
@@ -447,7 +449,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	// parallel mode:
 	/////////////////////////
 	else {
-		switch(newState) {
+		switch(toState) {
 		case Starting:
 			return;
 		case Running:

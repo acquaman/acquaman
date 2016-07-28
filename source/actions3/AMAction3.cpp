@@ -226,6 +226,16 @@ void AMAction3::setFailed(const QString &message)
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_FAILED_BUT_NOT_YET_POSSIBLE, "An implementation told us it had failed before it could possibly be running.");
 }
 
+void AMAction3::setPausing() {
+	if (canChangeState(Pausing)){
+
+		setState(Pausing);
+	}
+
+	else
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_PAUSED_BUT_NOT_CURRENTLY_POSSIBLE, "An action notified us it had pausing .... , when it should not be pausing.");
+}
+
 void AMAction3::setPaused()
 {
 	if (canChangeState(Paused)){
@@ -237,6 +247,17 @@ void AMAction3::setPaused()
 	else
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_PAUSED_BUT_NOT_CURRENTLY_POSSIBLE, "An action notified us it had paused, when it should not be pausing.");
 }
+
+void AMAction3::setResuming() {
+	if (canChangeState(Resuming)){
+
+		setState(Resuming);
+	}
+
+	else
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_PAUSED_BUT_NOT_CURRENTLY_POSSIBLE, "An action notified us it had resuming .... , when it should not be resuming.");
+}
+
 
 void AMAction3::setResumed()
 {

@@ -122,7 +122,7 @@ protected slots:
 	  * The slot only takes action in the case that this is Finished, Failed or
 	  * Cancelled.
 	  */
-	void onStateChanged(int oldState, int newState);
+	void onStateChanged(int fromState, int toState);
 
 	/*!
 	  * Handles the setting of the root action in the action tree. Optimizes and
@@ -144,6 +144,7 @@ protected slots:
 	  * Handles the cleanup after the initialization actions fail.
 	  */
 	virtual void onInitializationActionsListFailed();
+	virtual void onInitializationActionsListStateChanged(int toState, int fromState);
 
 	/*!
 	  * Handles the cleanup after the cleanup actions succeed.
@@ -176,6 +177,7 @@ protected slots:
 	  * Handles the scan actions tree failing. Starts the cleanup actions list.
 	  */
 	virtual void onScanningActionsFailed();
+	void onScanningActionsStateChanged(int toState, int fromState);
 
 	/*!
 	  * Handles the file writer's busy state being altered.

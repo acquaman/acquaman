@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-
+#include <QDebug>
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {
@@ -142,7 +142,7 @@ void AMScanAction::startImplementation()
 	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
 	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
-	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
+	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged(int,int)));
 
 	// The action is started the moment it tries to start the controller.
 	setStatusText("Initializing");
@@ -412,7 +412,33 @@ void AMScanAction::autoExportScan()
 		AMErrorMon::alert(this, AMSCANACTION_DATABASE_NOT_FOUND, "Could not find the database associated with this scan.");
 }
 
-void AMScanAction::onControllerStateChanged()
+void AMScanAction::onControllerStateChanged(int fromState, int toState)
 {
+	qDebug() << QString("==== AMScanAction::onControllerStateChanged() : from %1 to %2").arg(fromState).arg(toState);
 
+	switch (toState) {
+	case AMScanController::Running:
+		if (fromState == AMScanController::Resuming)
+			setResumed();
+		else
+			qDebug() << QString("==== AMScanAction::onControllerStateChanged() : controlling is running, what am I doing? ").arg(state());
+
+		break;
+
+	case AMScanController::Pausing:
+		setPausing();
+		break;
+
+	case AMScanController::Paused:
+		if (!isPaused())
+			setPaused();
+		else
+			qDebug() << "==== ==== AMScanAction::onControllerStateChanged(): AMScanAction is already paused";
+		break;
+
+	case AMScanController::Resuming:
+		setResuming();
+		break;
+
+	}
 }
