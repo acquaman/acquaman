@@ -46,6 +46,10 @@ public slots:
 	/// and a vector of the maximum dimensions.  If the maximum dimensions is empty then it will be se to unlimited.
 	bool setDimensionality(int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum = QVector<hsize_t>());
 
+	// Static method.
+	/// Releases a data space that may have been created via copy and not through this class.
+	static bool close(hid_t spaceId);
+
 protected:
 	/// The type of this data space.
 	AMHDF5DataSpaceInfo::Type type_;

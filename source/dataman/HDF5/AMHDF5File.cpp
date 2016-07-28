@@ -57,7 +57,7 @@ int AMHDF5File::fileSize() const
 
 bool AMHDF5File::create(AMHDF5File::CreateOption option)
 {
-	if (id_ != 0){
+	if (isOpen()){
 
 		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("Create: %1 is already open.").arg(name_));
 		return false;
@@ -91,7 +91,7 @@ bool AMHDF5File::create(AMHDF5File::CreateOption option)
 
 bool AMHDF5File::open(AMHDF5File::OpenOption option)
 {
-	if (id_ != 0){
+	if (isOpen()){
 
 		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("Open: %1 is already open.").arg(name_));
 		return false;
@@ -129,7 +129,7 @@ bool AMHDF5File::open(AMHDF5File::OpenOption option)
 
 bool AMHDF5File::close()
 {
-	if (id_ == 0){
+	if (!isOpen()){
 
 		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_CLOSED, QString("%1 has already been closed or was never opened.").arg(name_));
 		return false;
