@@ -9,7 +9,7 @@ qproperty-icon: url(:/shutterIcon2.png);
 qproperty-toolTip: "Shutters status";
 }
 
-AMControlToolButton#BioXASUtilitiesBeampathValves {
+AMControlToolButton#BioXASBeampathValves {
 qproperty-icon: url(:/valveIcon2.png);
 qproperty-toolTip: "Valves status";
 }

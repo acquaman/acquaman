@@ -34,6 +34,8 @@ bool BioXASBeamline::isConnected() const
 				wiggler_ && wiggler_->isConnected() &&
 
 				utilities_ && utilities_->isConnected() &&
+				valves_ && valves_->isConnected() &&
+				beampathValves_ && beampathValves_->isConnected() &&
 				ionPumps_ && ionPumps_->isConnected() &&
 				flowSwitches_ && flowSwitches_->isConnected() &&
 				pressureMonitors_ && pressureMonitors_->isConnected() &&
@@ -336,25 +338,25 @@ CLSShutters* BioXASBeamline::shutters() const
 	return result;
 }
 
-CLSValves* BioXASBeamline::beampathValves() const
-{
-	CLSValves *result = 0;
+//CLSValves* BioXASBeamline::beampathValves() const
+//{
+//	CLSValves *result = 0;
 
-	if (utilities_)
-		result = utilities_->beampathValves();
+//	if (utilities_)
+//		result = utilities_->beampathValves();
 
-	return result;
-}
+//	return result;
+//}
 
-CLSValves* BioXASBeamline::valves() const
-{
-	CLSValves *result = 0;
+//CLSValves* BioXASBeamline::valves() const
+//{
+//	CLSValves *result = 0;
 
-	if (utilities_)
-		result = utilities_->valves();
+//	if (utilities_)
+//		result = utilities_->valves();
 
-	return result;
-}
+//	return result;
+//}
 
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
@@ -564,38 +566,52 @@ void BioXASBeamline::clearShutters()
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addBeampathValve(newControl, openValue, closedValue);
+	if (beampathValves_ && !beampathValves_->hasValve(newControl))
+		beampathValves_->addValve(newControl, openValue, closedValue);
+
+	// Add the valve to the group of all valves, too.
+
+	addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeBeampathValve(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeBeampathValve(control);
+	if (beampathValves_ && beampathValves_->hasValve(control))
+		beampathValves_->removeValve(control);
 }
 
 void BioXASBeamline::clearBeampathValves()
 {
-	if (utilities_)
-		utilities_->clearBeampathValves();
+	if (beampathValves_)
+		beampathValves_->clearValves();
 }
 
 void BioXASBeamline::addValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addValve(newControl, openValue, closedValue);
+	if (valves_ && !valves_->hasValve(newControl))
+		valves_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeValve(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeValve(control);
+	if (valves_ && valves_->hasValve(control))
+		valves_->removeValve(control);
+
+	// Want to remove this valve from the group of beampath valves, too.
+
+	removeBeampathValve(control);
 }
 
 void BioXASBeamline::clearValves()
 {
-	if (utilities_)
-		utilities_->clearValves();
+	// Clear the valves group.
+
+	if (valves_)
+		valves_->clearValves();
+
+	// Want to clear the beampath valves, too.
+
+	clearBeampathValves();
 }
 
 void BioXASBeamline::addIonPump(AMBeamlineControl *newControl)
@@ -1138,7 +1154,7 @@ void BioXASBeamline::setupComponents()
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
-	beamStatus_->addComponent(utilities_->beampathValves(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
+	beamStatus_->addComponent(beampathValves_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
 
 	// Utilities - front-end shutters.
 
@@ -1392,6 +1408,8 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	utilities_ = 0;
 
+	beampathValves_ = new CLSValves(QString("BioXASBeampathValves"), this);
+	valves_ = new CLSValves(QString("BioXASValves"), this);
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
 	flowSwitches_ = new AMBeamlineControlGroup(QString("BioXASFlowSwitches"), this);
 	pressureMonitors_ = new AMBeamlineControlGroup(QString("BioXASPressureMonitors"), this);
