@@ -36,13 +36,13 @@ signals:
 
 public slots:
 	/// Create the HDF5 group for a specified file and associates that group handle with this object.
-	bool createHDF5Group(hid_t fileID);
+	bool create(hid_t fileID);
 	/// Opens an existing HDF5 group for access and associates the handle with this object.
-	bool openHDF5Group(hid_t fileID);
+	bool open(hid_t fileID);
 	/// Closes a currently open HDF5 group and resets the group handle ID.
-	bool closeHDF5Group();
+	bool close();
 	/// Flushes the group and associated file to disk.
-	bool flushHDF5Group();
+	bool flush();
 
 protected:
 	/// The name of the group to be made.
