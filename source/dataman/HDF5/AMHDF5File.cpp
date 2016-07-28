@@ -12,7 +12,7 @@ AMHDF5File::AMHDF5File(const QString &name, QObject *parent)
 AMHDF5File::~AMHDF5File()
 {
 	if (isOpen())
-		closeHDF5File();
+		close();
 }
 
 bool AMHDF5File::isHDF5File() const
@@ -55,7 +55,7 @@ int AMHDF5File::fileSize() const
 	return sizeInMegaBytes;
 }
 
-bool AMHDF5File::createHDF5File(AMHDF5File::CreateOption option)
+bool AMHDF5File::create(AMHDF5File::CreateOption option)
 {
 	if (id_ != 0){
 
@@ -89,7 +89,7 @@ bool AMHDF5File::createHDF5File(AMHDF5File::CreateOption option)
 	return true;
 }
 
-bool AMHDF5File::openHDF5File(AMHDF5File::OpenOption option)
+bool AMHDF5File::open(AMHDF5File::OpenOption option)
 {
 	if (id_ != 0){
 
@@ -127,7 +127,7 @@ bool AMHDF5File::openHDF5File(AMHDF5File::OpenOption option)
 	return true;
 }
 
-bool AMHDF5File::closeHDF5File()
+bool AMHDF5File::close()
 {
 	if (id_ == 0){
 
@@ -149,7 +149,7 @@ bool AMHDF5File::closeHDF5File()
 	}
 }
 
-bool AMHDF5File::flushHDF5File()
+bool AMHDF5File::flush()
 {
 	if (!isOpen()){
 
@@ -172,7 +172,7 @@ bool AMHDF5File::addGroup(const QString &groupName)
 {
 	AMHDF5Group *group = new AMHDF5Group(groupName);
 
-	if(isOpen() && group->createHDF5Group(id_)){
+	if(isOpen() && group->create(id_)){
 
 		groups_.insert(groupName, group);
 		return true;
@@ -189,7 +189,7 @@ bool AMHDF5File::openGroup(const QString &groupName)
 
 		AMHDF5Group *groupToOpen = new AMHDF5Group(groupName);
 
-		if(!groupToOpen->openHDF5Group(id_)){
+		if(!groupToOpen->open(id_)){
 			groupToOpen->deleteLater();
 			return false;
 		}
@@ -217,7 +217,7 @@ bool AMHDF5File::closeGroup(const QString &groupName)
 
 		AMHDF5Group* groupToClose = groups_.take(groupName);
 
-		if(groupToClose->closeHDF5Group()){
+		if(groupToClose->close()){
 			groupToClose->deleteLater();
 			return true;
 		}
@@ -232,7 +232,7 @@ bool AMHDF5File::flushGroup(const QString &groupName)
 
 		AMHDF5Group* groupToFlush = groups_.value(groupName);
 
-		if(groupToFlush->flushHDF5Group()){
+		if(groupToFlush->flush()){
 			return true;
 		}
 	}

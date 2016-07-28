@@ -61,13 +61,13 @@ signals:
 
 public slots:
 	/// Creates an HDF5 file.  If successful, this will double as opening a file for the extent that it is open.
-	bool createHDF5File(AMHDF5File::CreateOption option = DoNotOverwrite);
+	bool create(AMHDF5File::CreateOption option = DoNotOverwrite);
 	/// Opens an existing HDF5 file.  Returns false if it failed to open.
-	bool openHDF5File(AMHDF5File::OpenOption option = ReadWrite);
+	bool open(AMHDF5File::OpenOption option = ReadWrite);
 	/// Closes the HDF5 file if it still has a valid, open file id.  Returns false if file is already closed.
-	bool closeHDF5File();
+	bool close();
 	/// Flushes the current HDF5 file to disk.  Only valid when the file is open.  Not necessary to call prior to closing the file.
-	bool flushHDF5File();
+	bool flush();
 
 	/// Adds a group to the current file. Returns reference to the group if successful.
 	bool addGroup(const QString &groupName);
