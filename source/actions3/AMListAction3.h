@@ -43,9 +43,10 @@ class AMListAction3 : public AMAction3
 public:
 
 	/// Specifies whether the sub-actions should be run in parallel or sequentially.
-	enum SubActionMode { Sequential = 0,
-				 Parallel
-			   };
+	enum SubActionMode {
+		Sequential = 0,
+		Parallel
+	};
 
 	/// Constructor
 	Q_INVOKABLE AMListAction3(AMListActionInfo3* info, AMListAction3::SubActionMode subActionMode = Sequential, QObject *parent = 0);
@@ -212,10 +213,13 @@ protected:
 
 	/// Helper function that returns true if we should log a sub-action ourselves when it finishes. True if: we're running inside AMActionRunner, we're supposed to log our sub-actions separately, AND \c action is not itself a nested action that is supposed to log its own sub-actions seperately.  (If \c action IS a nested action, but it's supposed to be logged as one unit, then we'll still log it ourselves.)
 	bool internalShouldLogSubAction(AMAction3* action);
+	/// Helper function that writing logs
+	void internalLogSubAction(AMAction3* action, int toState);
 
 	/// Helper method that returns whether the current action is a scan action or not.
 	bool isScanAction() const;
 
+protected:
 	/// Ordered list of sub-actions
 	QList<AMAction3*> subActions_;
 	/// Whether to run sub-actions sequentially or in parallel

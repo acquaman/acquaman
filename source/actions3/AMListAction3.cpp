@@ -172,7 +172,7 @@ bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
 		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause, we'll complete instantly.
-		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubAction() == 0 && currentSubActionIndex_ != -1))
+		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubActionIndex_ != -1 && currentSubAction() == 0))
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
@@ -260,7 +260,7 @@ void AMListAction3::resumeImplementation()
 	if(subActionMode() == Sequential) {
 		// The currentSubAction() will either be Paused (if it supported pausing when we were paused), or Constructed (if the last action didn't support pausing and completed, now we're at the beginning of the next one).
 		if(currentSubAction()) {
-			if(currentSubAction()->state() == Paused)
+			if(currentSubAction()->isPaused())
 				currentSubAction()->resume();
 			else if(currentSubAction()->state() == Constructed) {
 				internalConnectAction(currentSubAction());
@@ -321,58 +321,8 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 {
 	Q_UNUSED(fromState)
 
-	if(toState == AMListAction3::Starting){
-		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
-
-		if(generalAction && loggingDatabase_)
-			generalAction->setIsLoggingFinished(false);
-
-		if(listAction && loggingDatabase_){
-			int parentLogId = logActionId();
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
-
-			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
-				//NEM April 5th, 2012
-			}
-		}
-	}
-	else if(toState == AMListAction3::Succeeded || toState == AMListAction3::Cancelled || toState == AMListAction3::Failed){
-		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
-		if(listAction && loggingDatabase_){
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
-
-			if(!historyModel){
-				//NEM November 12th, 2014
-			}
-			else{
-				bool logSuccessful = historyModel->updateCompletedAction(listAction, loggingDatabase_);
-				if(!logSuccessful){
-					//NEM November 12th, 2014
-				}
-				else
-					generalAction->setIsLoggingFinished(true);
-			}
-		}
-		else{
-			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
-				int parentLogId = logActionId();
-				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-				if(!historyModel){
-					//NEM November 12th, 2014
-				}
-				else{
-					bool logSuccessful = historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
-					if(!logSuccessful){
-						//NEM November 12th, 2014
-					}
-					else
-						generalAction->setIsLoggingFinished(true);
-				}
-			}
-		}
-	}
+	AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
+	internalLogSubAction(generalAction, toState);
 
 	// sequential mode: could only come from the current action
 	if(subActionMode() == Sequential) {
@@ -382,10 +332,12 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 
 			if (isScanAction())
 				emit scanActionCreated((AMScanAction *)currentSubAction());
+
 			// If we were paused between actions and resuming, the next action is now running...
 			if(state() == Resuming)
 				setResumed();
 			return;
+
 		case Running:
 
 			if (isScanAction() && state() != Resuming)
@@ -394,28 +346,33 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			// If we had a current action paused:
 			if(state() == Resuming)
 				setResumed();
+
 			return;
+
 		case Pausing:
 			if (canChangeState(Pausing))
 				pause();
 			return;
+
 		case Paused:
 			// the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
 			if(state() == Pausing) {
 				setPaused();
-			}
-			else {
+			} else {
 				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			}
 			return;
+
 		case Resuming:
 			if (canChangeState(Resuming))
 				resume();
 			return;
-		case Cancelling:
-			return;
-		case Cancelled:
 
+		case Cancelling:
+			// ??? do we need to change state when sub action is cancelling?
+			return;
+
+		case Cancelled:
 			if (isScanAction())
 				emit scanActionFinished((AMScanAction *)currentSubAction());
 
@@ -427,15 +384,15 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled without cancelling its parent list action. This should not happen.");
 			}
 			return;
-		case Succeeded:
 
+		case Succeeded:
 			if (isScanAction())
 				emit scanActionFinished((AMScanAction *)currentSubAction());
 
 			internalDoNextAction();
 			return;
-		case Failed:
 
+		case Failed:
 			if (isScanAction())
 				emit scanActionFinished((AMScanAction *)currentSubAction());
 
@@ -454,14 +411,17 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 		switch(toState) {
 		case Starting:
 			return;
+
 		case Running:
 			if(state() == Resuming) {
 				if(internalAllActionsRunningOrFinal())
 					setResumed();
 			}
 			return;
+
 		case Pausing:
 			return;
+
 		case Paused:
 			if(state() == Pausing) {
 				// one of them paused. Are all the actions paused now?
@@ -471,10 +431,13 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			else
 				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			return;
+
 		case Resuming:
 			return;
+
 		case Cancelling:
 			return;
+
 		case Cancelled:
 			if(state() != Cancelling)
 				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled with cancelling its parent list action. This should not happen.");
@@ -496,6 +459,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 					setSucceeded();
 			}
 			return;
+
 		case Skipping:
 			return;
 		}
@@ -670,17 +634,7 @@ void AMListAction3::internalConnectAction(AMAction3 *action)
 
 void AMListAction3::internalDisconnectAction(AMAction3 *action)
 {
-	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
-	disconnect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
-	disconnect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
-
-	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
-	if (listAction){
-
-		disconnect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
-		disconnect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
-		disconnect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
-	}
+	disconnect(action, 0, this, 0);
 }
 
 void AMListAction3::internalCleanupAction(AMAction3 *action)
@@ -743,5 +697,63 @@ bool AMListAction3::internalShouldLogSubAction(AMAction3 *action)
 	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
 	return shouldLogSubActionsSeparately() && !(nestedAction && nestedAction->shouldLogSubActionsSeparately());
 }
+
+void AMListAction3::internalLogSubAction(AMAction3* generalAction, int toState)
+{
+	if (!generalAction)
+		return;
+
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(generalAction);
+
+	if(toState == AMAction3::Starting){
+
+		if(generalAction && loggingDatabase_)
+			generalAction->setIsLoggingFinished(false);
+
+		if(listAction && loggingDatabase_){
+			int parentLogId = logActionId();
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
+
+			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
+				//NEM April 5th, 2012
+			}
+		}
+
+	} else if(toState == AMAction3::Succeeded || toState == AMAction3::Cancelled || toState == AMAction3::Failed){
+		if( listAction && loggingDatabase_){
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
+
+			if(!historyModel){
+				//NEM November 12th, 2014
+			}
+			else{
+				bool logSuccessful = historyModel->updateCompletedAction(listAction, loggingDatabase_);
+				if(!logSuccessful){
+					//NEM November 12th, 2014
+				}
+				else
+					generalAction->setIsLoggingFinished(true);
+			}
+
+		} else {
+			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
+				int parentLogId = logActionId();
+				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+				if(!historyModel){
+					//NEM November 12th, 2014
+				}
+				else{
+					bool logSuccessful = historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+					if(!logSuccessful){
+						//NEM November 12th, 2014
+					}
+					else
+						generalAction->setIsLoggingFinished(true);
+				}
+			}
+		}
+	}
+}
+
  AMSequentialListAction3::~AMSequentialListAction3(){}
  AMParallelListAction3::~AMParallelListAction3(){}
