@@ -548,20 +548,20 @@ void BioXASBeamline::updateConnected()
 
 void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addShutter(newControl, openValue, closedValue);
+	if (shutters_)
+		shutters_->addShutter(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeShutter(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeShutter(control);
+	if (shutters_)
+		shutters_->removeShutter(control);
 }
 
 void BioXASBeamline::clearShutters()
 {
-	if (utilities_)
-		utilities_->clearShutters();
+	if (shutters_)
+		shutters_->clearShutters();
 }
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
@@ -1156,9 +1156,10 @@ void BioXASBeamline::setupComponents()
 	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
 	beamStatus_->addComponent(beampathValves_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
 
-	// Utilities - front-end shutters.
+	// Utilities - front-end POE shutters.
 
-	addShutter(new BioXASFrontEndShutters("BioXASFrontEndShutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
+	poeShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
+	addShutter(poeShutters_, BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
 
 	// Utilities - front-end beampath valves.
 
@@ -1408,6 +1409,9 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	utilities_ = 0;
 
+	poeShutters_ = 0;
+	soeShutter_ = 0;
+	shutters_ = new CLSShutters(QString("BioXASShutters"), this);
 	beampathValves_ = new CLSValves(QString("BioXASBeampathValves"), this);
 	valves_ = new CLSValves(QString("BioXASValves"), this);
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
@@ -1415,8 +1419,6 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	pressureMonitors_ = new AMBeamlineControlGroup(QString("BioXASPressureMonitors"), this);
 	temperatureMonitors_ = new AMBeamlineControlGroup(QString("BioXASTemperatureMonitors"), this);
 	flowTransducers_ = new AMBeamlineControlGroup(QString("BioXASFlowTransducers"), this);
-
-	soeShutter_ = 0;
 
 	usingCryostat_ = false;
 

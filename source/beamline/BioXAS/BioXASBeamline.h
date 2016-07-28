@@ -99,12 +99,17 @@ public:
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
 
+	/// Returns the front-end POE shutters.
+	CLSShutters* poeShutters() const { return poeShutters_; }
+	/// Returns the endstation SOE shutter.
+	CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 	/// Returns the shutters.
 	CLSShutters* shutters() const;
-	/// Returns the valves.
-	CLSValves* valves() const { return valves_; }
+
 	/// Returns the valves in the beampath.
 	CLSValves* beampathValves() const { return beampathValves_; }
+	/// Returns the valves.
+	CLSValves* valves() const { return valves_; }
 
 	/// Returns the ion pumps control.
 	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
@@ -125,8 +130,6 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-	/// Returns the SOE shutter.
-	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
 	/// Returns the end station kill switch.
 	virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
@@ -439,6 +442,13 @@ protected:
 
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// The front-end POE shutters.
+	CLSShutters *poeShutters_;
+	/// The endstation SOE shutter.
+	CLSExclusiveStatesControl *soeShutter_;
+	/// The shutters.
+	CLSShutters *shutters_;
 	/// The valves (all).
 	CLSValves *valves_;
 	/// The beampath valves.
@@ -453,9 +463,6 @@ protected:
 	AMBeamlineControlGroup *temperatureMonitors_;
 	/// The flow transducers control.
 	AMBeamlineControlGroup *flowTransducers_;
-
-	/// The SOE shutter.
-	CLSExclusiveStatesControl *soeShutter_;
 
 	/// Flag indicating whether this beamline is using the cryostat.
 	bool usingCryostat_;
