@@ -216,7 +216,7 @@ bool AMHDF5File::closeGroup(const QString &groupName)
 {
 	if(isOpen() && groups_.contains(groupName)){
 
-		AMHDF5Group* groupToClose = groups_.value(groupName);
+		AMHDF5Group* groupToClose = groups_.take(groupName);
 
 		if(groupToClose->closeHDF5Group()){
 			groupToClose->deleteLater();

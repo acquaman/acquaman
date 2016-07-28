@@ -17,8 +17,6 @@
 #define AMHDF5FILE_INVALID_OPEN_OPTION 666004
 #define AMHDF5FILE_FLUSH_FILE_NOT_OPEN 666005
 
-class AMHDF5Group;
-
 /// This is the base class that will relate all the other pieces of the HDF5 library.  Nothing can work
 /// without having an open HDF5 file instance.
 class AMHDF5File : public QObject

@@ -11,7 +11,7 @@ AMHDF5Group::AMHDF5Group(const QString &name, QObject *parent)
 
 AMHDF5Group::~AMHDF5Group()
 {
-	if(!isOpen())
+	if(isOpen())
 		closeHDF5Group();
 }
 
@@ -57,17 +57,11 @@ bool AMHDF5Group::openHDF5Group(hid_t fileID)
 		return false;
 	}
 
-	hid_t groupID = 0;
-
-	groupID = H5Gopen2(fileID, name_.toUtf8().constData(), H5P_DEFAULT);
+	hid_t groupID = H5Gopen2(fileID, name_.toUtf8().constData(), H5P_DEFAULT);
 
 	if(groupID < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_OPEN_FAILED, QString("Open: Group %1 could not be opened at the driver level.").arg(name_));
 		//HDF5 Error response for failing to open group.
-		return false;
-	}
-	else if (groupID == 0){
-		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_OPEN_FAILED, "Group not found in the specified HDF5 file.");
 		return false;
 	}
 

@@ -31,11 +31,12 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(persistentViewGroupBox);
 
-//	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
+	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
 //	AMHDF5File *file = new AMHDF5File("/Users/hunterd/beamline/programming/hdf5-data/test.h5");
-//	file->createHDF5File();
-//	file->closeHDF5File();
-//	file->deleteLater();
+	file->createHDF5File(AMHDF5File::OverwriteExisting);
+	file->addGroup("supa-group");
+	file->closeHDF5File();
+	file->deleteLater();
 
 //	AMHDF5Group *group = new AMHDF5Group("TestGroup");
 //	group->createHDF5Group(0);
