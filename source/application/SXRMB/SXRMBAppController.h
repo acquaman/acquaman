@@ -67,8 +67,6 @@ protected slots:
 	void onBeamControlShuttersTimeout();
 	/// slot to handle Beamline endstation switched
 	void onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable);
 
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
 	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
@@ -83,7 +81,8 @@ protected slots:
 	void onMoveImmediatelyFailure();
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
+	virtual void onUserConfigurationLoadedFromDb();
+
 	/// Handles adding regions of interest to all the configurations that would care.
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
@@ -100,8 +99,6 @@ protected slots:
 	void goToBeamlineStatusView(AMControl *control);
 
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
@@ -122,9 +119,9 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are SXRMB specific.
-	void registerDBClasses();
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void registerExporterOptions();
+	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations() ;
 	/// Sets up the user configuration.
@@ -172,9 +169,6 @@ protected:
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;
-
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	SXRMBUserConfiguration *sxrmbUserConfiguration_;
 };
 
 #endif // SXRMBAPPCONTROLLER_H

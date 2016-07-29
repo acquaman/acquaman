@@ -35,11 +35,6 @@ public:
 	virtual ~BioXASImagingAppController() {}
 
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
-
 	// Things to do on startup.
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
@@ -51,8 +46,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();
@@ -66,6 +59,9 @@ protected:
 	virtual void createScanConfigurationPanes();
 	/// create pane for the components views
 	virtual void createComponentsPane();
+
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 protected:
 	/// The category name of the components pane

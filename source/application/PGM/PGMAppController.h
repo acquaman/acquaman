@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
-#include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
 
 class AMControl;
@@ -47,9 +46,6 @@ protected slots:
 	/// Sets the beam status view as the current view, with the given control as the selected control.
 	void goToBeamlineStatusView(AMControl *control);
 
-	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
-
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
@@ -69,8 +65,6 @@ protected:
 	void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Initializes the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	void setupUserInterfaceImplementation();
@@ -94,9 +88,6 @@ protected:
 	CLSBeamlineStatusView *beamlineStatusView_;
 
 protected:
-	/// The user configuration.
-	PGMUserConfiguration *pgmUserConfiguration_;
-
 	/// Pointer to the XAS scan configuration.
 	PGMXASScanConfiguration *xasScanConfiguration_;
 	/// Pointer to the XAS scan configuration view.

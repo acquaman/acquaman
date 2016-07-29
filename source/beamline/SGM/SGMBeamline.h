@@ -135,6 +135,8 @@ public:
 	/*!
 	  * The Amptek detector
 	  */
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
 	CLSAmptekSDD123DetectorNew* amptekSDD1() const;
 	CLSAmptekSDD123DetectorNew* amptekSDD2() const;
 	CLSAmptekSDD123DetectorNew* amptekSDD3() const;
@@ -219,6 +221,8 @@ protected:
 	  */
 	void setupExposedDetectors();
 
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable();
 
 	/*!
 	  * Protected constructor for the SGMBeamline to ensure singleton structure.

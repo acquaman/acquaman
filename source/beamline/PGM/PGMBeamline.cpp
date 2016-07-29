@@ -209,6 +209,8 @@ void PGMBeamline::setupComponents()
 
 	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
 	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
+	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateBeamAvailabilityStatus()));
+	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamAvailabilityStatus()));
 
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-2:dwell", this);
 	synchronizedDwellTime_->addElement(0);
@@ -326,4 +328,9 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedScientificDetector(oceanOpticsDetector_);
 	addExposedScientificDetector(teyBladeCurrentDetector_);
 	addExposedScientificDetector(flyBladeCurrentDetector_);
+}
+
+bool PGMBeamline::isBeamlineBeamAvailable()
+{
+	return beamlineStatus_->isConnected() && beamlineStatus_->isOn();
 }

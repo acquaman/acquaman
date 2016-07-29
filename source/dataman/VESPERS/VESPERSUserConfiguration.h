@@ -37,7 +37,6 @@ class VESPERSUserConfiguration : public CLSUserConfiguration
 	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS User Configuration Database Object")
-
 	Q_CLASSINFO("incomingChoice", "upgradeDefault=2")
 	Q_CLASSINFO("transmissionChoice", "upgradeDefault=3")
 	Q_CLASSINFO("motor", "upgradeDefault=3")

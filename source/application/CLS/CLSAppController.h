@@ -4,6 +4,8 @@
 #include "application/AMAppController.h"
 #include "dataman/AMRun.h"
 
+#include "dataman/CLS/CLSUserConfiguration.h"
+
 #include "util/AMPeriodicTable.h"
 
 class CLSUserConfiguration;
@@ -25,10 +27,23 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	virtual void onUserConfigurationLoadedFromDb();
+
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
+
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
+
+	/// Slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	virtual void onBeamAvailabilityChanged(bool beamAvailable);
 
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }
@@ -52,7 +67,7 @@ protected:
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
 	/// Sets up the user configuration.
-	virtual void setupUserConfiguration() = 0;
+	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();
@@ -73,8 +88,13 @@ protected:
 	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
 	virtual QString getStylesheet() const;
 
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+
 protected:
-	/// the DBObject of user configuration
+	/// the instance of user configuration
 	CLSUserConfiguration *userConfiguration_;
 
 	/// the definition of the current facility

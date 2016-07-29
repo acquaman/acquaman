@@ -18,10 +18,11 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "beamline/CLS/CLSBeamline.h"
-
 #ifndef AMMOCKBEAMLINE_H
 #define AMMOCKBEAMLINE_H
+
+//#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/AMBeamline.h"
 
 class AMBasicControlDetectorEmulator;
 class AMMockControl;
@@ -30,7 +31,7 @@ class AMMotorGroup;
 /*!
   * A class representing the mock beamline used by the AMMock application.
   */
-class AMMockBeamline : public CLSBeamline
+class AMMockBeamline : public AMBeamline
 {
 	Q_OBJECT
 
@@ -40,7 +41,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new AMMockBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<AMMockBeamline*>(instance_);
@@ -54,9 +55,6 @@ public:
 
 	/// Returns the mock sample state motor group.
 	AMMotorGroup* sampleStageMotorGroup() const;
-signals:
-
-public slots:
 
 protected:
 	/// Constructor. This is a singleton class, access it through
@@ -76,10 +74,7 @@ protected:
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
 
-protected slots:
-
 protected:
-
 
 	AMMotorGroup* sampleStageMotorGroup_;
 	AMMockControl* mockControl1_;

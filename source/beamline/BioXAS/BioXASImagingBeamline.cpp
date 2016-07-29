@@ -176,6 +176,11 @@ void BioXASImagingBeamline::setupExposedDetectors()
 
 }
 
+bool BioXASImagingBeamline::isBeamlineBeamAvailable()
+{
+	return true;
+}
+
 BioXASImagingBeamline::BioXASImagingBeamline()
 	: BioXASBeamline("BioXAS Beamline - Imaging Endstation")
 {
@@ -184,3 +189,4 @@ BioXASImagingBeamline::BioXASImagingBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+

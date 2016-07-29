@@ -13,15 +13,16 @@ SXRMBUserConfiguration::~SXRMBUserConfiguration()
 
 }
 
-void SXRMBUserConfiguration::dbLoadFluorescenceDetector(int detector) {
-	setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
-}
-
 void SXRMBUserConfiguration::setFluorescenceDetector(SXRMB::FluorescenceDetectors detector)
+
 {
 	if (fluorescenceDetector_ != detector){
 
 		fluorescenceDetector_ = detector;
 		setModified(true);
 	}
+}
+
+void SXRMBUserConfiguration::dbLoadFluorescenceDetector(int detector) {
+	setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
 }

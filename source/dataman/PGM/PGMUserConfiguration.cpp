@@ -10,4 +10,3 @@ PGMUserConfiguration::~PGMUserConfiguration()
 {
 
 }
-

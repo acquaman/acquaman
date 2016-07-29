@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
 
-#include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
@@ -110,11 +109,6 @@ void BioXASImagingAppController::setupScanConfigurations()
 
 }
 
-void BioXASImagingAppController::setupUserConfiguration()
-{
-
-}
-
 void BioXASImagingAppController::setupUserInterfaceImplementation()
 {
 	mw_->setWindowTitle("Acquaman - BioXAS Imaging");
@@ -151,12 +145,8 @@ void BioXASImagingAppController::createComponentsPane()
 	mw_->addPane(paneWidget, componentPaneCategoryName_, "Carbon Filter Farm", componentPaneIcon_);
 }
 
-void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-}
-
 void BioXASImagingAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }

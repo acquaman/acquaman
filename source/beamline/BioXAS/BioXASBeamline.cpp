@@ -356,6 +356,19 @@ CLSValves* BioXASBeamline::valves() const
 	return result;
 }
 
+AMXRFDetector *BioXASBeamline::xrfDetector() const
+{
+	for (int i=0, count=ge32Detectors_->count(); i<count; i++) {
+
+		AMXRFDetector *xrfDetector = qobject_cast<AMXRFDetector*>(ge32Detectors_->at(i));
+		if (xrfDetector) {
+			return xrfDetector;
+		}
+	}
+
+	return 0;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -1124,6 +1137,8 @@ void BioXASBeamline::setupComponents()
 
 	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateBeamAvailabilityStatus()) );
+	connect( beamStatus_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamAvailabilityStatus()) );
 
 	// Wiggler.
 
@@ -1136,6 +1151,8 @@ void BioXASBeamline::setupComponents()
 
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Beam status.
 
 	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
 	beamStatus_->addComponent(utilities_->beampathValves(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
@@ -1377,6 +1394,11 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 		addExposedDetector(detector);
 		addDefaultXASScanDetectorOption(detector);
 	}
+}
+
+bool BioXASBeamline::isBeamlineBeamAvailable()
+{
+	return beamStatus_->isConnected() && beamStatus_->isOn();
 }
 
 BioXASBeamline::BioXASBeamline(const QString &controlName) :

@@ -15,11 +15,6 @@ public:
 	Q_INVOKABLE BioXASUserConfiguration(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASUserConfiguration();
-
-public slots:
-
-protected:
-
 };
 
 #endif // BIOXASUSERCONFIGURATION_H

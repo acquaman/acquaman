@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
 #include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
 #include "application/AMAppControllerSupport.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
@@ -82,26 +81,10 @@ void REIXSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 }
 
-void REIXSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action);
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-}
-
 void REIXSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action);
-	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-}
-
-void REIXSAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	// On REIXS, we don't like having the scan restart on it's own.
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
@@ -175,11 +158,6 @@ void REIXSAppController::setupScanConfigurations()
 
 	// create the generic scan configuration
 	genericScanConfiguration_ = new AMGenericStepScanConfiguration();
-}
-
-void REIXSAppController::setupUserConfiguration()
-{
-
 }
 
 void REIXSAppController::setupUserInterfaceImplementation()

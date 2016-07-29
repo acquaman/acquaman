@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
@@ -439,14 +438,14 @@ AMBasicControlDetectorEmulator* SXRMBBeamline::energyFeedbackDetector() const
 	return energyFeedbackDetector_;
 }
 
-SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
+AMXRFDetector *SXRMBBeamline::xrfDetector() const
 {
-	return brukerDetector_;
-}
+	if (brukerDetector_)
+		return brukerDetector_;
+	else if (fourElementVortexDetector_)
+		return fourElementVortexDetector_;
 
-SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
-{
-	return fourElementVortexDetector_;
+	return 0;
 }
 
 AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorType) const
@@ -460,6 +459,16 @@ AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorT
 	}
 
 	return XRFDetector;
+}
+
+SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
+{
+	return brukerDetector_;
+}
+
+SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
+{
+	return fourElementVortexDetector_;
 }
 
 AMControlSet *SXRMBBeamline::beamlineHVControlSet() const
@@ -880,9 +889,8 @@ void SXRMBBeamline::setupExposedDetectors()
 
 void SXRMBBeamline::setupConnections()
 {
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
-	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
+	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamAvailabilityStatus()));
 	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
 	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
@@ -906,11 +914,9 @@ void SXRMBBeamline::setupConnections()
 	}
 }
 
-void SXRMBBeamline::beamAvailabilityHelper()
+bool SXRMBBeamline::isBeamlineBeamAvailable()
 {
-	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->isOn());
-
-	emit beamAvaliability(beamOn);
+	return ( beamlineStatus_->isConnected() && beamlineStatus_->isOn());
 }
 
 void SXRMBBeamline::sampleStageConnectHelper()
@@ -942,22 +948,11 @@ void SXRMBBeamline::onPVConnectedHelper(){
 	}
 }
 
-void SXRMBBeamline::onStorageRingBeamAvailabilityChanged(bool)
-{
-	beamAvailabilityHelper();
-}
-
-void SXRMBBeamline::onBeamlineStatusPVValueChanged(double)
-{
-	beamAvailabilityHelper();
-}
-
 void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
-	onPVConnectedHelper();
+	Q_UNUSED (value)
 
-	if (value) {
-		beamAvailabilityHelper();
-	}
+	onPVConnectedHelper();
+	updateBeamAvailabilityStatus();
 }
 
 void SXRMBBeamline::onPhotonShutterStateChanged()

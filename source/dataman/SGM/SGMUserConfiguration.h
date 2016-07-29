@@ -15,13 +15,6 @@ public:
 	Q_INVOKABLE SGMUserConfiguration(QObject *parent = 0);
 	/// Destructor.
 	virtual ~SGMUserConfiguration();
-
-
-public slots:
-
-protected:
-
-protected:
 };
 
 #endif // SGMUSERCONFIGURATION_H

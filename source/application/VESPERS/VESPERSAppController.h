@@ -46,7 +46,6 @@ class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
-class VESPERSUserConfiguration;
 class VESPERSTimeScanConfiguration;
 class VESPERSTimeScanConfigurationView;
 class VESPERSTimedLineScanConfiguration;
@@ -70,8 +69,6 @@ public:
 	virtual bool startup();
 
 protected slots:
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable = false);
 
 	/// Helper slot that handles moving the status page to the front of the main window stack.
 	void onStatusViewRequrested();
@@ -100,7 +97,7 @@ protected slots:
 	void onPilatusCCDConnected(bool connected);
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
+	virtual void onUserConfigurationLoadedFromDb();
 	/// Handles adding regions of interest to all the configurations that would care.
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
@@ -150,8 +147,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// create the persistent view
 	virtual void createPersistentView();
@@ -237,9 +232,6 @@ protected:
 	bool marCCDStartup_;
 	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
 	bool pilatusCCDStartup_;
-
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	VESPERSUserConfiguration *vespersUserConfiguration_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

@@ -4,14 +4,13 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
+#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 
 BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *parent) :
 	CLSAppController(beamlineName, parent)
 {
 	// Initialize controller settings.
-
-	bioxasUserConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	// Database upgrades.
@@ -22,6 +21,8 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 	appendDatabaseUpgrade(bioxas1pt1ActionsDb);
 
 	// Initialize member variables.
+
+	userConfiguration_ = new BioXASUserConfiguration(this);
 
 	xasConfiguration_ = 0;
 	genericConfiguration_ = 0;
@@ -157,30 +158,6 @@ void BioXASAppController::cleanMoveImmediatelyAction()
 	moveImmediatelyAction_ = 0;
 }
 
-void BioXASAppController::onUserConfigurationLoadedFromDb()
-{
-	if (bioxasUserConfiguration_) {
-
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-
-		for (int i = 0; i < geDetectors->count(); i++) {
-
-			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
-			if (geDetector) {
-				// connect the signal first, so that we can add the ROIs without worrying about the initialization
-				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-
-				foreach (AMRegionOfInterest *region, bioxasUserConfiguration_->regionsOfInterest()) {
-					geDetector->addRegionOfInterest(region);
-				}
-			}
-		}
-
-	}
-}
-
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	if (region) {
@@ -272,23 +249,8 @@ void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 	}
 }
 
-void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-
-	// Save current configuration to the database.
-
-	if (bioxasUserConfiguration_)
-		bioxasUserConfiguration_->storeToDb(AMDatabase::database("user"));
-}
-
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	// Save current user configuration to the database.
-
-	if (bioxasUserConfiguration_)
-		bioxasUserConfiguration_->storeToDb(AMDatabase::database("user"));
-
 	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
 
 	if (action && action->controller() && action->controller()->scan()) {
@@ -296,6 +258,9 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 		if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
 			goToEnergyCalibrationView(action->controller()->scan());
 	}
+
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void BioXASAppController::updateXASScanConfigurationDetectors()
@@ -372,22 +337,6 @@ void BioXASAppController::setupScanConfigurations()
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
 	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
-}
-
-void BioXASAppController::setupUserConfiguration()
-{
-	if (bioxasUserConfiguration_) {
-
-		connect( bioxasUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-		bool loaded = bioxasUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-		if (!loaded) {
-			bioxasUserConfiguration_->storeToDb(AMDatabase::database("user"));
-			onUserConfigurationLoadedFromDb();
-		}
-
-		userConfiguration_ = bioxasUserConfiguration_;
-	}
 }
 
 void BioXASAppController::setupUserInterfaceImplementation()

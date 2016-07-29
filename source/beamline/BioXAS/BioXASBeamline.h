@@ -9,7 +9,6 @@
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMBeamlineControlGroup.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
@@ -71,7 +70,7 @@ public:
 	{
 		if (!instance_) {
 			instance_ = new BioXASBeamline("BioXAS Beamline");
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<BioXASBeamline*>(instance_);
@@ -200,6 +199,8 @@ public:
 	/// Returns the scaler dwell time detector.
 	virtual AMDetector* scalerDwellTimeDetector() const { return scalerDwellTimeDetector_; }
 
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
 	/// Returns the 32-element Germanium detector.
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
@@ -423,6 +424,9 @@ protected:
 	AMBasicControlDetectorEmulator* createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
 	/// Creates a control detector emulator for the given control and adds the pair to the controlDetectorMap.
 	void addControlAsDetector(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
+
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable();
 
 	/// Protected constructor.
 	BioXASBeamline(const QString &controlName);

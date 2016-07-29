@@ -14,11 +14,6 @@ public:
 	Q_INVOKABLE PGMUserConfiguration(QObject *parent = 0);
 	/// Destructor.
 	virtual ~PGMUserConfiguration();
-
-public slots:
-
-protected:
-
 };
 
 #endif // PGMUSERCONFIGURATION_H

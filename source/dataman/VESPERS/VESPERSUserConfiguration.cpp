@@ -27,6 +27,7 @@ VESPERSUserConfiguration::VESPERSUserConfiguration(QObject *parent)
 	: CLSUserConfiguration(parent)
 {
 	setName("User Configuration");
+
 	I0_ = VESPERS::Imini;
 	It_ = VESPERS::Ipost;
 	fluorescenceDetector_ = VESPERS::SingleElement;
@@ -78,4 +79,3 @@ void VESPERSUserConfiguration::setCCDDetector(VESPERS::CCDDetectors ccd)
 		setModified(true);
 	}
 }
-

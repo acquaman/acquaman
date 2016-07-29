@@ -61,12 +61,6 @@ public slots:
 
 protected slots:
 	/**
-	 * Helper slot that handles the workflow pausing/resuming when the beam dumps
-	 * or is restored.
-	 */
-	void onBeamAvailabilityChanged(bool beamAvailable);
-
-	/**
 	 * Helper slot that connects generic scan editors that use the 2D scan view
 	 * to the app controller so that it can enable quick configuration of scans.
 	 */
@@ -85,12 +79,6 @@ protected:
 
 	/**
 	 * Implementation method that specifies REIXS specific actions taken when a
-	 * scan action is started
-	 */
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-
-	/**
-	 * Implementation method that specifies REIXS specific actions taken when a
 	 * scan action is finished
 	 */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
@@ -106,8 +94,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();

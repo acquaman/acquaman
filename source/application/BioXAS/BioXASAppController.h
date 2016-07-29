@@ -28,7 +28,6 @@
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "dataman/BioXAS/BioXASUserConfiguration.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -102,9 +101,6 @@ protected slots:
 	/// Slot that handles the failure for moves using the moveImmediatelyAction.
 	void onMoveImmediatelyFailure();
 
-	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
-
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
@@ -119,8 +115,6 @@ protected slots:
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
 	void goToEnergyCalibrationView(AMScan *toView);
 
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
@@ -138,8 +132,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();
@@ -178,9 +170,6 @@ protected:
 	virtual QString getStylesheet() const;
 
 protected:
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	BioXASUserConfiguration *bioxasUserConfiguration_;
-
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;
 

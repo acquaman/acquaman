@@ -1045,3 +1045,7 @@ int REIXSBeamline::currentSamplePlateId() const
 	return samplePlate_->id();
 }
 
+bool REIXSBeamline::isBeamlineBeamAvailable()
+{
+	return true;
+}

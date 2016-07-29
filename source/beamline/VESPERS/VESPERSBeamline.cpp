@@ -650,8 +650,8 @@ void VESPERSBeamline::onPOEStatusChanged()
 	bool beamStatus = poeStatus();
 	emit poeStatusChanged(beamStatus);
 
-	if (poeStatusEnable() && !beamStatus)
-		emit beamDumped();
+	if (poeStatusEnable())
+		updateBeamAvailabilityStatus();
 }
 
 void VESPERSBeamline::setPOEStatusEnable(bool enabled)
@@ -1278,6 +1278,18 @@ QString VESPERSBeamline::details() const
 	return notes;
 }
 
+AMXRFDetector *VESPERSBeamline::xrfDetector() const
+{
+	if (singleElementVortexDetector_)
+		return singleElementVortexDetector_;
+	else if (fourElementVortexDetector_)
+		return fourElementVortexDetector_;
+	else if (ge13ElementDetector_)
+		return ge13ElementDetector_;
+
+	return 0;
+}
+
 AMXRFDetector *VESPERSBeamline::xrfDetector(VESPERS::FluorescenceDetectors detectorType) const
 {
 	AMXRFDetector *detector = 0;
@@ -1441,6 +1453,12 @@ bool VESPERSBeamline::closeSafetyShutter2()
 	}
 
 	return false;
+}
+
+bool VESPERSBeamline::isBeamlineBeamAvailable()
+{
+	// for VESPERS, if poeStatus is disabled, then there is no beam for sure
+	return poeStatus();
 }
 
 void VESPERSBeamline::onBeamSelectionMotorConnected()

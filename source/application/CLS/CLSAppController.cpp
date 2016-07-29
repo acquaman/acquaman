@@ -1,6 +1,8 @@
 #include "CLSAppController.h"
 
-#include "beamline/AMBeamline.h"
+#include "actions3/AMActionRunner3.h"
+
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -83,6 +85,24 @@ void CLSAppController::shutdown()
 }
 
 // ============== implementation of protected slots =====================
+void CLSAppController::onUserConfigurationLoadedFromDb()
+{
+	AMXRFDetector *xrfDetector = CLSBeamline::clsBeamline()->xrfDetector();
+
+	if (userConfiguration_ && xrfDetector) {
+
+		foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+			xrfDetector->addRegionOfInterest(region);
+			onRegionOfInterestAdded(region);
+		}
+
+		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+		connect(xrfDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(xrfDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(xrfDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
+}
+
 void CLSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	onScanEditorCreatedImplementation(editor);
@@ -92,7 +112,38 @@ void CLSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *ed
 {
 	Q_UNUSED(editor)
 
-	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for onScanEditorCreated(). ");
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onScanEditorCreated(). ");
+}
+
+void CLSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	Q_UNUSED(region)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestAdded(). ");
+}
+
+void CLSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	Q_UNUSED(region)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestRemoved(). ");
+}
+
+void CLSAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	Q_UNUSED(region)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestBoundingRangeChanged(). ");
+}
+
+void CLSAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	// in CLS, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 // =============== implementation of protected functions =================
@@ -141,6 +192,20 @@ void CLSAppController::setupUserInterface()
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
+void CLSAppController::setupUserConfiguration()
+{
+	if (userConfiguration_) {
+
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
+}
+
 void CLSAppController::setupUserInterfaceImplementation()
 {
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
@@ -176,3 +241,27 @@ QString CLSAppController::getStylesheet() const
 
 	return stylesheet;
 }
+
+void CLSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action)
+
+	// Save current user configuration to the database.
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	connect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void CLSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action)
+
+	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+
+	// Save current user configuration to the database.
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+}
+
+

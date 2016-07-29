@@ -52,9 +52,6 @@ public:
 	virtual bool startup();
 
 protected slots:
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable);
-
 	/// Wait until the energy is connected before making the scan views
 	void onEnergyConnected(bool connected);
 	/// Wait until the Ge13Element Detector is connected before creating it's UI elements
@@ -65,17 +62,15 @@ protected slots:
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
+	virtual void onUserConfigurationLoadedFromDb();
 	/// Handles adding regions of interest to all the configurations that would care.
-	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
-	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 	/// Handles updating the regions of interest to all the configurations that would care.
-	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
@@ -90,8 +85,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();
@@ -141,9 +134,6 @@ protected:
 	IDEAS13ElementGeDetailedDetectorView *ideas13ElementGeDetailedDetectorView_;
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
-
-	/// The user configuration that holds some user specific parameters.
-	IDEASUserConfiguration *ideasUserConfiguration_;
 };
 
 #endif // IDEASAPPCONTROLLER_H

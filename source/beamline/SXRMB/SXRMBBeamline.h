@@ -63,7 +63,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new SXRMBBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<SXRMBBeamline*>(instance_);
@@ -164,12 +164,14 @@ public:
 	/// Returns the energy feedback detector (emulator)
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const;
 
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
+	/// Returns the XRF detector with given detector type.
+	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 	/// Returns the bruker fluorescence detector.
 	SXRMBBrukerDetector *brukerDetector() const;
 	/// Returns the four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
-	/// Returns the XRF detector with given detector type.
-	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlineHVControlSet() const;
@@ -192,7 +194,6 @@ public:
 	AMAction3* createBeamOffActions() const;
 
 signals:
-	void beamAvaliability(bool beamOn);
 	void beamlineControlShuttersTimeout();
 
 	void endstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
@@ -232,8 +233,8 @@ protected:
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
 
-	/// Helper function to check for the beam availability
-	void beamAvailabilityHelper();
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable();
 	/// Helper function to detemine the current connected endstation if it is NOT preset
 	void sampleStageConnectHelper();
 
@@ -241,10 +242,6 @@ protected slots:
 	/// Helper function to check for changes in the connected state
 	void onPVConnectedHelper();
 
-	/// Handles the beamAvailability signal of the Storage ring
-	void onStorageRingBeamAvailabilityChanged(bool value);
-	/// Handles value changed signal of the beamline status
-	void onBeamlineStatusPVValueChanged(double value);
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
 	/// Handles PhotonShutter State changed signal, turn off TEY HV Control

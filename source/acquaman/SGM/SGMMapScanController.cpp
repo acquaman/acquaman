@@ -78,7 +78,7 @@ void SGMMapScanController::onAxisFinished()
 	// END OF STEP 3
 
 	// STEP 4: Find Motion Start Indices
-	int expectedDuration = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
+	int expectedDuration = int(double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale);
 
 	AMDetectorContinuousMotionRangeData amptekRangeData;
 	if(!amptekDetectors_.isEmpty()){

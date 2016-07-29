@@ -12,11 +12,6 @@ IDEASUserConfiguration::~IDEASUserConfiguration()
 
 }
 
-void IDEASUserConfiguration::dbLoadFluorescenceDetector(int detector)
-{
-	setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector);
-}
-
 void IDEASUserConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetectors detector)
 {
 	if (fluorescenceDetector_ != detector){
@@ -24,4 +19,9 @@ void IDEASUserConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetector
 		fluorescenceDetector_ = detector;
 		setModified(true);
 	}
+}
+
+void IDEASUserConfiguration::dbLoadFluorescenceDetector(int detector)
+{
+	setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector);
 }

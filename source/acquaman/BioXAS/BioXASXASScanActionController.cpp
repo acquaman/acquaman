@@ -17,7 +17,6 @@
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "util/AMErrorMonitor.h"
 

@@ -21,11 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASAppController.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
 
-#include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
@@ -80,7 +78,7 @@ IDEASAppController::IDEASAppController(QObject *parent)
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 
 	// local variable initialization
-	ideasUserConfiguration_ = new IDEASUserConfiguration(this);
+	userConfiguration_ = new IDEASUserConfiguration(this);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
 	experimentToolPaneCategoryName_ = "Experiment Tools";
@@ -156,23 +154,6 @@ void IDEASAppController::setupScanConfigurations()
 	// create the generic scan configuration
 	genericConfiguration_ = new AMGenericStepScanConfiguration;
 	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
-}
-
-void IDEASAppController::setupUserConfiguration()
-{
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(ideasUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-	if (!ideasUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-		ideasUserConfiguration_->storeToDb(AMDatabase::database("user"));
-		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-	}
-
-	userConfiguration_ = ideasUserConfiguration_;
 }
 
 void IDEASAppController::setupUserInterfaceImplementation()
@@ -261,42 +242,24 @@ void IDEASAppController::onEnergyConnected(bool connected){
 	}
 }
 
-void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-	ideasUserConfiguration_->storeToDb(AMDatabase::database("user"));
-}
-
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
-	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
 	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
 	const IDEASScanConfiguration *ideasConfiguration = dynamic_cast<const IDEASScanConfiguration *>(actionInfo->configuration());
-
 	if (ideasConfiguration){
 
 		IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
-
 		if (configuration){
+			IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
 
-			ideasUserConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
-			ideasUserConfiguration_->storeToDb(AMDatabase::database("user"));
+			ideasUserConfiguration->setFluorescenceDetector(configuration->fluorescenceDetector());
 		}
 	}
-}
 
-void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void IDEASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
@@ -356,32 +319,21 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 
 void IDEASAppController::onUserConfigurationLoadedFromDb()
 {
-	QList<IDEASScanConfiguration *> configurations = QList<IDEASScanConfiguration *>()
-			<< xasScanConfiguration_
-			<< mapScanConfiguration_;
+	CLSAppController::onUserConfigurationLoadedFromDb();
 
-	foreach (IDEASScanConfiguration *configuration, configurations)
-		configuration->setFluorescenceDetector(ideasUserConfiguration_->fluorescenceDetector());
-
-	AMXRFDetector *detector = IDEASBeamline::ideas()->ketek();
-
-	foreach (AMRegionOfInterest *region, ideasUserConfiguration_->regionsOfInterest()){
-
-		detector->addRegionOfInterest(region);
-		mapScanConfiguration_->addRegionOfInterest(region);
-		xasScanConfiguration_->addRegionOfInterest(region);
-		genericConfiguration_->addRegionOfInterest(region);
+	IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
+	if (ideasUserConfiguration) {
+		IDEAS::FluorescenceDetectors fluorescenceDetector = ideasUserConfiguration->fluorescenceDetector();
+		if (xasScanConfiguration_)
+			xasScanConfiguration_->setFluorescenceDetector(fluorescenceDetector);
+		if (mapScanConfiguration_)
+			mapScanConfiguration_->setFluorescenceDetector(fluorescenceDetector);
 	}
-
-	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	ideasUserConfiguration_->addRegionOfInterest(region);
+	userConfiguration_->addRegionOfInterest(region);
 	mapScanConfiguration_->addRegionOfInterest(region);
 	xasScanConfiguration_->addRegionOfInterest(region);
 	genericConfiguration_->addRegionOfInterest(region);
@@ -389,7 +341,7 @@ void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	ideasUserConfiguration_->removeRegionOfInterest(region);
+	userConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
 	genericConfiguration_->removeRegionOfInterest(region);
@@ -397,7 +349,7 @@ void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void IDEASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	ideasUserConfiguration_->setRegionOfInterestBoundingRange(region);
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
 	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	genericConfiguration_->setRegionOfInterestBoundingRange(region);

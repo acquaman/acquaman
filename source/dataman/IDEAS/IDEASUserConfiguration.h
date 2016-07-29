@@ -28,7 +28,7 @@ public slots:
 	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector);
 
 protected:
-	/// Overloaded.  Used for database loading.
+	/// Used for database loading.
 	void dbLoadFluorescenceDetector(int detector);
 
 protected:

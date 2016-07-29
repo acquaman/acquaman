@@ -30,24 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMBeamline* AMBeamline::instance_ = 0;
 
-
-AMBeamline::AMBeamline(const QString& controlName)
-	: AMControl(controlName, ""), AMBeamlineControlAPI(), AMBeamlineControlSetAPI(), AMBeamlineDetectorAPI(), AMBeamlineDetectorSetAPI(), AMBeamlineSynchronizedDwellTimeAPI()
-{
-	exposedControls_ = new AMControlSet(this);
-	exposedDetectors_ = new AMDetectorSet(this);
-	exposedScientificDetectors_ = new AMDetectorSet(this);
-	samplePlate_ = 0; //NULL
-	samplePlateBrowser_ = 0; //NULL
-	currentSamples_ = QList<AMSample*>();
-}
-
-AMBeamline::~AMBeamline()
-{
-}
-
-
-
 void AMBeamline::releaseBl() {
 
 	if(instance_) {
@@ -64,6 +46,31 @@ AMBeamline * AMBeamline::bl()
 	 }
 
 	return instance_;
+}
+
+AMBeamline::AMBeamline(const QString& controlName)
+	: AMControl(controlName, ""), AMBeamlineControlAPI(), AMBeamlineControlSetAPI(), AMBeamlineDetectorAPI(), AMBeamlineDetectorSetAPI(), AMBeamlineSynchronizedDwellTimeAPI()
+{
+	exposedControls_ = new AMControlSet(this);
+	exposedDetectors_ = new AMDetectorSet(this);
+	exposedScientificDetectors_ = new AMDetectorSet(this);
+	samplePlate_ = 0; //NULL
+	samplePlateBrowser_ = 0; //NULL
+	currentSamples_ = QList<AMSample*>();
+}
+
+AMBeamline::~AMBeamline()
+{
+}
+
+void AMBeamline::initializeBeamline()
+{
+	// initialize beamline support
+	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
 }
 
 AMSamplePlate* AMBeamline::samplePlate(){
@@ -185,14 +192,6 @@ void AMBeamline::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *regi
 		foreach (AMRegionOfInterest *tempRegion, detector->regionsOfInterest())
 			if (region->name() == tempRegion->name() && tempRegion->boundingRange() != region->boundingRange())
 				tempRegion->setBoundingRange(region->boundingRange());
-}
-
-void AMBeamline::initializeBeamlineSupport(){
-	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
 }
 
 AMAction3* AMBeamline::createInitializeScanAxisControlsAction(AMStepScanConfiguration *configuration)
