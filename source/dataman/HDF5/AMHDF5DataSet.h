@@ -8,6 +8,9 @@
 #include <QString>
 #include <QVector>
 
+#define AMHDF5DATASET_NOT_OPEN 671000
+#define AMHDF5DATASET_INVALID_NAME 671001
+
 /// This class handles the data within an HDF5 file.  Each data set is unique and will have an ID based
 /// on it's name.  Requires a valid file ID for any of it's functionality to be accessed.
 class AMHDF5DataSet : public QObject

@@ -36,7 +36,7 @@ bool AMHDF5DataSet::readData(double *data) const
 {
 	if (!isOpen()){
 
-		AMErrorMon::alert(this, 0, QString("Can not read from %1 because it is not open.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Can not read from %1 because it is not open.").arg(name_));
 		return false;
 	}
 
@@ -55,7 +55,7 @@ bool AMHDF5DataSet::writeData(double *data)
 {
 	if (!isOpen()){
 
-		AMErrorMon::alert(this, 0, QString("Can not write to %1 because it is not open.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Can not write to %1 because it is not open.").arg(name_));
 		return false;
 	}
 
@@ -74,19 +74,13 @@ bool AMHDF5DataSet::create(int rank, const QVector<hsize_t> &initial, const QVec
 {
 	if (isOpen()){
 
-		AMErrorMon::alert(this, 0, QString("Could not create %1 because it is already open.").arg(name_));
-		return false;
-	}
-
-	if (fileId_ < 1) {
-
-		AMErrorMon::alert(this, 0, "Could not create the file because there was no valid HDF5 file to put it in.");
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Could not create %1 because it is already open.").arg(name_));
 		return false;
 	}
 
 	if (name_.isEmpty()){
 
-		AMErrorMon::alert(this, 0, "Can't create a data set with no name.");
+		AMErrorMon::alert(this, AMHDF5DATASET_INVALID_NAME, "Can't create a data set with no name.");
 		return false;
 	}
 
@@ -99,7 +93,6 @@ bool AMHDF5DataSet::create(int rank, const QVector<hsize_t> &initial, const QVec
 		if (!dataSpace->create()){
 
 			dataSpace->deleteLater();
-			AMErrorMon::alert(this, 0, "Scaler data space could not be created.");
 			return false;
 		}
 	}
@@ -111,7 +104,6 @@ bool AMHDF5DataSet::create(int rank, const QVector<hsize_t> &initial, const QVec
 		if (!dataSpace->createSimple(rank, initial, maximum)){
 
 			dataSpace->deleteLater();
-			AMErrorMon::alert(this, 0, "Simple data space could not be created.");
 			return false;
 		}
 	}
@@ -123,7 +115,6 @@ bool AMHDF5DataSet::create(int rank, const QVector<hsize_t> &initial, const QVec
 		if (!dataSpace->create()){
 
 			dataSpace->deleteLater();
-			AMErrorMon::alert(this, 0, "Null data space could not be created.");
 			return false;
 		}
 	}
@@ -147,7 +138,7 @@ bool AMHDF5DataSet::open()
 {
 	if (isOpen()){
 
-		AMErrorMon::alert(this, 0, QString("Can not open data set %1 because it is already open.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Can not open data set %1 because it is already open.").arg(name_));
 		return false;
 	}
 
@@ -168,7 +159,7 @@ bool AMHDF5DataSet::close()
 {
 	if (!isOpen()){
 
-		AMErrorMon::alert(this, 0, QString("Could not close %1 because either it is already closed or was never opened.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Could not close %1 because either it is already closed or was never opened.").arg(name_));
 		return false;
 	}
 
@@ -190,7 +181,7 @@ bool AMHDF5DataSet::flush()
 {
 	if (!isOpen()) {
 
-		AMErrorMon::alert(this, 0, QString("Can not flush %1 to disk because it is currently not open.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Can not flush %1 to disk because it is currently not open.").arg(name_));
 		return false;
 	}
 
@@ -209,7 +200,7 @@ hid_t AMHDF5DataSet::dataSpaceId() const
 {
 	if (!isOpen()){
 
-		AMErrorMon::alert(this, 0, QString("Can not retrieve the data space ID for %1 because it is not open.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5DATASET_NOT_OPEN, QString("Can not retrieve the data space ID for %1 because it is not open.").arg(name_));
 		return false;
 	}
 
