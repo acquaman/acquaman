@@ -31,10 +31,27 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(persistentViewGroupBox);
 
-	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
-//	AMHDF5File *file = new AMHDF5File("/Users/hunterd/beamline/programming/hdf5-data/test.h5");
-	file->create(AMHDF5File::OverwriteExisting);
-	file->addGroup("supa-group");
+//	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
+	AMHDF5File *file = new AMHDF5File("/Users/hunterd/beamline/programming/hdf5-data/test.h5");
+	file->open();
+//	file->create(AMHDF5File::OverwriteExisting);
+//	file->addGroup("supa-group");
+
+	QVector<hsize_t> dimensions = QVector<hsize_t>(1, 10);
+	QVector<double> data = QVector<double>(10);
+	file->openDataSet("test-data");
+
+	for (int i = 0; i < 10; i++)
+		data[i] = qrand()%229;
+
+//	file->addDataSet("test-data", 1, dimensions, dimensions);
+	AMHDF5DataSet *set = file->dataSetByName("test-data");
+//	set->readData(data.data());
+//	qDebug() << data;
+	set->writeData(data.data());
+	file->closeDataSet("test-data");
+
+//	file->closeGroup("supa-group");
 	file->close();
 	file->deleteLater();
 

@@ -158,3 +158,16 @@ bool AMHDF5DataSpace::setDimensionality(int rank, const QVector<hsize_t> &initia
 	// We successfully set the extent of the data space.
 	return true;
 }
+
+bool AMHDF5DataSpace::close(hid_t spaceId)
+{
+	herr_t status = H5Sclose(spaceId);
+
+	if (status < 0){
+
+		// HDF5 error + error mon.
+		return false;
+	}
+
+	return true;
+}

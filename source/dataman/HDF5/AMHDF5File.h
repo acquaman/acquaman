@@ -9,13 +9,16 @@
 #include <QMap>
 
 #include "dataman/HDF5/AMHDF5Group.h"
+#include "dataman/HDF5/AMHDF5DataSet.h"
 
 #define AMHDF5FILE_INVALID_CREATE_OPTION 666000
 #define AMHDF5FILE_FILE_ALREADY_OPEN 666001
-#define AMHDF5FILE_FILE_ALREADY_CLOSED 666002
+#define AMHDF5FILE_FILE_NOT_OPEN 666002
 #define AMHDF5FILE_NOT_HDF5_FILE 666003
 #define AMHDF5FILE_INVALID_OPEN_OPTION 666004
 #define AMHDF5FILE_FLUSH_FILE_NOT_OPEN 666005
+#define AMHDF5FILE_DATASET_ALREADY_ADDED 666006
+#define AMHDF5FILE_GROUP_ALREADY_ADDED 666007
 
 /// This is the base class that will relate all the other pieces of the HDF5 library.  Nothing can work
 /// without having an open HDF5 file instance.
@@ -55,7 +58,9 @@ public:
 	/// Returns the size of the HDF5 file in megabytes (MB).  Only valid if open.
 	int fileSize() const;
 	/// Returns an open group with a specified name if it exists.
-	AMHDF5Group* findOpenGroup(const QString &groupName) const;
+	AMHDF5Group* groupByName(const QString &groupName) const;
+	/// Returns an open data set based on the provided name.
+	AMHDF5DataSet *dataSetByName(const QString &dataSetName) const;
 
 signals:
 
@@ -78,6 +83,15 @@ public slots:
 	/// Flushes the specified group to disk.
 	bool flushGroup(const QString &groupName);
 
+	/// Adds a group to the current file. Returns reference to the group if successful.
+	bool addDataSet(const QString &dataSetName, int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum = QVector<hsize_t>());
+	/// Opens the associated group for the file. Returns reference to the group if successful.
+	bool openDataSet(const QString &dataSetName);
+	/// Closes the associated group for this file.
+	bool closeDataSet(const QString &dataSetName);
+	/// Flushes the specified group to disk.
+	bool flushDataSet(const QString &dataSetName);
+
 protected:
 	/// The path and name of HDF5 file.
 	QString name_;
@@ -86,6 +100,8 @@ protected:
 
 	/// Map of groups currently open in the file.
 	QMap<QString, AMHDF5Group *> groups_;
+	/// Map of data sets currently open in the file.
+	QMap<QString, AMHDF5DataSet *> dataSets_;
 };
 
 #endif // AMHDF5FILE_H

@@ -57,7 +57,7 @@ int AMHDF5File::fileSize() const
 
 bool AMHDF5File::create(AMHDF5File::CreateOption option)
 {
-	if (id_ != 0){
+	if (isOpen()){
 
 		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("Create: %1 is already open.").arg(name_));
 		return false;
@@ -91,7 +91,7 @@ bool AMHDF5File::create(AMHDF5File::CreateOption option)
 
 bool AMHDF5File::open(AMHDF5File::OpenOption option)
 {
-	if (id_ != 0){
+	if (isOpen()){
 
 		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_OPEN, QString("Open: %1 is already open.").arg(name_));
 		return false;
@@ -129,9 +129,9 @@ bool AMHDF5File::open(AMHDF5File::OpenOption option)
 
 bool AMHDF5File::close()
 {
-	if (id_ == 0){
+	if (!isOpen()){
 
-		AMErrorMon::alert(this, AMHDF5FILE_FILE_ALREADY_CLOSED, QString("%1 has already been closed or was never opened.").arg(name_));
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("%1 has already been closed or was never opened.").arg(name_));
 		return false;
 	}
 
@@ -170,26 +170,47 @@ bool AMHDF5File::flush()
 
 bool AMHDF5File::addGroup(const QString &groupName)
 {
-	AMHDF5Group *group = new AMHDF5Group(groupName);
+	if (!isOpen()){
 
-	if(isOpen() && group->create(id_)){
-
-		groups_.insert(groupName, group);
-		return true;
-
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Can not add group %1 to %2 because the file is not open.").arg(groupName).arg(name_));
+		return false;
 	}
 
-	group->deleteLater();
-	return false;
+	if (!groups_.contains(groupName)){
+
+		AMHDF5Group *group = new AMHDF5Group(id_, groupName);
+
+		if(!group->create()){
+
+			group->deleteLater();
+			return false;
+		}
+
+		groups_.insert(groupName, group);
+
+		return true;
+	}
+
+	else {
+		AMErrorMon::alert(this, AMHDF5FILE_GROUP_ALREADY_ADDED, QString("Did not add %1 because %2 has already added it.").arg(groupName).arg(name_));
+		return false;
+	}
 }
 
 bool AMHDF5File::openGroup(const QString &groupName)
 {
-	if(isOpen() && !groups_.contains(groupName)){
+	if (!isOpen()){
 
-		AMHDF5Group *groupToOpen = new AMHDF5Group(groupName);
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Can not add group %1 to %2 because the file is not open.").arg(groupName).arg(name_));
+		return false;
+	}
 
-		if(!groupToOpen->open(id_)){
+	if(!groups_.contains(groupName)){
+
+		AMHDF5Group *groupToOpen = new AMHDF5Group(id_, groupName);
+
+		if(!groupToOpen->open()){
+
 			groupToOpen->deleteLater();
 			return false;
 		}
@@ -199,44 +220,167 @@ bool AMHDF5File::openGroup(const QString &groupName)
 		return true;
 	}
 
-	return false;
+	else {
+		AMErrorMon::alert(this, AMHDF5FILE_GROUP_ALREADY_ADDED, QString("Did not open %1 because %2 has already opened it.").arg(groupName).arg(name_));
+		return false;
+	}
 }
 
-AMHDF5Group* AMHDF5File::findOpenGroup(const QString &groupName) const
+AMHDF5Group* AMHDF5File::groupByName(const QString &groupName) const
 {
-	if(isOpen() && groups_.contains(groupName)){
-		return groups_.value(groupName);
-	}
+	return groups_.value(groupName, 0);
+}
 
-	return NULL;
+AMHDF5DataSet *AMHDF5File::dataSetByName(const QString &dataSetName) const
+{
+	return dataSets_.value(dataSetName, 0);
 }
 
 bool AMHDF5File::closeGroup(const QString &groupName)
 {
-	if(isOpen() && groups_.contains(groupName)){
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Can not close group %1 because the the file is already closed.").arg(groupName));
+		return false;
+	}
+
+	if(groups_.contains(groupName)){
 
 		AMHDF5Group* groupToClose = groups_.take(groupName);
 
-		if(groupToClose->close()){
+		if(!groupToClose->close()){
+
 			groupToClose->deleteLater();
-			return true;
+			return false;
 		}
+
+		groupToClose->deleteLater();
 	}
 
-	return false;
+	return true;
 }
 
 bool AMHDF5File::flushGroup(const QString &groupName)
 {
-	if(isOpen() && groups_.contains(groupName)){
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Could not flush group %1 because the file was not open.").arg(groupName));
+		return false;
+	}
+
+	if(groups_.contains(groupName)){
 
 		AMHDF5Group* groupToFlush = groups_.value(groupName);
 
-		if(groupToFlush->flush()){
-			return true;
+		if(!groupToFlush->flush()){
+
+			return false;
 		}
 	}
 
-	return false;
+	return true;
+}
+
+bool AMHDF5File::addDataSet(const QString &dataSetName, int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum)
+{
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Can not add data set %1 to %2 because the file is not open.").arg(dataSetName).arg(name_));
+		return false;
+	}
+
+	if (!dataSets_.contains(dataSetName)){
+
+		AMHDF5DataSet *dataSet = new AMHDF5DataSet(id_, dataSetName);
+
+		if(!dataSet->create(rank, initial, maximum)){
+
+			dataSet->deleteLater();
+			return false;
+		}
+
+		dataSets_.insert(dataSetName, dataSet);
+
+		return true;
+	}
+
+	else {
+		AMErrorMon::alert(this, AMHDF5FILE_DATASET_ALREADY_ADDED, QString("Did not open %1 because %2 has already opened it.").arg(dataSetName).arg(name_));
+		return false;
+	}
+}
+
+bool AMHDF5File::openDataSet(const QString &dataSetName)
+{
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Can not add data set %1 to %2 because the file is not open.").arg(dataSetName).arg(name_));
+		return false;
+	}
+
+	if (!dataSets_.contains(dataSetName)){
+
+		AMHDF5DataSet *dataSet = new AMHDF5DataSet(id_, dataSetName);
+
+		if(!dataSet->open()){
+
+			dataSet->deleteLater();
+			return false;
+		}
+
+		dataSets_.insert(dataSetName, dataSet);
+
+		return true;
+	}
+
+	else {
+		AMErrorMon::alert(this, AMHDF5FILE_DATASET_ALREADY_ADDED, QString("Did not open %1 because %2 has already opened it.").arg(dataSetName).arg(name_));
+		return false;
+	}
+}
+
+bool AMHDF5File::closeDataSet(const QString &dataSetName)
+{
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Can not close data set %1 because the the file is already closed.").arg(dataSetName));
+		return false;
+	}
+
+	if (dataSets_.contains(dataSetName)){
+
+		AMHDF5DataSet *dataSet = dataSets_.take(dataSetName);
+
+		if (!dataSet->close()){
+
+			dataSet->deleteLater();
+			return false;
+		}
+
+		dataSet->deleteLater();
+	}
+
+	return true;
+}
+
+bool AMHDF5File::flushDataSet(const QString &dataSetName)
+{
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, AMHDF5FILE_FILE_NOT_OPEN, QString("Could not flush data set %1 because the file was not open.").arg(dataSetName));
+		return false;
+	}
+
+	if (dataSets_.contains(dataSetName)){
+
+		AMHDF5DataSet *dataSet = dataSets_.value(dataSetName);
+
+		if (!dataSet->flush()){
+
+			return false;
+		}
+	}
+
+	return true;
 }
 

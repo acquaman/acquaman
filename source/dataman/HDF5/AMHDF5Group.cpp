@@ -2,11 +2,12 @@
 
 #include "util/AMErrorMonitor.h"
 
-AMHDF5Group::AMHDF5Group(const QString &name, QObject *parent)
+AMHDF5Group::AMHDF5Group(hid_t fileId, const QString &name, QObject *parent)
 	: QObject(parent)
 {
+	fileId_ = fileId;
 	name_ = name;
-	groupID_ = 0;
+	id_ = 0;
 }
 
 AMHDF5Group::~AMHDF5Group()
@@ -17,22 +18,22 @@ AMHDF5Group::~AMHDF5Group()
 
 bool AMHDF5Group::isOpen() const
 {
-	return groupID_ > 0;
+	return id_ > 0;
 }
 
-bool AMHDF5Group::create(hid_t fileID)
+hid_t AMHDF5Group::id() const
 {
-	if (groupID_ != 0){
+	return id_;
+}
+
+bool AMHDF5Group::create()
+{
+	if (isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_INVALID_CREATE_OPTION, QString("Create: Group %1 is already open.").arg(name_));
 		return false;
 	}
 
-	if(fileID <= 0){
-		AMErrorMon::alert(this, AMHDF5GROUP_INVALID_CREATE_OPTION, QString("Create: Cannot create group %1 in a closed file.").arg(name_));
-		return false;
-	}
-
-	hid_t groupID = H5Gcreate2(fileID, name_.toUtf8().constData(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	hid_t groupID = H5Gcreate2(fileId_, name_.toUtf8().constData(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
 	if(groupID < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_INVALID_CREATE_OPTION, QString("Create: Group %1 could not be created at the driver level").arg(name_));
@@ -40,24 +41,19 @@ bool AMHDF5Group::create(hid_t fileID)
 		return false;
 	}
 
-	groupID_ = groupID;
+	id_ = groupID;
 
 	return true;
 }
 
-bool AMHDF5Group::open(hid_t fileID)
+bool AMHDF5Group::open()
 {
-	if(groupID_ != 0){
+	if(isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_ALREADY_OPEN, QString("Open: Group %1 is already open.").arg(name_));
 		return false;
 	}
 
-	if(fileID <= 0){
-		AMErrorMon::alert(this, AMHDF5GROUP_FILE_IN_BAD_STATE, QString("Open: Group %1 cannot be opened from a closed file!").arg(name_));
-		return false;
-	}
-
-	hid_t groupID = H5Gopen2(fileID, name_.toUtf8().constData(), H5P_DEFAULT);
+	hid_t groupID = H5Gopen2(fileId_, name_.toUtf8().constData(), H5P_DEFAULT);
 
 	if(groupID < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_OPEN_FAILED, QString("Open: Group %1 could not be opened at the driver level.").arg(name_));
@@ -65,19 +61,19 @@ bool AMHDF5Group::open(hid_t fileID)
 		return false;
 	}
 
-	groupID_ = groupID;
+	id_ = groupID;
 
 	return true;
 }
 
 bool AMHDF5Group::close()
 {
-	if(groupID_ == 0){
+	if(!isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_ALREADY_CLOSED, QString("Close: Group %1 is not open and therefore cannot be closed!").arg(name_));
 		return false;
 	}
 
-	herr_t closeStatus = H5Gclose(groupID_);
+	herr_t closeStatus = H5Gclose(id_);
 
 	if(closeStatus < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_CLOSE_FAILED, QString("Close: Group %1 DID NOT close successfully.").arg(name_));
@@ -85,7 +81,7 @@ bool AMHDF5Group::close()
 		return false;
 	}
 
-	groupID_ = 0;
+	id_ = 0;
 	return true;
 }
 
@@ -97,7 +93,7 @@ bool AMHDF5Group::flush()
 		return false;
 	}
 
-	herr_t flushStatus = H5Gflush(groupID_);
+	herr_t flushStatus = H5Gflush(id_);
 
 	if(flushStatus < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_FLUSH_FAILED, QString("Flush: Group %1 flush action failed.").arg(name_));
