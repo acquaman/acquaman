@@ -18,6 +18,7 @@
 #include "util/AMHDF5Driver.h"
 #include "dataman/HDF5/AMHDF5File.h"
 #include "dataman/HDF5/AMHDF5Group.h"
+#include "dataman/HDF5/AMHDF5Error.h"
 
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -36,6 +37,9 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	file->createHDF5File(AMHDF5File::OverwriteExisting);
 	file->addGroup("supa-group");
 	file->closeHDF5File();
+
+	AMHDF5Error *error = new AMHDF5Error;
+
 	file->deleteLater();
 
 //	AMHDF5Group *group = new AMHDF5Group("TestGroup");
