@@ -170,26 +170,47 @@ bool AMHDF5File::flush()
 
 bool AMHDF5File::addGroup(const QString &groupName)
 {
-	AMHDF5Group *group = new AMHDF5Group(groupName);
+	if (!isOpen()){
 
-	if(isOpen() && group->create(id_)){
+		AMErrorMon::alert(this, 0, QString("Can not add group %1 to %2 because the file is not open.").arg(groupName).arg(name_));
+		return false;
+	}
+
+	if (!groups_.contains(groupName)){
+
+		AMHDF5Group *group = new AMHDF5Group(id_, groupName);
+
+		if(!group->create()){
+
+			group->deleteLater();
+			AMErrorMon::alert(this, 0, QString("Could not create %1.").arg(groupName));
+			return false;
+		}
 
 		groups_.insert(groupName, group);
+
 		return true;
 	}
 
-	group->deleteLater();
-
-	return false;
+	else {
+		AMErrorMon::alert(this, 0, QString("Did not add %1 because %2 has already added it.").arg(groupName).arg(name_));
+		return false;
+	}
 }
 
 bool AMHDF5File::openGroup(const QString &groupName)
 {
-	if(isOpen() && !groups_.contains(groupName)){
+	if (!isOpen()){
 
-		AMHDF5Group *groupToOpen = new AMHDF5Group(groupName);
+		AMErrorMon::alert(this, 0, QString("Can not add group %1 to %2 because the file is not open.").arg(groupName).arg(name_));
+		return false;
+	}
 
-		if(!groupToOpen->open(id_)){
+	if(!groups_.contains(groupName)){
+
+		AMHDF5Group *groupToOpen = new AMHDF5Group(id_, groupName);
+
+		if(!groupToOpen->open()){
 
 			groupToOpen->deleteLater();
 			return false;
@@ -200,7 +221,10 @@ bool AMHDF5File::openGroup(const QString &groupName)
 		return true;
 	}
 
-	return false;
+	else {
+		AMErrorMon::alert(this, 0, QString("Did not open %1 because %2 has already opened it.").arg(groupName).arg(name_));
+		return false;
+	}
 }
 
 AMHDF5Group* AMHDF5File::groupByName(const QString &groupName) const
@@ -215,32 +239,49 @@ AMHDF5DataSet *AMHDF5File::dataSetByName(const QString &dataSetName) const
 
 bool AMHDF5File::closeGroup(const QString &groupName)
 {
-	if(isOpen() && groups_.contains(groupName)){
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, 0, QString("Can not close group %1 because the the file is already closed.").arg(groupName));
+		return false;
+	}
+
+	if(groups_.contains(groupName)){
 
 		AMHDF5Group* groupToClose = groups_.take(groupName);
 
-		if(groupToClose->close()){
+		if(!groupToClose->close()){
 
+			AMErrorMon::alert(this, 0, QString("Could not close %1.").arg(groupName));
 			groupToClose->deleteLater();
-			return true;
+			return false;
 		}
+
+		groupToClose->close();
 	}
 
-	return false;
+	return true;
 }
 
 bool AMHDF5File::flushGroup(const QString &groupName)
 {
-	if(isOpen() && groups_.contains(groupName)){
+	if (!isOpen()){
+
+		AMErrorMon::alert(this, 0, QString("Could not flush group %1 because the file was not open.").arg(groupName));
+		return false;
+	}
+
+	if(groups_.contains(groupName)){
 
 		AMHDF5Group* groupToFlush = groups_.value(groupName);
 
-		if(groupToFlush->flush()){
-			return true;
+		if(!groupToFlush->flush()){
+
+			AMErrorMon::alert(this, 0, QString("Could not flush %1.").arg(groupName));
+			return false;
 		}
 	}
 
-	return false;
+	return true;
 }
 
 bool AMHDF5File::addDataSet(const QString &dataSetName, int rank, const QVector<hsize_t> &initial, const QVector<hsize_t> &maximum)
@@ -273,18 +314,26 @@ bool AMHDF5File::openDataSet(const QString &dataSetName)
 		return false;
 	}
 
-	AMHDF5DataSet *dataSet = new AMHDF5DataSet(id_, dataSetName);
+	if (!dataSets_.contains(dataSetName)){
 
-	if(!dataSet->open()){
+		AMHDF5DataSet *dataSet = new AMHDF5DataSet(id_, dataSetName);
 
-		dataSet->deleteLater();
-		AMErrorMon::alert(this, 0, QString("Could not open %1.").arg(dataSetName));
-		return false;
+		if(!dataSet->open()){
+
+			dataSet->deleteLater();
+			AMErrorMon::alert(this, 0, QString("Could not open %1.").arg(dataSetName));
+			return false;
+		}
+
+		dataSets_.insert(dataSetName, dataSet);
+
+		return true;
 	}
 
-	dataSets_.insert(dataSetName, dataSet);
-
-	return true;
+	else {
+		AMErrorMon::alert(this, 0, QString("Did not open %1 because %2 has already opened it.").arg(dataSetName).arg(name_));
+		return false;
+	}
 }
 
 bool AMHDF5File::closeDataSet(const QString &dataSetName)
