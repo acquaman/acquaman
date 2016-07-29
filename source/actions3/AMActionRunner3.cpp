@@ -523,28 +523,49 @@ AMAction3 * AMActionRunner3::immediateActionAt(int index)
 	return immediateActions_.at(index);
 }
 
+bool AMActionRunner3::pauseResumeActionRunner()
+{
+	// we simply pause/resume the current action of the workflow, so that it will properly pause/resume the scan action runner
+	AMActionRunner3 *workflowRunner = AMActionRunner3::workflow();
+	AMAction3* currentAction = workflowRunner->currentAction();
+
+	if (!workflowRunner->isActionRunnerPausable() || !currentAction) {
+		return false;
+	}
+
+	bool result = false;
+	if(currentAction->isPaused()) {
+
+		result = currentAction->resume();
+	} else if (currentAction->isRunning()) {
+
+		result = currentAction->pause();
+	}
+
+	return result;
+}
+
 bool AMActionRunner3::cancelCurrentAction()
 {
-	if(currentAction_) {
-		currentAction_->cancel();
-		return true;
-	}
+	if(currentAction_)
+		return currentAction_->cancel();
+
 	return false;
 }
 
 bool AMActionRunner3::pauseCurrentAction()
 {
-	if(currentAction_ && currentAction_->canPause()) {
+	if(currentAction_)
 		return currentAction_->pause();
-	}
+
 	return false;
 }
 
 bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->isPaused()) {
+	if(currentAction_ && currentAction_->isPaused())
 		return currentAction_->resume();
-	}
+
 	return false;
 }
 

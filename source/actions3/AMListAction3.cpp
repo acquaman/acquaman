@@ -87,6 +87,19 @@ int AMListAction3::logActionId() const{
 	return logActionId_;
 }
 
+QStringList AMListAction3::generateSkipOptions() const
+{
+	QStringList skipOptions = AMAction3::generateSkipOptions();
+
+	if (currentSubAction() && currentSubAction()->canSkip()) {
+		QStringList subActionSkipOptions = currentSubAction()->generateSkipOptions();
+//		for (int i = 0, size = subActionSkipOptions.size(); i < size; i++)
+//			skipOptions.append(subActionSkipOptions.at(i));
+	}
+
+	return skipOptions;
+}
+
 AMAction3 * AMListAction3::subActionAt(int index)
 {
 	if(index < 0 || index >= subActionCount())
@@ -158,6 +171,19 @@ void AMListAction3::setLogActionId(int logActionId){
 
 void AMListAction3::setLoggingDatabase(AMDatabase *loggingDatabase){
 	loggingDatabase_ = loggingDatabase;
+}
+
+bool AMListAction3::skip(const QString &command)
+{
+	if (skipOptions_.contains(command)) {
+		return AMAction3::skip(command);
+	} else if (currentSubAction()->generateSkipOptions().contains(command)) {
+		return currentSubAction()->skip(command);
+	} else {
+		AMErrorMon::debug(this, AMLISTACTION3_UNKNOWN_SKIP_COMMAND, QString("Unknown skip command: %1.").arg(command));
+	}
+
+	return false;
 }
 
 bool AMListAction3::deleteSubAction(int index)

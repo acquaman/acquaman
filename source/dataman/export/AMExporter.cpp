@@ -422,7 +422,7 @@ QString AMExporter::krControlEnum(const QString& controlName) {
 	if(!ci.enumString().isEmpty())
 		return ci.enumString();
 	else if(scanConfig->canEnumConvert(controlName))
-		return scanConfig->enumConvert(controlName, ci.value());
+		return scanConfig->enumConvert(controlName, int(ci.value()));
 	else
 		return QString::number(ci.value()) % " " % ci.units();
 }

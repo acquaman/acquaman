@@ -93,12 +93,12 @@ void SGMTestsWindow::onShowScalerAnalysisTestClicked()
 
 void SGMTestsWindow::onRunGratingVelocityTestClicked()
 {
-	SGMGratingVelocityTests* velocityTest = new SGMGratingVelocityTests();
+	new SGMGratingVelocityTests();
 }
 
 void SGMTestsWindow::onRunUndulatorVelocityTestClicked()
 {
-	SGMUndulatorVelocityTests* undulatorTest = new SGMUndulatorVelocityTests();
+	new SGMUndulatorVelocityTests();
 }
 
 void SGMTestsWindow::setupUi()

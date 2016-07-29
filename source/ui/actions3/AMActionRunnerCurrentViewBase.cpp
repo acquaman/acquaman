@@ -44,7 +44,7 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	cancelButton_->setDisabled((action == 0));
 	skipButton_->setDisabled(true);
 
-	if(action && action->state() == AMAction3::Paused) {
+	if(action && action->isPaused()) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 		pauseButton_->setText("Resume");
 		pauseButton_->setToolTip("Resume the current action");
@@ -59,8 +59,8 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 
 		skipButton_->setEnabled(action->canSkip());
 
-		if (action->canSkip() && action->skipOptions().size() == 1)
-			skipButton_->setToolTip(action->skipOptions().first());
+		if (action->canSkip() && action->generateSkipOptions().size() == 1)
+			skipButton_->setToolTip(action->generateSkipOptions().first());
 		else
 			skipButton_->setToolTip("Finish: Click for options");
 	}
@@ -80,23 +80,8 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 
 void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 {
-	if (!actionRunner_->isActionRunnerPausable()) {
-		return;
-	}
-
-	AMAction3* currentAction = actionRunner_->currentAction();
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Paused) {
-		currentAction->resume();
-		return;
-	}
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused, do nothing.
-	else
-		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+	if (!actionRunner_->pauseResumeActionRunner())
+		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(actionRunner_->currentAction()->info()->typeDescription()), QMessageBox::Ok);
 }
 
 void AMActionRunnerCurrentViewBase::onSkipButtonClicked()
@@ -108,45 +93,19 @@ void AMActionRunnerCurrentViewBase::onSkipButtonClicked()
 
 	if (currentAction->canSkip()){
 
-		if (currentAction->skipOptions().size() == 1 && !currentAction->hasChildren())
-			currentAction->skip(currentAction->skipOptions().first());
-
-		else if (!currentAction->hasChildren()){
-
+		QStringList skipOptions = currentAction->generateSkipOptions();
+		if (skipOptions.size() == 1) {
+			currentAction->skip(skipOptions.first());
+		} else {
 			QMenu menu(this);
 
-			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
-				menu.addAction(currentAction->skipOptions().at(i));
+			for (int i = 0, size = skipOptions.size(); i < size; i++)
+				menu.addAction(skipOptions.at(i));
 
 			QAction *action = menu.exec(QCursor::pos());
 
 			if (action)
 				currentAction->skip(action->text());
-		}
-
-		else{
-
-			QMenu menu(this);
-
-			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
-				menu.addAction(currentAction->skipOptions().at(i));
-
-			AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
-
-			if (listAction && listAction->currentSubAction()->canSkip())
-				for (int i = 0, size = listAction->currentSubAction()->skipOptions().size(); i < size; i++)
-					menu.addAction(listAction->currentSubAction()->skipOptions().at(i));
-
-			QAction *action = menu.exec(QCursor::pos());
-
-			if (action){
-
-				if (currentAction->skipOptions().contains(action->text()))
-					currentAction->skip(action->text());
-
-				else
-					listAction->currentSubAction()->skip(action->text());
-			}
 		}
 	}
 }
@@ -228,8 +187,8 @@ void AMActionRunnerCurrentViewBase::onStateChanged(int state, int previousState)
 		if (action->canSkip() && state == AMAction3::Paused)
 			skipButton_->setToolTip("Can not skip while paused");
 
-		else if (action->canSkip() && action->skipOptions().size() == 1)
-			skipButton_->setToolTip(action->skipOptions().first());
+		else if (action->canSkip() && action->generateSkipOptions().size() == 1)
+			skipButton_->setToolTip(action->generateSkipOptions().first());
 
 		else
 			skipButton_->setToolTip("Finish: Click for options");
