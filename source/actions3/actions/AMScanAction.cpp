@@ -109,7 +109,6 @@ void AMScanAction::startImplementation()
 {
 	// Setup the controller.
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
-
 	if (!scanInfo){
 
 		AMErrorMon::alert(this, AMSCANACTION_NO_VALID_ACTION_INFO, "Scan action does not have a valid info.");
@@ -118,7 +117,6 @@ void AMScanAction::startImplementation()
 	}
 
 	controller_ = scanInfo->configuration()->createController();
-
 	if (!controller_){
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_CONTROLLER, "Could not create a scan controller.");
@@ -128,19 +126,17 @@ void AMScanAction::startImplementation()
 
 	hasValidScanController_ = true;
 
-	if (controller_)
-		skipOptions_.append("Stop Now");
-
-	if (controller_ && controller_->scan()->scanRank() >= 2)
+	skipOptions_.append("Stop Now");
+	if (controller_->scan()->scanRank() >= 2)
 		skipOptions_.append("Stop At End Of Line");
 
-	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
-	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
-	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
-	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
-	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
-	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
-	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
+//	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
+//	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
+//	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
+//	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
+//	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
+//	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
+//	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged(int,int)));
 
@@ -192,6 +188,7 @@ void AMScanAction::cancelImplementation()
 void AMScanAction::skipImplementation(const QString &command)
 {
 	if (controller_){
+		qDebug() << "==== AMScanAction::skipImplementation() " << command;
 
 		controller_->stop(command);
 		setStatusText(QString("Skipping - %1").arg(command));
@@ -225,6 +222,11 @@ void AMScanAction::checkReadyForDeletion()
 	}
 }
 
+void AMScanAction::onControllerInitializing()
+{
+	setStatusText("Initializing");
+}
+
 void AMScanAction::onControllerInitialized()
 {
 	if (state() == AMAction3::Skipping){
@@ -240,9 +242,9 @@ void AMScanAction::onControllerInitialized()
 		setFailed();
 	}
 
-	else {
-		setStarted();
-	}
+//	else {
+//		setStarted();
+//	}
 }
 
 void AMScanAction::onControllerStarted()
@@ -251,6 +253,8 @@ void AMScanAction::onControllerStarted()
 		scanInfo_->setScanID(controller_->scan()->id());
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
+
+	setStarted();
 }
 
 void AMScanAction::onControllerCancelled()
@@ -286,11 +290,6 @@ void AMScanAction::onControllerSucceeded()
 		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
 
 	setSucceeded();
-}
-
-void AMScanAction::onControllerInitializing()
-{
-	setStatusText("Initializing");
 }
 
 void AMScanAction::onControllerCleaningUp()
@@ -353,10 +352,19 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 	qDebug() << QString("==== AMScanAction::onControllerStateChanged() : from %1 to %2").arg(fromState).arg(toState);
 
 	switch (toState) {
+	case AMScanController::Initializing:
+		onControllerInitializing();
+		break;
+
+	case AMScanController::Initialized:
+		onControllerInitialized();
+		break;
+
 	case AMScanController::Running:
 		if (fromState == AMScanController::Resuming && canChangeState(AMAction3::Running))
 			setResumed();
-
+		else // started
+			onControllerStarted();
 		break;
 
 	case AMScanController::Pausing:
@@ -377,5 +385,30 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 			resume();
 		break;
 
+	case AMScanController::Cleaning:
+		onControllerCleaningUp();
+		break;
+
+	case AMScanController::Cancelled:
+		onControllerCancelled();
+		break;
+
+	case AMScanController::Failed:
+		onControllerFailed();
+		break;
+
+	case AMScanController::Finished:
+		onControllerSucceeded();
+		break;
 	}
+
+//	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
+//	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
+//	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
+//	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
+//	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
+//	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
+//	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
+//	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
+
 }

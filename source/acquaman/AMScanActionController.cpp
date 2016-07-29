@@ -167,9 +167,12 @@ void AMScanActionController::cancelImplementation()
 
 void AMScanActionController::stopImplementation(const QString &command)
 {
+	qDebug() << "==== AMScanActionController::stopImplementation() " << command ;
+
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
 
 	if(currentAction){
+		qDebug() << "==== AMScanActionController::stopImplementation() skip current action " << command ;
 
 		connect(currentAction, SIGNAL(succeeded()), this, SLOT(onSkipCurrentActionSucceeded()));
 		if (currentAction->skip(command))
@@ -354,8 +357,12 @@ void AMScanActionController::onScanningActionsStateChanged(int fromState, int to
 			resume();
 		break;
 	case AMAction3::Cancelling:
+		if (canChangeStateTo(AMScanController::Cancelling))
+			cancel();
 		break;
 	case AMAction3::Skipping:
+		if (canChangeStateTo(AMScanController::Stopping))
+			stop();
 		break;
 	case AMAction3::Failed:
 		onScanningActionsFailed();
@@ -414,7 +421,7 @@ void AMScanActionController::setupAndRunInitializationActions()
 {
 	connect(initializationActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onInitializationActionsListStateChanged(int, int)));
 
-	emit initializingActionsStarted();
+//	emit initializingActionsStarted();
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(initializationActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
@@ -424,7 +431,7 @@ void AMScanActionController::setupAndRunCleanupActions()
 {
 	connect(cleanupActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onCleanupActionsListStateChanged(int, int)));
 
-	emit cleaningActionsStarted();
+//	emit cleaningActionsStarted();
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);

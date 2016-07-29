@@ -24,7 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
-AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMListAction3(info, AMListAction3::Sequential, parent) {
+AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent)
+	: AMListAction3(info, AMListAction3::Sequential, parent)
+{
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
 	logSubActionsSeparately_ = true;
@@ -33,7 +35,9 @@ AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMListA
 	skipOptions_.append("After current iteration");
 }
 
-AMLoopAction3::AMLoopAction3(int iterations, QObject *parent) : AMListAction3(new AMLoopActionInfo3(iterations), AMListAction3::Sequential, parent) {
+AMLoopAction3::AMLoopAction3(int iterations, QObject *parent)
+	: AMListAction3(new AMLoopActionInfo3(iterations), AMListAction3::Sequential, parent)
+{
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
 	logSubActionsSeparately_ = true;

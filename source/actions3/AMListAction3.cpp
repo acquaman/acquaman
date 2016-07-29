@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "ui/actions3/AMActionHistoryModel.h"
 
+#include <QDebug>
+
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -309,6 +311,8 @@ void AMListAction3::cancelImplementation()
 
 void AMListAction3::skipImplementation(const QString &command)
 {
+	qDebug() << "==== AMListAction3::skipImplementation() " << command << skipOptions().first();
+
 	// Stop after current action.  We should only get here if we are a sequential list, but check to be safe.
 	if (subActionMode_ == Sequential && command == skipOptions_.first()){
 

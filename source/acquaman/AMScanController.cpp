@@ -35,11 +35,11 @@ AMScanController::~AMScanController()
 
 }
 
-QString AMScanController::stateString() const
+QString AMScanController::stateString(ScanState scanControllerState) const
 {
 	QString controllerString = "Scan is ";
 
-	switch(state_){
+	switch(scanControllerState){
 
 	case AMScanController::Constructed:
 		controllerString.append("constructed.");
@@ -167,8 +167,10 @@ void AMScanController::cancel()
 
 void AMScanController::stop(const QString &command)
 {
-	if (changeState(AMScanController::Stopping))
+	if (changeState(AMScanController::Stopping)) {
+		qDebug() << "==== AMScanController::stop() " << command ;
 		stopImplementation(command);
+	}
 }
 
 void AMScanController::scheduleForDeletion()
@@ -342,6 +344,7 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Cancelling :
+		if (state_ != Cancelling && state_ != Cancelled)
 		canTransition = true;
 		break;
 

@@ -129,6 +129,12 @@ protected slots:
 	////////////////////////////////////////////////////////////////////////
 
 	/*!
+	  * Handles the controller signalling that it has begun the initialization
+	  * steps. Sets the status text for the action to "Initializing".
+	  */
+	void onControllerInitializing();
+
+	/*!
 	  * Handles the controller signalling that it has initialized. Attempts to
 	  * transition the controller to the running state.
 	  */
@@ -161,12 +167,6 @@ protected slots:
 	  * interface.
 	  */
 	void onControllerSucceeded();
-
-	/*!
-	  * Handles the controller signalling that it has begun the initialization
-	  * steps. Sets the status text for the action to "Initializing".
-	  */
-	void onControllerInitializing();
 
 	/*!
 	  * Handles the controller signalling that it has begun the clean-up steps.
@@ -245,6 +245,7 @@ protected:
 	  */
 	void autoExportScan();
 
+protected:
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;
 	/// A pointer to the specific scan info this action uses.

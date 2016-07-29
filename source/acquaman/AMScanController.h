@@ -88,7 +88,7 @@ public:
 	// Convenience Functions to test the state of the scan.
 	///////////////////////
 	/// Returns a string of the state of the scan controller
-	QString stateString() const;
+	QString stateString(ScanState scanControllerState) const;
 	/// Whether the scan controller is in the running state.
 	bool isRunning() const;
 	/// Whether the scan controller is in the paused state.
@@ -162,17 +162,17 @@ signals:
 	  */
 	void failed();
 
-	/*!
-	  * Signal indicating that the initialization action are starting.
-	  * NOTE: This may not be emitted by all scan controllers.
-	  */
-	void initializingActionsStarted();
+//	/*!
+//	  * Signal indicating that the initialization action are starting.
+//	  * NOTE: This may not be emitted by all scan controllers.
+//	  */
+//	void initializingActionsStarted();
 
-	/*!
-	  * Signal indicating that the cleaning actions are being started.
-	  * NOTE: This may not be emitted by all scan controllers.
-	  */
-	void cleaningActionsStarted();
+//	/*!
+//	  * Signal indicating that the cleaning actions are being started.
+//	  * NOTE: This may not be emitted by all scan controllers.
+//	  */
+//	void cleaningActionsStarted();
 
 	/*!
 	  * Signal which indicates the time remaing for before the scan controller

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+#include <QDebug>
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 	: QObject(parent)
@@ -212,6 +213,7 @@ bool AMAction3::skip(const QString &command)
 	}
 
 	if (canChangeState(Skipping)){
+		qDebug() << "==== AMAction3::skip() " << command;
 
 		setState(Skipping);
 		skipImplementation(command);
