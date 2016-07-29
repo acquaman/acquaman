@@ -254,7 +254,7 @@ bool AMHDF5File::closeGroup(const QString &groupName)
 			return false;
 		}
 
-		groupToClose->close();
+		groupToClose->deleteLater();
 	}
 
 	return true;
