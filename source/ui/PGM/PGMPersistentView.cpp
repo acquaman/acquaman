@@ -34,38 +34,10 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 
 	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
 //	AMHDF5File *file = new AMHDF5File("/Users/hunterd/beamline/programming/hdf5-data/test.h5");
-	file->createHDF5File(AMHDF5File::OverwriteExisting);
+	file->create(AMHDF5File::OverwriteExisting);
 	file->addGroup("supa-group");
-	file->closeHDF5File();
-
-	AMHDF5Error *error = new AMHDF5Error;
-
+	file->close();
 	file->deleteLater();
-
-//	AMHDF5Group *group = new AMHDF5Group("TestGroup");
-//	group->createHDF5Group(0);
-//	group->openHDF5Group(0);
-//	group->isOpen();
-//	group->closeHDF5Group();
-
-	QVector<double> data = QVector<double>(5);
-//	AMHDF5Driver test;
-//	hid_t fileId = test.createFile();
-//	hid_t fileId = test.openFile();
-//	hid_t spaceId = test.addDataSpace();
-//	hid_t dataSetId = test.addDataSet(fileId, spaceId);
-//	hid_t dataSetId = test.openDataSet(fileId);
-//	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
-//	qDebug() << data;
-//	data.fill(24);
-//	qDebug() << "Write: " << test.writeDataSet(dataSetId, data.data());
-//	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
-//	qDebug() << data;
-//	hid_t attributeId = test.addAttribute(dataSetId, test.getDataSpace(dataSetId));
-//	test.closeAttribute(attributeId);
-//	test.closeDataSet(dataSetId);
-//	test.closeDataSpace(spaceId);
-//	test.closeFile(fileId);
 
 	setLayout(mainViewLayout);
 

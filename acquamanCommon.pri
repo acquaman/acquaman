@@ -472,10 +472,12 @@ HEADERS += \
     source/beamline/AMBeamlineControl.h \
 	source/ui/AMWindowPaneProxyModel.h \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.h \
-    $$PWD/source/util/AMHDF5Driver.h \
-    $$PWD/source/dataman/HDF5/AMHDF5File.h \
-    $$PWD/source/dataman/HDF5/AMHDF5Group.h \
-    $$PWD/source/dataman/HDF5/AMHDF5Error.h
+    source/util/AMHDF5Driver.h \
+    source/dataman/HDF5/AMHDF5File.h \
+    source/dataman/HDF5/AMHDF5Group.h \
+    source/dataman/HDF5/AMHDF5Error.h \
+    source/dataman/HDF5/AMHDF5DataSpace.h \
+    source/dataman/HDF5/AMHDF5DataSpaceInfo.h
 
 FORMS += \
 
@@ -910,10 +912,12 @@ SOURCES += \
     source/beamline/AMBeamlineControl.cpp \
 	source/ui/AMWindowPaneProxyModel.cpp \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp \
-    $$PWD/source/util/AMHDF5Driver.cpp \
-    $$PWD/source/dataman/HDF5/AMHDF5File.cpp \
-    $$PWD/source/dataman/HDF5/AMHDF5Group.cpp \
-    $$PWD/source/dataman/HDF5/AMHDF5Error.cpp
+    source/util/AMHDF5Driver.cpp \
+    source/dataman/HDF5/AMHDF5File.cpp \
+    source/dataman/HDF5/AMHDF5Group.cpp \
+    source/dataman/HDF5/AMHDF5Error.cpp \
+    source/dataman/HDF5/AMHDF5DataSpace.cpp \
+    source/dataman/HDF5/AMHDF5DataSpaceInfo.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \

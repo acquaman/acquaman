@@ -12,7 +12,7 @@ AMHDF5Group::AMHDF5Group(const QString &name, QObject *parent)
 AMHDF5Group::~AMHDF5Group()
 {
 	if(isOpen())
-		closeHDF5Group();
+		close();
 }
 
 bool AMHDF5Group::isOpen() const
@@ -20,7 +20,7 @@ bool AMHDF5Group::isOpen() const
 	return groupID_ > 0;
 }
 
-bool AMHDF5Group::createHDF5Group(hid_t fileID)
+bool AMHDF5Group::create(hid_t fileID)
 {
 	if (groupID_ != 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_INVALID_CREATE_OPTION, QString("Create: Group %1 is already open.").arg(name_));
@@ -45,7 +45,7 @@ bool AMHDF5Group::createHDF5Group(hid_t fileID)
 	return true;
 }
 
-bool AMHDF5Group::openHDF5Group(hid_t fileID)
+bool AMHDF5Group::open(hid_t fileID)
 {
 	if(groupID_ != 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_ALREADY_OPEN, QString("Open: Group %1 is already open.").arg(name_));
@@ -70,7 +70,7 @@ bool AMHDF5Group::openHDF5Group(hid_t fileID)
 	return true;
 }
 
-bool AMHDF5Group::closeHDF5Group()
+bool AMHDF5Group::close()
 {
 	if(groupID_ == 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_ALREADY_CLOSED, QString("Close: Group %1 is not open and therefore cannot be closed!").arg(name_));
@@ -89,7 +89,7 @@ bool AMHDF5Group::closeHDF5Group()
 	return true;
 }
 
-bool AMHDF5Group::flushHDF5Group()
+bool AMHDF5Group::flush()
 {
 	if(!isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_FLUSH_FAILED, QString("Flush: Group %1 cannot be flushed with the file closed.").arg(name_));
