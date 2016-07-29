@@ -184,12 +184,14 @@ public slots:
 	void setQueuePaused(bool isPaused);
 
 	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction()
-	/// Cancel the currently-running action, if there is one. (Returns true if so.)
-	bool cancelCurrentAction();
 	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
 	bool pauseCurrentAction();
 	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
 	bool resumeCurrentAction();
+	/// skip the currently-running action, if there is one. (Returns true if so.)
+	bool skipCurrentAction(const QString &command);
+	/// Cancel the currently-running action, if there is one. (Returns true if so.)
+	bool cancelCurrentAction();
 
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();

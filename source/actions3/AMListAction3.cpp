@@ -198,6 +198,22 @@ bool AMListAction3::canPause() const
 	}
 }
 
+QStringList AMListAction3::skipOptions() const
+{
+	QStringList currentSkipOptions;
+
+	currentSkipOptions.append(skipOptions_);
+
+	if (currentSubAction() && currentSubAction()->canSkip()) {
+		foreach (QString subSkipCommand, currentSubAction()->skipOptions()) {
+			if (!currentSkipOptions.contains(subSkipCommand))
+				currentSkipOptions.append(subSkipCommand);
+		}
+	}
+
+	return currentSkipOptions;
+}
+
 void AMListAction3::startImplementation()
 {
 	// if this was called by the base class, we know that we are in the Starting state.

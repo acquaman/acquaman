@@ -175,9 +175,11 @@ void AMScanActionController::stopImplementation(const QString &command)
 		qDebug() << "==== AMScanActionController::stopImplementation() skip current action " << command ;
 
 		connect(currentAction, SIGNAL(succeeded()), this, SLOT(onSkipCurrentActionSucceeded()));
-		if (currentAction->skip(command))
-			qDebug() << " === AMScanActionController::stopImplementation(): stopped";;
-	}		
+		AMActionRunner3::scanActionRunner()->skipCurrentAction(command);
+
+//		if (currentAction->skip(command))
+//			qDebug() << " === AMScanActionController::stopImplementation(): stopped";;
+	}
 }
 
 bool AMScanActionController::readyForFinished() const

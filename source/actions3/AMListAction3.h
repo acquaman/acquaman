@@ -68,6 +68,8 @@ public:
 	virtual bool canPause() const;
 	/// Re-implemented from AMAction to indicate we can skip.  Skipping is supported in sequential mode and NOT supported in parallel mode.
 	virtual bool canSkip() const { return subActionMode_ == Sequential; }
+	/// Returns the skip options that this action will support.
+	virtual QStringList skipOptions() const ;
 
 	/// Pure virtual function that denotes that this action has children underneath it or not.
 	bool hasChildren() const { return true; }

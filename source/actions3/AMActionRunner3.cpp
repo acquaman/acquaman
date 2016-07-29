@@ -524,15 +524,6 @@ AMAction3 * AMActionRunner3::immediateActionAt(int index)
 	return immediateActions_.at(index);
 }
 
-bool AMActionRunner3::cancelCurrentAction()
-{
-	if(currentAction_) {
-		currentAction_->cancel();
-		return true;
-	}
-	return false;
-}
-
 bool AMActionRunner3::pauseCurrentAction()
 {
 	if(currentAction_ && currentAction_->canPause()) {
@@ -545,6 +536,24 @@ bool AMActionRunner3::resumeCurrentAction()
 {
 	if(currentAction_ && currentAction_->isPaused()) {
 		return currentAction_->resume();
+	}
+	return false;
+}
+
+bool AMActionRunner3::skipCurrentAction(const QString &command)
+{
+	if (currentAction_ && currentAction_->canSkip() && command != "") {
+		return currentAction_->skip(command);
+	}
+
+	return false;
+}
+
+bool AMActionRunner3::cancelCurrentAction()
+{
+	if(currentAction_) {
+		currentAction_->cancel();
+		return true;
 	}
 	return false;
 }

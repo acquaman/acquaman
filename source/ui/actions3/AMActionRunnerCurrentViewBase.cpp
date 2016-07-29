@@ -88,66 +88,39 @@ void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 	if(!currentAction)
 		return;
 
-	if(currentAction->state() == AMAction3::Paused) {
-		currentAction->resume();
-		return;
+	if(currentAction->isPaused()) {
+		actionRunner_->pauseCurrentAction();
+	} else if (currentAction->isRunning()){
+		if (!actionRunner_->pauseCurrentAction()) {
+			QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+		}
 	}
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused, do nothing.
-	else
-		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
 }
 
 void AMActionRunnerCurrentViewBase::onSkipButtonClicked()
 {
 	AMAction3 *currentAction = actionRunner_->currentAction();
-
 	if (!currentAction)
 		return;
 
 	if (currentAction->canSkip()){
+		QString skipCommand = "";
 
-		if (currentAction->skipOptions().size() == 1 && !currentAction->hasChildren())
-			currentAction->skip(currentAction->skipOptions().first());
+		QStringList skipOptions = currentAction->skipOptions();
+		if (skipOptions.size() == 1) {
+			skipCommand = skipOptions.first();
 
-		else if (!currentAction->hasChildren()){
-
+		} else {
 			QMenu menu(this);
-
 			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
 				menu.addAction(currentAction->skipOptions().at(i));
 
 			QAction *action = menu.exec(QCursor::pos());
-
 			if (action)
-				currentAction->skip(action->text());
+				skipCommand = action->text();
 		}
 
-		else{
-
-			QMenu menu(this);
-
-			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
-				menu.addAction(currentAction->skipOptions().at(i));
-
-			AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
-
-			if (listAction && listAction->currentSubAction()->canSkip())
-				for (int i = 0, size = listAction->currentSubAction()->skipOptions().size(); i < size; i++)
-					menu.addAction(listAction->currentSubAction()->skipOptions().at(i));
-
-			QAction *action = menu.exec(QCursor::pos());
-
-			if (action){
-
-				if (currentAction->skipOptions().contains(action->text()))
-					currentAction->skip(action->text());
-
-				else
-					listAction->currentSubAction()->skip(action->text());
-			}
-		}
+		actionRunner_->skipCurrentAction(skipCommand);
 	}
 }
 
@@ -157,6 +130,7 @@ void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(actionRunner_->currentAction());
 	bool scanActionRunning = (scanAction != 0) || (listAction != 0 && (qobject_cast<AMScanAction *>(listAction->currentSubAction()) != 0));
 
+	bool confirmToCancel = true;
 	if (scanActionRunning && showCancelPrompt_){
 
 		AMCancelActionPrompt cancelPrompt;
@@ -166,16 +140,11 @@ void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 		cancelPrompt.exec();
 
 		showCancelPrompt_ = cancelPrompt.shouldWarn();
-
-		if (cancelPrompt.result() == QDialog::Accepted)
-			actionRunner_->cancelCurrentAction();
+		confirmToCancel = (cancelPrompt.result() == QDialog::Accepted);
 	}
 
-	else {
-
-		// if no prompt, then just cancel.
+	if (confirmToCancel)
 		actionRunner_->cancelCurrentAction();
-	}
 }
 
 void AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged(bool pausable)

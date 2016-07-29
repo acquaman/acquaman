@@ -172,6 +172,9 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// Returns whether the action is in a final state (Succeeded, Failed, or Cancelled). All cleanup should be done before entering these states, so it should be OK to delete an action once it is in a final state.
 	bool inFinalState() const { return state_ == Succeeded || state_ == Failed || state_ == Cancelled; }
 
+	/// Returns whether the action is running or not
+	bool isRunning() const { return state_ == Running; }
+
 	/// Returns whether the action is paused or not
 	bool isPaused() const { return state_ == Paused; }
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
@@ -183,7 +186,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// This virtual method returns whether the action supports skipping. By default, it returns false (ie: cannot skip).
 	virtual bool canSkip() const { return false; }
 	/// Returns the skip options that this action will support.
-	QStringList skipOptions() const { return skipOptions_; }
+	virtual QStringList skipOptions() const { return skipOptions_; }
 
 
 	// Nesting actions
