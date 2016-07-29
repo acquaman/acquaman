@@ -409,11 +409,6 @@ bool AMAction3::canChangeState(State newState) const
 	return canTransition;
 }
 
-//void AMAction3::updateProgress()
-//{
-//	setProgress(runningTime(), info_->expectedDuration());
-//}
-
 void AMAction3::setState(AMAction3::State newState)
 {
 	if (!canChangeState(newState))
@@ -423,7 +418,6 @@ void AMAction3::setState(AMAction3::State newState)
 
 	state_ = newState;
 
-//	updateProgress();
 	setStatusText(stateDescription(state_));
 
 	emit stateChanged(fromState, state_);

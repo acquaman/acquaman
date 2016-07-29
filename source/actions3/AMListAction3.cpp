@@ -348,55 +348,55 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 	if(subActionMode() == Sequential) {
 
 		switch(toState) {
-		case Starting:
+		case AMAction3::Starting:
 
 			if (isScanAction())
 				emit scanActionCreated((AMScanAction *)currentSubAction());
 
 			// If we were paused between actions and resuming, the next action is now running...
-			if(state() == Resuming)
+			if(canChangeState(AMAction3::Running))
 				setResumed();
 			return;
 
-		case Running:
+		case AMAction3::Running:
 
-			if (isScanAction() && state() != Resuming)
+			if (isScanAction() && state() != AMAction3::Resuming)
 				emit scanActionStarted((AMScanAction *)currentSubAction());
 
 			// If we had a current action paused:
-			if(state() == Resuming)
+			if(canChangeState(AMAction3::Running))
 				setResumed();
 
 			return;
 
-		case Pausing:
-			if (canChangeState(Pausing))
+		case AMAction3::Pausing:
+			if (canChangeState(AMAction3::Pausing))
 				pause();
 			return;
 
-		case Paused:
+		case AMAction3::Paused:
 			// the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
-			if(state() == Pausing) {
+			if(canChangeState(AMAction3::Paused)) {
 				setPaused();
 			} else {
 				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			}
 			return;
 
-		case Resuming:
-			if (canChangeState(Resuming))
+		case AMAction3::Resuming:
+			if (canChangeState(AMAction3::Resuming))
 				resume();
 			return;
 
-		case Cancelling:
+		case AMAction3::Cancelling:
 			// ??? do we need to change state when sub action is cancelling?
 			return;
 
-		case Cancelled:
+		case AMAction3::Cancelled:
 			if (isScanAction())
 				emit scanActionFinished((AMScanAction *)currentSubAction());
 
-			if(state() == Cancelling) {
+			if(state() == AMAction3::Cancelling) {
 				internalCleanupAction();
 				setCancelled();
 			}
@@ -405,14 +405,14 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			}
 			return;
 
-		case Succeeded:
+		case AMAction3::Succeeded:
 			if (isScanAction())
 				emit scanActionFinished((AMScanAction *)currentSubAction());
 
 			internalDoNextAction();
 			return;
 
-		case Failed:
+		case AMAction3::Failed:
 			if (isScanAction())
 				emit scanActionFinished((AMScanAction *)currentSubAction());
 
@@ -420,7 +420,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			setFailed();
 			return;
 
-		case Skipping:
+		case AMAction3::Skipping:
 			return;
 		}
 	}
@@ -429,21 +429,21 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 	/////////////////////////
 	else {
 		switch(toState) {
-		case Starting:
+		case AMAction3::Starting:
 			return;
 
-		case Running:
-			if(state() == Resuming) {
+		case AMAction3::Running:
+			if(canChangeState(AMAction3::Running)) {
 				if(internalAllActionsRunningOrFinal())
 					setResumed();
 			}
 			return;
 
-		case Pausing:
+		case AMAction3::Pausing:
 			return;
 
-		case Paused:
-			if(state() == Pausing) {
+		case AMAction3::Paused:
+			if(canChangeState(AMAction3::Paused)) {
 				// one of them paused. Are all the actions paused now?
 				if(internalAllActionsPausedOrFinal())
 					setPaused();
@@ -452,18 +452,18 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			return;
 
-		case Resuming:
+		case AMAction3::Resuming:
 			return;
 
-		case Cancelling:
+		case AMAction3::Cancelling:
 			return;
 
-		case Cancelled:
-			if(state() != Cancelling)
+		case AMAction3::Cancelled:
+			if(state() != AMAction3::Cancelling)
 				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled with cancelling its parent list action. This should not happen.");
 			// Continue on to common handling with Succeeded and Failed:
-		case Succeeded:
-		case Failed:
+		case AMAction3::Succeeded:
+		case AMAction3::Failed:
 			// only do something here if all actions are done.
 			if(internalAllActionsInFinalState()) {
 				// disconnect all actions
@@ -480,7 +480,7 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 			}
 			return;
 
-		case Skipping:
+		case AMAction3::Skipping:
 			return;
 		}
 	}
@@ -507,10 +507,10 @@ void AMListAction3::internalDoNextAction()
 		emit currentSubActionChanged(++currentSubActionIndex_);
 		internalConnectAction(currentSubAction());
 
-		if (state() == Pausing)
+		if (canChangeState(AMAction3::Paused))
 			setPaused();
 
-		else if (state() == Running)
+		else if (isRunning())
 			currentSubAction()->start();
 	}
 
@@ -618,13 +618,13 @@ void AMListAction3::internalOnSubActionStatusTextChanged(const QString &statusTe
 
 			action = subActionAt(i);
 
-			if (action->state() == Running)
+			if (action->isRunning())
 				numRunning++;
 
-			else if (action->state() == Failed)
+			else if (action->state() == AMAction3::Failed)
 				numFailed++;
 
-			else if (action->state() == Succeeded)
+			else if (action->state() == AMAction3::Succeeded)
 				numSucceeded++;
 		}
 
@@ -673,7 +673,7 @@ bool AMListAction3::internalAllActionsRunningOrFinal() const
 {
 	bool rv = true;
 	foreach(AMAction3* action, subActions_)
-		rv &= (action->state() == Running || action->inFinalState());
+		rv &= (action->isRunning() || action->inFinalState());
 	return rv;
 }
 
@@ -681,7 +681,7 @@ bool AMListAction3::internalAllActionsPausedOrFinal() const
 {
 	bool rv = true;
 	foreach(AMAction3* action, subActions_)
-		rv &= (action->state() == Paused || action->inFinalState());
+		rv &= (action->isPaused() || action->inFinalState());
 	return rv;
 }
 
@@ -696,7 +696,7 @@ bool AMListAction3::internalAllActionsInFinalState() const
 bool AMListAction3::internalAnyActionsFailed() const
 {
 	foreach(AMAction3* action, subActions_)
-		if(action->state() == Failed)
+		if(action->state() == AMAction3::Failed)
 			return true;
 	return false;
 }
@@ -704,7 +704,7 @@ bool AMListAction3::internalAnyActionsFailed() const
 bool AMListAction3::internalAnyActionsCancelled() const
 {
 	foreach(AMAction3* action, subActions_)
-		if(action->state() == Cancelled)
+		if(action->state() == AMAction3::Cancelled)
 			return true;
 	return false;
 }
