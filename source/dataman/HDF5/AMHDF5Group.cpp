@@ -22,7 +22,7 @@ bool AMHDF5Group::isOpen() const
 
 bool AMHDF5Group::create(hid_t fileID)
 {
-	if (groupID_ != 0){
+	if (isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_INVALID_CREATE_OPTION, QString("Create: Group %1 is already open.").arg(name_));
 		return false;
 	}
@@ -47,7 +47,7 @@ bool AMHDF5Group::create(hid_t fileID)
 
 bool AMHDF5Group::open(hid_t fileID)
 {
-	if(groupID_ != 0){
+	if(isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_ALREADY_OPEN, QString("Open: Group %1 is already open.").arg(name_));
 		return false;
 	}
@@ -72,7 +72,7 @@ bool AMHDF5Group::open(hid_t fileID)
 
 bool AMHDF5Group::close()
 {
-	if(groupID_ == 0){
+	if(!isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_ALREADY_CLOSED, QString("Close: Group %1 is not open and therefore cannot be closed!").arg(name_));
 		return false;
 	}
