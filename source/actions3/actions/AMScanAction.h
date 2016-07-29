@@ -84,12 +84,6 @@ public:
 	AMScanController *controller() const { return controller_; }
 
 	/*!
-	  * A string representing the state of the action's scan controller. If no
-	  * scan controller is set then an empty string is returned.
-	  */
-	QString controllerStateString() const;
-
-	/*!
 	  * The current validity of the scan action.
 	  */
 	virtual AMAction3::ActionValidity isValid();

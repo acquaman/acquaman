@@ -77,12 +77,6 @@ public:
 	virtual ~AMScanActionController();
 
 	/*!
-	  * The master action which contains all the, possibly nested, actions required
-	  * to run the scan.
-	  */
-	AMAction3 *scanningActions();
-
-	/*!
 	  * Function to build all the general aspects for the scan, such as measurements
 	  * and raw data, and the file writer capabilities for the scan controller.
 	  *
@@ -117,90 +111,49 @@ protected slots:
 	  * case that is an ending state (ie. Finished, Failed, Cancelled) then any
 	  * open database transactions are committed, and this scan action controller
 	  * is removed from the QEvent reciver list.
-	  * \param oldState ~ The state the scan action controller has moved from (Unused)
-	  * \param newState ~ The new state the scan action controller has moved to.
+	  * \param fromState ~ The state the scan action controller has moved from (Unused)
+	  * \param toState ~ The new state the scan action controller has moved to.
 	  * The slot only takes action in the case that this is Finished, Failed or
 	  * Cancelled.
 	  */
 	void onStateChanged(int fromState, int toState);
 
-	/*!
-	  * Handles the setting of the root action in the action tree. Optimizes and
-	  * validates the action tree.
-	  */
-	virtual void onScanningActionsGenerated(AMAction3 *actionTree);
-
-	/*!
-	  * Handles the cleanup after the initialization actions have succeeded.
-	  */
-	virtual void onInitializationActionsListSucceeded();
-
-	/*!
-	  * Handles the cleanup after the initialization actions have been cancelled.
-	  */
+	/// Handles the cleanup after the initialization actions have been cancelled.
 	virtual void onInitializationActionsListCancelled();
-
-	/*!
-	  * Handles the cleanup after the initialization actions fail.
-	  */
+	/// Handles the cleanup after the initialization actions fail.
 	virtual void onInitializationActionsListFailed();
+	/// Handles the stateChanged signals of the initialization actions list.
 	virtual void onInitializationActionsListStateChanged(int fromState, int toState);
 
-	/*!
-	  * Handles the cleanup after the cleanup actions succeed.
-	  */
+	/// Handles the cleanup after the cleanup actions succeed.
 	virtual void onCleanupActionsListSucceeded();
+	/// Handles the stateChanged signals of the clean up actions list.
+	virtual void onCleanupActionsListStateChanged(int fromState, int toState);
 
-	/*!
-	  * Handles the cleanup after the cleanup actions are cancelled.
-	  */
-	virtual void onCleanupActionsListCancelled();
-
-	/*!
-	  * Handles the cleanup after the cleanup actions have failed.
-	  */
-	virtual void onCleanupActionsListFailed();
-
-	/*!
-	  * Handles the scan actions tree completing successfully. Starts the cleanup
-	  * actions list.
-	  */
+	/// Handles the setting of the root action in the action tree. Optimizes and validates the action tree.
+	virtual void onScanningActionsGenerated(AMAction3 *actionTree);
+	/// Handles the scan actions tree completing successfully. Starts the cleanup actions list.
 	virtual void onScanningActionsSucceeded();
-
-	/*!
-	  * Handles the scan actions tree being cancelled. Starts the cleanup actions
-	  * list.
-	  */
+	/// Handles the scan actions tree being cancelled. Starts the cleanup actions list.
 	virtual void onScanningActionsCancelled();
-
-	/*!
-	  * Handles the scan actions tree failing. Starts the cleanup actions list.
-	  */
+	/// Handles the scan actions tree failing. Starts the cleanup actions list.
 	virtual void onScanningActionsFailed();
-	void onScanningActionsStateChanged(int fromState, int toState);
+	/// Handles the stateChanged signals of the scan actions list.
+	virtual void onScanningActionsStateChanged(int fromState, int toState);
 
-	/*!
-	  * Handles the file writer's busy state being altered.
-	  */
+	/// Handles the case that the current action succeeds during a skip command.
+	virtual void onSkipCurrentActionSucceeded();
+
+	/// Handles the file writer's busy state being altered.
 	void onFileWriterIsBusy(bool isBusy);
-
-	/*!
-	  * Handles the file writer being destroyed.
-	  */
+	/// Handles the file writer being destroyed.
 	void onFileWriterDestroyed();
-
-	/*!
-	  * Handles the file writer having finished. If the scan action controller has
+	/** Handles the file writer having finished. If the scan action controller has
 	  * been scheduled for deletion the file writer thread is deleted. If the scan
 	  * action controller can be set to the finished state then it will be set to
 	  * finished.
 	  */
 	void onFileWriterThreadFinished();
-
-	/*!
-	  * Handles the case that the current action succeeds during a skip command.
-	  */
-	virtual void onSkipCurrentActionSucceeded();
 
 protected:
 	/*!

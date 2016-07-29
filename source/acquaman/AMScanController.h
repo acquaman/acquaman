@@ -66,6 +66,7 @@ public:
 			 Paused,
 			 Resuming,
 			 Stopping,
+			 Cleaning,
 			 Cancelling,
 			 Cancelled,
 			 Finished,
@@ -86,8 +87,8 @@ public:
 
 	// Convenience Functions to test the state of the scan.
 	///////////////////////
-	/// The current state of the scan controller.
-	AMScanController::ScanState state() const;
+	/// Returns a string of the state of the scan controller
+	QString stateString() const;
 	/// Whether the scan controller is in the running state.
 	bool isRunning() const;
 	/// Whether the scan controller is in the paused state.
@@ -307,6 +308,8 @@ protected slots:
 	  */
 	bool setResumed();
 
+	void setCleaning();
+
 	/*!
 	  * Sets the state of the scan controller to cancelled. Implementation classes
 	  * must call this after cancelling a scan is complete.
@@ -330,6 +333,9 @@ protected slots:
 	void setFailed();
 
 protected:
+	bool isInitializing() const { return state_ == AMScanController::Initializing; }
+	bool isCleaning() const { return state_ == AMScanController::Cleaning; }
+
 	// Virtual implementation functions.  Implement these as required for relevant
 	// transitions between states.  The AMScanController API guarantees that these
 	// will only be called from the states indicated.

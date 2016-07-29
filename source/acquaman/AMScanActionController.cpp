@@ -64,11 +64,12 @@ void AMScanActionController::scheduleForDeletion()
 	}
 }
 
-void AMScanActionController::onStateChanged(int oldState, int newState)
+/// ================ implementing protected slots ==========================
+void AMScanActionController::onStateChanged(int fromState, int toState)
 {
-	Q_UNUSED(oldState)
+	Q_UNUSED(fromState)
 
-	AMScanController::ScanState castNewState = (AMScanController::ScanState)newState;
+	AMScanController::ScanState castNewState = (AMScanController::ScanState)toState;
 
 	if( (castNewState == AMScanController::Finished) || (castNewState == AMScanController::Failed) || (castNewState == AMScanController::Cancelled) ){
 
@@ -108,17 +109,15 @@ bool AMScanActionController::startImplementation()
 		return false;
 	}
 
-	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
-	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
-	connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
-	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
 	connect(scanningActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onScanningActionsStateChanged(int, int)));
+
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 
 	if(scanActionMessager)
 		scanActionMessager->addReceiver(this);
 
+	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	setStarted();
 
@@ -127,8 +126,10 @@ bool AMScanActionController::startImplementation()
 
 bool AMScanActionController::canPause() const
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+	if (isInitializing() || isCleaning())
+		return false;
 
+	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
 	if(currentAction)
 		return currentAction->canPause();
 
@@ -184,28 +185,16 @@ bool AMScanActionController::readyForFinished() const
 		return (!fileWriterIsBusy_ && scanControllerStateMachineFinished_);
 }
 
-AMAction3* AMScanActionController::scanningActions()
-{
-	return scanningActions_;
-}
-
-void AMScanActionController::onInitializationActionsListSucceeded()
-{
-	initializationActions_->disconnect(this);
-	setInitialized();
-}
-
 void AMScanActionController::onInitializationActionsListCancelled()
 {
-	initializationActions_->disconnect(this);
+	disconnect(initializationActions_, 0, this, 0);
 
 	if (cleanupActions_){
 
 		scanningActionsFinalState_ = Cancelled;
 		setupAndRunCleanupActions();
-	}
 
-	else
+	} else
 		setCancelled();
 }
 
@@ -213,25 +202,100 @@ void AMScanActionController::onInitializationActionsListFailed()
 {
 	initializationActions_->disconnect(this);
 
-	if (cleanupActions_){
+	if (cleanupActions_) {
 
 		scanningActionsFinalState_ = Failed;
 		setupAndRunCleanupActions();
-	}
 
-	else
+	} else
 		setFailed();
 }
 
 void AMScanActionController::onInitializationActionsListStateChanged(int fromState, int toState)
 {
 	qDebug() << QString("==== AMScanActionController::onInitializationActionsListStateChanged() : from %1 to %2").arg(fromState).arg(toState);
+	switch (toState) {
+	case AMAction3::Succeeded:
+		disconnect(initializationActions_, 0, this, 0);
+		setInitialized();
+		break;
+
+	case AMAction3::Cancelled:
+		onInitializationActionsListCancelled();
+		break;
+
+	case AMAction3::Failed:
+		onInitializationActionsListFailed();
+		break;
+	}
+}
+
+void AMScanActionController::onCleanupActionsListSucceeded()
+{
+	disconnect(cleanupActions_, 0, this, 0);
+
+	switch(scanningActionsFinalState_){
+
+	case AMScanActionController::NotFinished:
+		// This should never happen.
+		break;
+
+	case AMScanActionController::Succeeded:
+
+		scanControllerStateMachineFinished_ = true;
+		// Don't do anything else, if we're not ready for finished but we're succeeding then the file writing should finish soon and will check again
+		if(readyForFinished())
+			setFinished();
+
+		break;
+
+	case AMScanActionController::Cancelled:
+		setCancelled();
+		break;
+
+	case AMScanActionController::Failed:
+		setFailed();
+		break;
+	}
+}
+
+void AMScanActionController::onCleanupActionsListStateChanged(int fromState, int toState)
+{
+	qDebug() << QString("==== AMScanActionController::onCleanupActionsListStateChanged() : from %1 to %2").arg(fromState).arg(toState);
+	switch (toState) {
+	case AMAction3::Starting:
+	case AMAction3::Running:
+		setCleaning();
+		break;
+	case AMAction3::Cancelled:
+		disconnect(cleanupActions_, 0, this, 0);
+		setCancelled();
+		break;
+	case AMAction3::Failed:
+		disconnect(cleanupActions_, 0, this, 0);
+		setFailed();
+		break;
+	case AMAction3::Succeeded:
+		onCleanupActionsListSucceeded();
+		break;
+	}
+
+}
+
+void AMScanActionController::onScanningActionsGenerated(AMAction3 *actionTree)
+{
+	scanningActions_ = actionTree;
+
+	AMAppControllerSupport::optimize(AMAppControllerSupport::principleOptimizersCopy(), scanningActions_);
+
+	if(!AMAppControllerSupport::validate(AMAppControllerSupport::principleValidatorsCopy(), scanningActions_))
+		return;
 }
 
 void AMScanActionController::onScanningActionsSucceeded()
 {
 	scanningActionsFinalState_ = Succeeded;
-	scanningActions_->disconnect(this);
+	disconnect(scanningActions_, 0, this, 0);
 
 	if (cleanupActions_)
 		setupAndRunCleanupActions();
@@ -248,7 +312,7 @@ void AMScanActionController::onScanningActionsSucceeded()
 void AMScanActionController::onScanningActionsCancelled()
 {
 	scanningActionsFinalState_ = Cancelled;
-	scanningActions_->disconnect(this);
+	disconnect(scanningActions_, 0, this, 0);
 
 	if (cleanupActions_)
 		setupAndRunCleanupActions();
@@ -260,7 +324,7 @@ void AMScanActionController::onScanningActionsCancelled()
 void AMScanActionController::onScanningActionsFailed()
 {
 	scanningActionsFinalState_ = Failed;
-	scanningActions_->disconnect(this);
+	disconnect(scanningActions_, 0, this, 0);
 
 	if (cleanupActions_)
 		setupAndRunCleanupActions();
@@ -289,7 +353,29 @@ void AMScanActionController::onScanningActionsStateChanged(int fromState, int to
 		if (canChangeStateTo(AMScanController::Resuming))
 			resume();
 		break;
+	case AMAction3::Cancelling:
+		break;
+	case AMAction3::Skipping:
+		break;
+	case AMAction3::Failed:
+		onScanningActionsFailed();
+		break;
+	case AMAction3::Cancelled:
+		onScanningActionsCancelled();
+		break;
+	case AMAction3::Succeeded:
+		onScanningActionsSucceeded();
+		break;
 	}
+}
+
+void AMScanActionController::onSkipCurrentActionSucceeded(){
+	scanControllerStateMachineFinished_ = true;
+	// This shouldn't be the case, because we're skipping so the file writer is probably waiting to be told to finish
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 void AMScanActionController::onFileWriterIsBusy(bool isBusy)
@@ -324,73 +410,8 @@ void AMScanActionController::onFileWriterThreadFinished(){
 		setFinished();
 }
 
-void AMScanActionController::onSkipCurrentActionSucceeded(){
-	scanControllerStateMachineFinished_ = true;
-	// This shouldn't be the case, because we're skipping so the file writer is probably waiting to be told to finish
-	if(readyForFinished())
-		setFinished();
-	else if(fileWriterIsBusy_)
-		emit finishWritingToFile();
-}
-
-void AMScanActionController::onCleanupActionsListSucceeded()
-{
-	cleanupActions_->disconnect(this);
-
-	switch(scanningActionsFinalState_){
-
-	case NotFinished:
-		// This should never happen.
-		break;
-
-	case Succeeded:
-
-		scanControllerStateMachineFinished_ = true;
-		// Don't do anything else, if we're not ready for finished but we're succeeding then the file writing should finish soon and will check again
-		if(readyForFinished())
-			setFinished();
-
-		break;
-
-	case Cancelled:
-
-		setCancelled();
-		break;
-
-	case Failed:
-
-		setFailed();
-		break;
-	}
-}
-
-void AMScanActionController::onCleanupActionsListCancelled()
-{
-	cleanupActions_->disconnect(this);
-	setCancelled();
-}
-
-void AMScanActionController::onCleanupActionsListFailed()
-{
-	cleanupActions_->disconnect(this);
-	setFailed();
-}
-
-void AMScanActionController::onScanningActionsGenerated(AMAction3 *actionTree)
-{
-	scanningActions_ = actionTree;
-
-	AMAppControllerSupport::optimize(AMAppControllerSupport::principleOptimizersCopy(), scanningActions_);
-
-	if(!AMAppControllerSupport::validate(AMAppControllerSupport::principleValidatorsCopy(), scanningActions_))
-		return;
-}
-
 void AMScanActionController::setupAndRunInitializationActions()
 {
-	connect(initializationActions_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	connect(initializationActions_, SIGNAL(cancelled()), this, SLOT(onInitializationActionsListCancelled()));
-	connect(initializationActions_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 	connect(initializationActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onInitializationActionsListStateChanged(int, int)));
 
 	emit initializingActionsStarted();
@@ -401,9 +422,7 @@ void AMScanActionController::setupAndRunInitializationActions()
 
 void AMScanActionController::setupAndRunCleanupActions()
 {
-	connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(cleanupActions_, SIGNAL(cancelled()), this, SLOT(onCleanupActionsListCancelled()));
-	connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	connect(cleanupActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onCleanupActionsListStateChanged(int, int)));
 
 	emit cleaningActionsStarted();
 
