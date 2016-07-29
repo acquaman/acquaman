@@ -18,6 +18,7 @@
 #include "util/AMHDF5Driver.h"
 #include "dataman/HDF5/AMHDF5File.h"
 #include "dataman/HDF5/AMHDF5Group.h"
+#include "dataman/HDF5/AMHDF5Error.h"
 
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
