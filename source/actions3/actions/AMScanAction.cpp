@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-#include <QDebug>
+
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {
@@ -130,13 +130,6 @@ void AMScanAction::startImplementation()
 	if (controller_->scan()->scanRank() >= 2)
 		skipOptions_.append("Stop At End Of Line");
 
-//	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
-//	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
-//	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
-//	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
-//	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
-//	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
-//	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged(int,int)));
 
@@ -160,7 +153,6 @@ void AMScanAction::pauseImplementation()
 	if (controller_->pause()){
 
 		setStatusText("Paused");
-		qDebug() << "===== AMScanAction::pauseImplementation() is me?";
 		setPaused();
 	}
 }
@@ -188,7 +180,6 @@ void AMScanAction::cancelImplementation()
 void AMScanAction::skipImplementation(const QString &command)
 {
 	if (controller_){
-		qDebug() << "==== AMScanAction::skipImplementation() " << command;
 
 		controller_->stop(command);
 		setStatusText(QString("Skipping - %1").arg(command));
@@ -241,10 +232,6 @@ void AMScanAction::onControllerInitialized()
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
 	}
-
-//	else {
-//		setStarted();
-//	}
 }
 
 void AMScanAction::onControllerStarted()
@@ -349,8 +336,6 @@ void AMScanAction::autoExportScan()
 
 void AMScanAction::onControllerStateChanged(int fromState, int toState)
 {
-	qDebug() << QString("==== AMScanAction::onControllerStateChanged() : from %1 to %2").arg(fromState).arg(toState);
-
 	switch (toState) {
 	case AMScanController::Initializing:
 		onControllerInitializing();
@@ -373,11 +358,8 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 		break;
 
 	case AMScanController::Paused:
-		if (canChangeState(AMAction3::Paused)) {
+		if (canChangeState(AMAction3::Paused))
 			setPaused();
-		}
-		else
-			qDebug() << "==== ==== AMScanAction::onControllerStateChanged(): AMScanAction is already paused";
 		break;
 
 	case AMScanController::Resuming:
@@ -401,14 +383,4 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 		onControllerSucceeded();
 		break;
 	}
-
-//	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
-//	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
-//	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
-//	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
-//	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
-//	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
-//	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
-//	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
-
 }

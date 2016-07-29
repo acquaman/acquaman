@@ -101,30 +101,12 @@ QString AMScanController::stateString(ScanState scanControllerState) const
 	return controllerString;
 }
 
-bool AMScanController::isRunning() const
-{
-	return state_ == AMScanController::Running;
-}
-
-bool AMScanController::isPaused() const
-{
-	return state_ == AMScanController::Paused;
-}
-
-bool AMScanController::isStopping() const
-{
-	return state_ == AMScanController::Stopping;
-}
-
-//bool AMScanController::isReadyForDeletion() const
-//{
-//	return true;
-//}
-
 bool AMScanController::initialize()
 {
-	if(changeState(AMScanController::Initializing))
+	if(changeState(AMScanController::Initializing)) {
+
 		return initializeImplementation();
+	}
 
 	return false;
 }
@@ -168,7 +150,6 @@ void AMScanController::cancel()
 void AMScanController::stop(const QString &command)
 {
 	if (changeState(AMScanController::Stopping)) {
-		qDebug() << "==== AMScanController::stop() " << command ;
 		stopImplementation(command);
 	}
 }

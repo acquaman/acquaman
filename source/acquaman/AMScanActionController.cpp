@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "beamline/AMBeamline.h"
 
-#include <QDebug>
 AMScanActionController::~AMScanActionController(){}
 
 AMScanActionController::AMScanActionController(AMScanConfiguration *configuration, QObject *parent) :
@@ -65,6 +64,7 @@ void AMScanActionController::scheduleForDeletion()
 }
 
 /// ================ implementing protected slots ==========================
+
 void AMScanActionController::onStateChanged(int fromState, int toState)
 {
 	Q_UNUSED(fromState)
@@ -109,13 +109,13 @@ bool AMScanActionController::startImplementation()
 		return false;
 	}
 
-	connect(scanningActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onScanningActionsStateChanged(int, int)));
-
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 
 	if(scanActionMessager)
 		scanActionMessager->addReceiver(this);
+
+	connect(scanningActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onScanningActionsStateChanged(int, int)));
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
@@ -139,7 +139,6 @@ bool AMScanActionController::canPause() const
 void AMScanActionController::pauseImplementation()
 {
 	if (AMActionRunner3::scanActionRunner()->pauseCurrentAction()) {
-		qDebug() << " === AMScanActionController::pauseImplementation(): paused";
 		setPaused();
 	} else
 		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_PAUSE, "ScanActionController was unable to pause the current action.");
@@ -148,11 +147,9 @@ void AMScanActionController::pauseImplementation()
 void AMScanActionController::resumeImplementation()
 {
 	if (AMActionRunner3::scanActionRunner()->resumeCurrentAction()) {
-		qDebug() << " === AMScanActionController::resumeImplementation(): resumed";
-
 		setResumed();
 
-	}else
+	} else
 		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_RESUME, "ScanActionController was unable to resume the current action.");
 }
 
@@ -160,25 +157,17 @@ void AMScanActionController::cancelImplementation()
 {
 	if (!AMActionRunner3::scanActionRunner()->cancelCurrentAction())
 		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_CANCEL, "ScanActionController was unable to cancel the current action.");
-	else
-		qDebug() << " === AMScanActionController::cancelImplementation(): cancelled";
 
 }
 
 void AMScanActionController::stopImplementation(const QString &command)
 {
-	qDebug() << "==== AMScanActionController::stopImplementation() " << command ;
-
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
 	if(currentAction){
-		qDebug() << "==== AMScanActionController::stopImplementation() skip current action " << command ;
 
 		connect(currentAction, SIGNAL(succeeded()), this, SLOT(onSkipCurrentActionSucceeded()));
-		AMActionRunner3::scanActionRunner()->skipCurrentAction(command);
 
-//		if (currentAction->skip(command))
-//			qDebug() << " === AMScanActionController::stopImplementation(): stopped";;
+		AMActionRunner3::scanActionRunner()->skipCurrentAction(command);
 	}
 }
 
@@ -218,7 +207,8 @@ void AMScanActionController::onInitializationActionsListFailed()
 
 void AMScanActionController::onInitializationActionsListStateChanged(int fromState, int toState)
 {
-	qDebug() << QString("==== AMScanActionController::onInitializationActionsListStateChanged() : from %1 to %2").arg(fromState).arg(toState);
+	Q_UNUSED (fromState)
+
 	switch (toState) {
 	case AMAction3::Succeeded:
 		disconnect(initializationActions_, 0, this, 0);
@@ -266,7 +256,8 @@ void AMScanActionController::onCleanupActionsListSucceeded()
 
 void AMScanActionController::onCleanupActionsListStateChanged(int fromState, int toState)
 {
-	qDebug() << QString("==== AMScanActionController::onCleanupActionsListStateChanged() : from %1 to %2").arg(fromState).arg(toState);
+	Q_UNUSED (fromState)
+
 	switch (toState) {
 	case AMAction3::Starting:
 	case AMAction3::Running:
@@ -340,7 +331,6 @@ void AMScanActionController::onScanningActionsFailed()
 
 void AMScanActionController::onScanningActionsStateChanged(int fromState, int toState)
 {
-	qDebug() << QString("==== AMScanActionController::onScanningActionsStateChanged() : from %1 to %2").arg(fromState).arg(toState);
 	switch(toState) {
 	case AMAction3::Running:
 		if (fromState == AMAction3::Resuming && canChangeStateTo(AMScanController::Running))
@@ -423,8 +413,6 @@ void AMScanActionController::setupAndRunInitializationActions()
 {
 	connect(initializationActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onInitializationActionsListStateChanged(int, int)));
 
-//	emit initializingActionsStarted();
-
 	AMActionRunner3::scanActionRunner()->addActionToQueue(initializationActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 }
@@ -432,8 +420,6 @@ void AMScanActionController::setupAndRunInitializationActions()
 void AMScanActionController::setupAndRunCleanupActions()
 {
 	connect(cleanupActions_, SIGNAL(stateChanged(int,int)), this, SLOT(onCleanupActionsListStateChanged(int, int)));
-
-//	emit cleaningActionsStarted();
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);

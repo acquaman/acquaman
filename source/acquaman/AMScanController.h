@@ -90,24 +90,12 @@ public:
 	/// Returns a string of the state of the scan controller
 	QString stateString(ScanState scanControllerState) const;
 	/// Whether the scan controller is in the running state.
-	bool isRunning() const;
+	bool isRunning() const { return state_ == AMScanController::Running; }
 	/// Whether the scan controller is in the paused state.
-	bool isPaused() const;
-	/// Whether the scan controller is in the stopping state.
-	bool isStopping() const;
+	bool isPaused() const { return state_ == AMScanController::Paused; }
 
-//	/*!
-//	  * Whether the scan controller is able to pause while running.
-//	  */
-//	bool controllerCanPause() const { return canPause(); }
-
-	/*!
-	  * The scan which this scan controller is controlling.
-	  */
+	/// The scan which this scan controller is controlling.
 	virtual AMScan* scan() const { return scan_; }
-
-//	/// Returns whether the scan controller is in a state where it can be deleted.
-//	virtual bool isReadyForDeletion() const;
 
 signals:
 	/*!
@@ -162,18 +150,6 @@ signals:
 	  */
 	void failed();
 
-//	/*!
-//	  * Signal indicating that the initialization action are starting.
-//	  * NOTE: This may not be emitted by all scan controllers.
-//	  */
-//	void initializingActionsStarted();
-
-//	/*!
-//	  * Signal indicating that the cleaning actions are being started.
-//	  * NOTE: This may not be emitted by all scan controllers.
-//	  */
-//	void cleaningActionsStarted();
-
 	/*!
 	  * Signal which indicates the time remaing for before the scan controller
 	  * estimates it is finished.
@@ -195,9 +171,6 @@ signals:
 	  * is finished in the same arbitrary units as the elapsed argument.
 	  */
 	void progress(double elapsed, double total);
-
-//	/// Notifier that the scan controller deletion state has changed.  Passes the new state.
-//	void readyForDeletion(bool isReady);
 
 public slots:
 	// Public API functions to control a scan
@@ -333,8 +306,12 @@ protected slots:
 	void setFailed();
 
 protected:
+	/// Whether the scan controller is in the initializing state.
 	bool isInitializing() const { return state_ == AMScanController::Initializing; }
+	/// Whether the scan controller is in the cleaning state.
 	bool isCleaning() const { return state_ == AMScanController::Cleaning; }
+	/// Whether the scan controller is in the stopping state.
+	bool isStopping() const { return state_ == AMScanController::Stopping; }
 
 	// Virtual implementation functions.  Implement these as required for relevant
 	// transitions between states.  The AMScanController API guarantees that these

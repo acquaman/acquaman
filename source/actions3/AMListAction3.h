@@ -221,6 +221,9 @@ protected:
 	/// Helper method that returns whether the current action is a scan action or not.
 	bool isScanAction() const;
 
+	/// update the current progress
+	virtual void updateProgress();
+
 protected:
 	/// Ordered list of sub-actions
 	QList<AMAction3*> subActions_;

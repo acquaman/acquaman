@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListActionInfo3.h"
 
 /// This class specifies the information for an AMLoopAction. (In this case, the information is only the number of iterations to loop for.)  It provides a simple example of a how to subclass AMActionInfo.
-class AMLoopActionInfo3 : public AMListActionInfo3
+class AMLoopActionInfo3 : public AMSequentialListActionInfo3
 {
 	Q_OBJECT
 	Q_PROPERTY(int loopCount READ loopCount WRITE setLoopCount NOTIFY loopCountChanged)

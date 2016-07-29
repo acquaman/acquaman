@@ -29,22 +29,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "ui/actions3/AMActionHistoryModel.h"
 
-#include <QDebug>
-
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
 {
 	currentSubActionIndex_ = -1;	// prior to running any subactions
+
 	subActionMode_ = subActionMode;
 	if(subActionMode_ == AMListAction3::Parallel)
 		AMAction3::info()->setIconFileName(":/32x32/format-line-spacing-triple.png");
+	if(subActionMode_ == AMListAction3::Sequential)
+		skipOptions_.append("After current action");
+
 	logSubActionsSeparately_ = true;
 	logActionId_ = -1;
-	skipAfterCurrentAction_ = false;
 	loggingDatabase_ = 0; //NULL
 
-	if (subActionMode_ == Sequential)
-		skipOptions_.append("After current action");
+	skipAfterCurrentAction_ = false;
 }
 
 // Copy constructor. Takes care of making copies of the sub-actions
@@ -52,16 +52,18 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 	: AMAction3(other)
 {
 	currentSubActionIndex_ = -1; // prior to running an subactions
+
 	subActionMode_ = other.subActionMode_;
 	if(subActionMode_ == AMListAction3::Parallel)
 		AMAction3::info()->setIconFileName(":/32x32/format-line-spacing-triple.png");
-	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
-	logActionId_ = other.logActionId();
-	skipAfterCurrentAction_ = false;
-	loggingDatabase_ = other.loggingDatabase();
-
 	if (subActionMode_ == Sequential)
 		skipOptions_.append("After current action");
+
+	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
+	logActionId_ = other.logActionId();
+	loggingDatabase_ = other.loggingDatabase();
+
+	skipAfterCurrentAction_ = false;
 
 	foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
@@ -327,8 +329,6 @@ void AMListAction3::cancelImplementation()
 
 void AMListAction3::skipImplementation(const QString &command)
 {
-	qDebug() << "==== AMListAction3::skipImplementation() " << command << skipOptions().first();
-
 	// Stop after current action.  We should only get here if we are a sequential list, but check to be safe.
 	if (subActionMode_ == Sequential && command == skipOptions_.first()){
 
@@ -516,6 +516,11 @@ void AMListAction3::internalDoNextAction()
 
 	else
 		setSucceeded();
+}
+
+void AMListAction3::updateProgress()
+{
+
 }
 
 void AMListAction3::internalOnSubActionProgressChanged(double numerator, double denominator)

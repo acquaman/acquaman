@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-#include <QDebug>
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 	: QObject(parent)
@@ -148,6 +147,7 @@ bool AMAction3::start()
 	if (canChangeState(Starting)){
 
 		startDateTime_ = QDateTime::currentDateTime();
+
 		setState(Starting);
 		startImplementation();
 
@@ -180,7 +180,7 @@ bool AMAction3::pause()
 	if(canChangeState(Pausing)) {
 
 		lastPausedAt_ = QDateTime::currentDateTime();
-		setProgress(0,0);
+//		setProgress(0,0);
 		setState(Pausing);
 		pauseImplementation();
 		return true;
@@ -213,7 +213,6 @@ bool AMAction3::skip(const QString &command)
 	}
 
 	if (canChangeState(Skipping)){
-		qDebug() << "==== AMAction3::skip() " << command;
 
 		setState(Skipping);
 		skipImplementation(command);
@@ -268,6 +267,7 @@ void AMAction3::setStarted()
 {
 	if (canChangeState(Running)){
 
+		setProgress(0, info_->expectedDuration());
 		setState(Running);
 		emit started();
 	}
@@ -409,6 +409,11 @@ bool AMAction3::canChangeState(State newState) const
 	return canTransition;
 }
 
+//void AMAction3::updateProgress()
+//{
+//	setProgress(runningTime(), info_->expectedDuration());
+//}
+
 void AMAction3::setState(AMAction3::State newState)
 {
 	if (!canChangeState(newState))
@@ -417,6 +422,8 @@ void AMAction3::setState(AMAction3::State newState)
 	AMAction3::State fromState = state_;
 
 	state_ = newState;
+
+//	updateProgress();
 	setStatusText(stateDescription(state_));
 
 	emit stateChanged(fromState, state_);

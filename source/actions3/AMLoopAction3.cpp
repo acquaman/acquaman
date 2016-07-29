@@ -19,13 +19,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMLoopAction3.h"
+
 #include "actions3/AMActionLog3.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include <QStringBuilder>
 
 AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent)
-	: AMListAction3(info, AMListAction3::Sequential, parent)
+	: AMSequentialListAction3(info, parent)
 {
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
@@ -36,7 +37,7 @@ AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent)
 }
 
 AMLoopAction3::AMLoopAction3(int iterations, QObject *parent)
-	: AMListAction3(new AMLoopActionInfo3(iterations), AMListAction3::Sequential, parent)
+	: AMSequentialListAction3(new AMLoopActionInfo3(iterations), parent)
 {
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
@@ -47,7 +48,7 @@ AMLoopAction3::AMLoopAction3(int iterations, QObject *parent)
 }
 
 AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other)
-	: AMListAction3(other)
+	: AMSequentialListAction3(other)
 {
 	logSubActionsSeparately_ = other.logSubActionsSeparately_;
 	// These are runtime, not configure, properties. This is supposed to be a new action:

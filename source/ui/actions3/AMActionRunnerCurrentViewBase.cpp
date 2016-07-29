@@ -57,7 +57,7 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 
 	if (action){
 
-		skipButton_->setEnabled(action->canSkip());
+		skipButton_->setEnabled(action->canSkip() && action->skipOptions().size() > 0);
 
 		if (action->canSkip() && action->skipOptions().size() == 1)
 			skipButton_->setToolTip(action->skipOptions().first());

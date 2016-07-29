@@ -353,6 +353,9 @@ protected:
 	/// Checks whether you can make the the transition to the new state.
 	bool canChangeState(State newState) const;
 
+//	/// update the current progress
+//	virtual void updateProgress();
+
 protected:
 	/// The list of skip options that the scan can perform.
 	QStringList skipOptions_;
