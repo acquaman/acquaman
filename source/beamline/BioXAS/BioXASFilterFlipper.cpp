@@ -29,12 +29,12 @@ bool BioXASFilterFlipper::isConnected() const
 				filters_ && filters_->isConnected() &&
 				slideChangeStatus_ && slideChangeStatus_->isConnected() &&
 				runMode_ && runMode_->isConnected() &&
-				nextStepTrigger_ && nextStepTrigger_->isConnected() &&
+				nextStepTrigger_ && nextStepTrigger_->isConnected() /*&&
 				receiverStatus_ && receiverStatus_->isConnected() &&
 				receiverStageCWLimit_ && receiverStageCWLimit_->isConnected() &&
 				receiverStageCCWLimit_ && receiverStageCCWLimit_->isConnected() &&
 				cartridgeStageCWLimit_ && cartridgeStageCWLimit_->isConnected() &&
-				cartridgeStageCCWLimit_ && cartridgeStageCCWLimit_->isConnected()
+				cartridgeStageCCWLimit_ && cartridgeStageCCWLimit_->isConnected()*/
 				);
 
 	return connected;
