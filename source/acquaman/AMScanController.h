@@ -384,6 +384,14 @@ protected:
 	  */
 	bool canChangeStateTo(ScanState newState);
 
+	/*!
+	  * Changes the state of the scan controller to the provided newState if a
+	  * transition to newState is allowed from the current state. Emits the
+	  * stateChanged(currentState, newState) signal in the event that the change
+	  * is performed.
+	  */
+	bool changeState(ScanState newState);
+
 protected:
 	/*!
 	  * The configuration for the scan which the scan controller is controlling.
@@ -395,19 +403,9 @@ protected:
 	  */
 	AMScan *scan_;
 
-private:
-
-	/*!
-	  * Changes the state of the scan controller to the provided newState if a
-	  * transition to newState is allowed from the current state. Emits the
-	  * stateChanged(currentState, newState) signal in the event that the change
-	  * is performed.
-	  */
-	bool changeState(ScanState newState);
-
-private:
 	/// The current state of the scan.
 	AMScanController::ScanState state_;
+
 };
 
 #endif // AM_SCANCONTROLLER_H

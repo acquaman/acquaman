@@ -181,7 +181,7 @@ bool AMScanActionController::readyForFinished() const
 
 void AMScanActionController::onInitializationActionsListSucceeded()
 {
-	initializationActions_->disconnect(this);
+	disconnect(initializationActions_, 0, this, 0);
 	setInitialized();
 }
 

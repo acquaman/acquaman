@@ -183,11 +183,10 @@ bool REIXSXESScanController::startImplementation() {
 }
 
 /// Cancel scan if currently running or paused
-void REIXSXESScanController::cancelImplementation() {
+void REIXSXESScanController::cancelImplementation()
+{
 
-	ScanState currentState = state_;
-
-	if(currentState == Running || currentState == Paused) {
+	if(state_ == AMScanController::Running || state_ == AMScanController::Paused) {
 		scanProgressTimer_.stop();
 		disconnect(&scanProgressTimer_, SIGNAL(timeout()), this, SLOT(onScanProgressCheck()));
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));

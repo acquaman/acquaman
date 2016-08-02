@@ -369,9 +369,7 @@ bool REIXSXESScanActionController::startImplementation()
 
 void REIXSXESScanActionController::cancelImplementation(){
 
-	ScanState currentState = state();
-
-	if(currentState == Running || currentState == Paused) {
+	if(state_ == AMScanController::Running || state_ == AMScanController::Paused) {
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
