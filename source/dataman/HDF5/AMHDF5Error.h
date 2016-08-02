@@ -25,6 +25,7 @@ public:
 	/// Destructor
 	virtual ~AMHDF5Error();
 
+
 signals:
 
 public slots:
@@ -32,6 +33,13 @@ public slots:
 	bool printErrorStack();
 	/// Clears the current error stack.
 	bool clearErrorStack();
+	///
+	bool dumpErrorStack();
+
+private:
+
+	char *errorDump_;
+
 };
 
 #endif // AMHDF5ERROR_H
