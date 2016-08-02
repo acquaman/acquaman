@@ -98,10 +98,7 @@ HEADERS += \
     source/ui/BioXAS/BioXASZebraInputView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
-	source/beamline/BioXAS/BioXASUtilities.h \
 	source/ui/BioXAS/BioXASShuttersView.h \
-	source/ui/BioXAS/BioXASUtilitiesView.h \
-	source/beamline/BioXAS/BioXASUtilitiesGroup.h \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
 	source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
 	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h \
@@ -223,10 +220,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
-	source/beamline/BioXAS/BioXASUtilities.cpp \
 	source/ui/BioXAS/BioXASShuttersView.cpp \
-	source/ui/BioXAS/BioXASUtilitiesView.cpp \
-	source/beamline/BioXAS/BioXASUtilitiesGroup.cpp \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
 	source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
 	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.cpp \

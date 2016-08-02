@@ -4,7 +4,7 @@ qproperty-icon: url(:/arrow_wiggle.png);
 qproperty-toolTip: "Wiggler gap status";
 }
 
-AMControlToolButton#BioXASUtilitiesShutters {
+AMControlToolButton#BioXASShutters {
 qproperty-icon: url(:/shutterIcon2.png);
 qproperty-toolTip: "Shutters status";
 }

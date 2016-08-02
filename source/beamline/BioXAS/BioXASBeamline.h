@@ -96,15 +96,12 @@ public:
 	/// Returns the beam status.
 	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
-	/// Returns the beamline utilities.
-	virtual BioXASUtilities* utilities() const { return utilities_; }
-
 	/// Returns the front-end POE shutters.
 	CLSShutters* poeShutters() const { return poeShutters_; }
 	/// Returns the endstation SOE shutter.
 	CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 	/// Returns the shutters.
-	CLSShutters* shutters() const;
+	CLSShutters* shutters() const { return shutters_; }
 
 	/// Returns the valves in the beampath.
 	CLSValves* beampathValves() const { return beampathValves_; }

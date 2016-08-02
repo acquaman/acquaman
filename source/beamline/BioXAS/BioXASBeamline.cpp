@@ -328,15 +328,15 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMScanConfiguration *configur
 }
 
 
-CLSShutters* BioXASBeamline::shutters() const
-{
-	CLSShutters *result = 0;
+//CLSShutters* BioXASBeamline::shutters() const
+//{
+//	CLSShutters *result = 0;
 
-	if (utilities_)
-		result = utilities_->shutters();
+//	if (utilities_)
+//		result = utilities_->shutters();
 
-	return result;
-}
+//	return result;
+//}
 
 //CLSValves* BioXASBeamline::beampathValves() const
 //{
