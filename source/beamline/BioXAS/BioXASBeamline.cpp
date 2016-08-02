@@ -33,7 +33,9 @@ bool BioXASBeamline::isConnected() const
 
 				wiggler_ && wiggler_->isConnected() &&
 
-				utilities_ && utilities_->isConnected() &&
+				shutters_ && shutters_->isConnected() &&
+				valves_ && valves_->isConnected() &&
+				beampathValves_ && beampathValves_->isConnected() &&
 				ionPumps_ && ionPumps_->isConnected() &&
 				flowSwitches_ && flowSwitches_->isConnected() &&
 				pressureMonitors_ && pressureMonitors_->isConnected() &&
@@ -326,35 +328,35 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMScanConfiguration *configur
 }
 
 
-CLSShutters* BioXASBeamline::shutters() const
-{
-	CLSShutters *result = 0;
+//CLSShutters* BioXASBeamline::shutters() const
+//{
+//	CLSShutters *result = 0;
 
-	if (utilities_)
-		result = utilities_->shutters();
+//	if (utilities_)
+//		result = utilities_->shutters();
 
-	return result;
-}
+//	return result;
+//}
 
-CLSValves* BioXASBeamline::beampathValves() const
-{
-	CLSValves *result = 0;
+//CLSValves* BioXASBeamline::beampathValves() const
+//{
+//	CLSValves *result = 0;
 
-	if (utilities_)
-		result = utilities_->beampathValves();
+//	if (utilities_)
+//		result = utilities_->beampathValves();
 
-	return result;
-}
+//	return result;
+//}
 
-CLSValves* BioXASBeamline::valves() const
-{
-	CLSValves *result = 0;
+//CLSValves* BioXASBeamline::valves() const
+//{
+//	CLSValves *result = 0;
 
-	if (utilities_)
-		result = utilities_->valves();
+//	if (utilities_)
+//		result = utilities_->valves();
 
-	return result;
-}
+//	return result;
+//}
 
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
@@ -546,56 +548,70 @@ void BioXASBeamline::updateConnected()
 
 void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addShutter(newControl, openValue, closedValue);
+	if (shutters_)
+		shutters_->addShutter(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeShutter(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeShutter(control);
+	if (shutters_)
+		shutters_->removeShutter(control);
 }
 
 void BioXASBeamline::clearShutters()
 {
-	if (utilities_)
-		utilities_->clearShutters();
+	if (shutters_)
+		shutters_->clearShutters();
 }
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addBeampathValve(newControl, openValue, closedValue);
+	if (beampathValves_ && !beampathValves_->hasValve(newControl))
+		beampathValves_->addValve(newControl, openValue, closedValue);
+
+	// Add the valve to the group of all valves, too.
+
+	addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeBeampathValve(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeBeampathValve(control);
+	if (beampathValves_ && beampathValves_->hasValve(control))
+		beampathValves_->removeValve(control);
 }
 
 void BioXASBeamline::clearBeampathValves()
 {
-	if (utilities_)
-		utilities_->clearBeampathValves();
+	if (beampathValves_)
+		beampathValves_->clearValves();
 }
 
 void BioXASBeamline::addValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addValve(newControl, openValue, closedValue);
+	if (valves_ && !valves_->hasValve(newControl))
+		valves_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeValve(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeValve(control);
+	if (valves_ && valves_->hasValve(control))
+		valves_->removeValve(control);
+
+	// Want to remove this valve from the group of beampath valves, too.
+
+	removeBeampathValve(control);
 }
 
 void BioXASBeamline::clearValves()
 {
-	if (utilities_)
-		utilities_->clearValves();
+	// Clear the valves group.
+
+	if (valves_)
+		valves_->clearValves();
+
+	// Want to clear the beampath valves, too.
+
+	clearBeampathValves();
 }
 
 void BioXASBeamline::addIonPump(AMBeamlineControl *newControl)
@@ -1120,29 +1136,15 @@ bool BioXASBeamline::clearDefaultGenericScanDetectorOptions()
 
 void BioXASBeamline::setupComponents()
 {
-	// Beam status.
-
-	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	// Wiggler.
 
 	wiggler_ = new BioXASWiggler("BioXASWiggler", this);
 	connect( wiggler_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->addComponent(wiggler_->gapStatus(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASWigglerGapStatus::Open) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASWigglerGapStatus::Closed));
+	// Utilities - front-end POE shutters.
 
-	// Utilities.
-
-	utilities_ = new BioXASUtilities("BioXASUtilities", this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
-	beamStatus_->addComponent(utilities_->beampathValves(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
-
-	// Utilities - front-end shutters.
-
-	addShutter(new BioXASFrontEndShutters("BioXASFrontEndShutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
+	poeShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
+	addShutter(poeShutters_, BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
 
 	// Utilities - front-end beampath valves.
 
@@ -1325,6 +1327,15 @@ void BioXASBeamline::setupComponents()
 	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-03", "FLT1607-5-I22-03", this));
 	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-04", "FLT1607-5-I22-04", this));
 
+	// Beam status.
+
+	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->addComponent(wiggler_->gapStatus(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASWigglerGapStatus::Open) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASWigglerGapStatus::Closed));
+	beamStatus_->addComponent(shutters_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
+	beamStatus_->addComponent(beampathValves_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
+
 	// Detector stage motors.
 
 	detectorStageLateralMotors_ = new AMControlSet(this);
@@ -1390,15 +1401,16 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	wiggler_ = 0;
 
-	utilities_ = 0;
-
+	poeShutters_ = 0;
+	soeShutter_ = 0;
+	shutters_ = new CLSShutters(QString("BioXASShutters"), this);
+	beampathValves_ = new CLSValves(QString("BioXASBeampathValves"), this);
+	valves_ = new CLSValves(QString("BioXASValves"), this);
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
 	flowSwitches_ = new AMBeamlineControlGroup(QString("BioXASFlowSwitches"), this);
 	pressureMonitors_ = new AMBeamlineControlGroup(QString("BioXASPressureMonitors"), this);
 	temperatureMonitors_ = new AMBeamlineControlGroup(QString("BioXASTemperatureMonitors"), this);
 	flowTransducers_ = new AMBeamlineControlGroup(QString("BioXASFlowTransducers"), this);
-
-	soeShutter_ = 0;
 
 	usingCryostat_ = false;
 

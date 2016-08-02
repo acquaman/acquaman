@@ -261,7 +261,7 @@ bool BioXASSideBeamline::useLytleDetector(bool useDetector)
 
 void BioXASSideBeamline::setupComponents()
 {
-	// SOE shutter.
+	// The endstation SOE shutter.
 
 	setSOEShutter(new CLSExclusiveStatesControl("BioXASSOEShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this));
 
