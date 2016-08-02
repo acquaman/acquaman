@@ -9,6 +9,7 @@
 #include <QMap>
 
 #include "dataman/HDF5/AMHDF5Group.h"
+#include "dataman/HDF5/AMHDF5Error.h"
 
 #define AMHDF5FILE_INVALID_CREATE_OPTION 666000
 #define AMHDF5FILE_FILE_ALREADY_OPEN 666001
@@ -86,6 +87,8 @@ protected:
 
 	/// Map of groups currently open in the file.
 	QMap<QString, AMHDF5Group *> groups_;
+
+	AMHDF5Error* error_;
 };
 
 #endif // AMHDF5FILE_H

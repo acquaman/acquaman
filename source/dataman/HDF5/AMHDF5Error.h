@@ -7,11 +7,7 @@
 
 #include "util/AMErrorMonitor.h"
 
-/// This is  a c function to walk through a HDF5 error stack.
-/// It takes in a H5E_error_t error stack reference and a void stream pointer.
-/// Currently there is no "nice" way to move stack data into the AMHDFError memory space.
-/// A work in progress.
-extern "C" herr_t captureErrorOutput(unsigned int n, const H5E_error_t *err_desc, void *client_data);
+#define AMHDF5ERROR_HDF5_ERRROR 700000
 
 /// A class to abstract the HDF5 error functions. Currently due to the structure of
 /// H5E output is difficult to capture for AMErrorMonitor and options are limited.
@@ -33,12 +29,12 @@ public slots:
 	bool printErrorStack();
 	/// Clears the current error stack.
 	bool clearErrorStack();
-	///
-	bool dumpErrorStack();
+	/// Takes the current HDF5 error stack and outputs it to the AMErrorMonitor. Error stack parsing may be a future addition.
+	bool dumpErrorStack(int	errorCode = AMHDF5ERROR_HDF5_ERRROR);
+	/// Mutes the HDF5 default error stack output. Not muting the error stack will result in the stack being output to stderr and then cleared.
+	/// To dump the stack to AMErrorMonitor, output must be muted. Do not mute multiple times, HDF5 can do weird things if you do.
+	bool muteHDF5ErrorOutput();
 
-private:
-
-	char *errorDump_;
 
 };
 

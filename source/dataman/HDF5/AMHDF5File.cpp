@@ -1,4 +1,5 @@
 #include "AMHDF5File.h"
+#include "AMHDF5Error.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -7,6 +8,8 @@ AMHDF5File::AMHDF5File(const QString &name, QObject *parent)
 {
 	name_ = name;
 	id_ = 0;
+	error_ = new AMHDF5Error;
+	error_->muteHDF5ErrorOutput(); //Turn of H5E stderr output for capture.
 }
 
 AMHDF5File::~AMHDF5File()
@@ -26,7 +29,7 @@ bool AMHDF5File::isHDF5File() const
 		return false;
 
 	else{
-		// Error stuff.
+		error_->dumpErrorStack();
 		return false;
 	}
 }
@@ -47,6 +50,7 @@ int AMHDF5File::fileSize() const
 	if (status < 0){
 
 		// HDF5 File error + error mon.
+		error_->dumpErrorStack();
 		return -1;
 	}
 
@@ -74,6 +78,7 @@ bool AMHDF5File::create(AMHDF5File::CreateOption option)
 	if (fileId < 0){
 
 		// HDF5 file error + error mon.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -114,6 +119,7 @@ bool AMHDF5File::open(AMHDF5File::OpenOption option)
 	if (fileId < 0){
 
 		// HDF5 file error + error mon.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -145,6 +151,7 @@ bool AMHDF5File::close()
 
 	else {
 		// HDF5 error + error mon.
+		error_->dumpErrorStack();
 		return false;
 	}
 }
@@ -162,6 +169,7 @@ bool AMHDF5File::flush()
 	if (status < 0){
 
 		// HDF5 error + error mon.
+		error_->dumpErrorStack();
 		return false;
 	}
 

@@ -7,6 +7,7 @@ AMHDF5Group::AMHDF5Group(const QString &name, QObject *parent)
 {
 	name_ = name;
 	groupID_ = 0;
+	error_ = new AMHDF5Error;
 }
 
 AMHDF5Group::~AMHDF5Group()
@@ -37,6 +38,7 @@ bool AMHDF5Group::create(hid_t fileID)
 	if(groupID < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_INVALID_CREATE_OPTION, QString("Create: Group %1 could not be created at the driver level").arg(name_));
 		//HDF5 Error for group creation failure.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -62,6 +64,7 @@ bool AMHDF5Group::open(hid_t fileID)
 	if(groupID < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_OPEN_FAILED, QString("Open: Group %1 could not be opened at the driver level.").arg(name_));
 		//HDF5 Error response for failing to open group.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -82,6 +85,7 @@ bool AMHDF5Group::close()
 	if(closeStatus < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_CLOSE_FAILED, QString("Close: Group %1 DID NOT close successfully.").arg(name_));
 		//HDF5 error for failing to close group.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -94,6 +98,7 @@ bool AMHDF5Group::flush()
 	if(!isOpen()){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_FLUSH_FAILED, QString("Flush: Group %1 cannot be flushed with the file closed.").arg(name_));
 		//HDF5 error for flushing a group with a closed file.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -102,6 +107,7 @@ bool AMHDF5Group::flush()
 	if(flushStatus < 0){
 		AMErrorMon::alert(this, AMHDF5GROUP_GROUP_FLUSH_FAILED, QString("Flush: Group %1 flush action failed.").arg(name_));
 		//HDF5 error for a flush call fail at the HDF5 level.
+		error_->dumpErrorStack();
 		return false;
 	}
 

@@ -35,10 +35,7 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	AMHDF5File *file = new AMHDF5File("/home/butlerm/beamline/programming/hdf5-data/test.h5");
 //	AMHDF5File *file = new AMHDF5File("/Users/hunterd/beamline/programming/hdf5-data/test.h5");
 	file->create(AMHDF5File::OverwriteExisting);
-	AMHDF5Error *error = new AMHDF5Error;
 	file->addGroup("supa-group");
-	file->addGroup("supa-group");
-	error->dumpErrorStack();
 	file->close();
 	file->deleteLater();
 

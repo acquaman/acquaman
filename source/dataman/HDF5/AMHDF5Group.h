@@ -7,6 +7,8 @@
 
 #include <QString>
 
+#include "AMHDF5Error.h"
+
 #define AMHDF5GROUP_INVALID_CREATE_OPTION 667000
 #define AMHDF5GROUP_GROUP_ALREADY_OPEN 667001
 #define AMHDF5GROUP_FILE_IN_BAD_STATE 667002
@@ -49,6 +51,8 @@ protected:
 	QString name_;
 	/// ID for the currently open HDF5 group. Zero if no group is open.
 	int groupID_;
+	///
+	AMHDF5Error* error_;
 };
 
 

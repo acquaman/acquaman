@@ -7,6 +7,7 @@ AMHDF5DataSpace::AMHDF5DataSpace(AMHDF5DataSpaceInfo::Type type, QObject *parent
 {
 	type_ = type;
 	id_ = 0;
+	error_ = new AMHDF5Error;
 }
 
 AMHDF5DataSpace::~AMHDF5DataSpace()
@@ -47,6 +48,7 @@ bool AMHDF5DataSpace::create()
 	if (spaceId < 0){
 
 		// HDF5 space error + error mon.
+		error_->dumpErrorStack();
 		return false;
 	}
 
@@ -102,6 +104,7 @@ bool AMHDF5DataSpace::close()
 	else {
 
 		// HDF5 error + error mon.
+		error_->dumpErrorStack();
 		return false;
 	}
 }
@@ -134,6 +137,7 @@ bool AMHDF5DataSpace::setDimensionality(int rank, const QVector<hsize_t> &initia
 		if (status < 0){
 
 			// HDF5 error + error mon.
+			error_->dumpErrorStack();
 			return false;
 		}
 	}
@@ -145,6 +149,7 @@ bool AMHDF5DataSpace::setDimensionality(int rank, const QVector<hsize_t> &initia
 		if (status < 0){
 
 			// HDF5 error + error mon.
+			error_->dumpErrorStack();
 			return false;
 		}
 	}

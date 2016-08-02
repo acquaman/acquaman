@@ -8,6 +8,7 @@
 #include <QVector>
 
 #include "dataman/HDF5/AMHDF5DataSpaceInfo.h"
+#include "AMHDF5Error.h"
 
 #define AMHDF5DATASPACE_SPACE_ALREADY_OPEN 669000
 #define AMHDF5DATASPACE_INVALID_SPACE_TYPE 669001
@@ -51,6 +52,8 @@ protected:
 	AMHDF5DataSpaceInfo::Type type_;
 	/// The id of the space.
 	hid_t id_;
+	/// A reference to the HDF5 error interpreter.
+	AMHDF5Error* error_;
 };
 
 #endif // AMHDF5DATASPACE_H
