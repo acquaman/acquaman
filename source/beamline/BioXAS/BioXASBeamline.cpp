@@ -33,7 +33,7 @@ bool BioXASBeamline::isConnected() const
 
 				wiggler_ && wiggler_->isConnected() &&
 
-				utilities_ && utilities_->isConnected() &&
+				shutters_ && shutters_->isConnected() &&
 				valves_ && valves_->isConnected() &&
 				beampathValves_ && beampathValves_->isConnected() &&
 				ionPumps_ && ionPumps_->isConnected() &&
@@ -1136,25 +1136,10 @@ bool BioXASBeamline::clearDefaultGenericScanDetectorOptions()
 
 void BioXASBeamline::setupComponents()
 {
-	// Beam status.
-
-	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	// Wiggler.
 
 	wiggler_ = new BioXASWiggler("BioXASWiggler", this);
 	connect( wiggler_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->addComponent(wiggler_->gapStatus(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASWigglerGapStatus::Open) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASWigglerGapStatus::Closed));
-
-	// Utilities.
-
-	utilities_ = new BioXASUtilities("BioXASUtilities", this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
-	beamStatus_->addComponent(beampathValves_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
 
 	// Utilities - front-end POE shutters.
 
@@ -1342,6 +1327,15 @@ void BioXASBeamline::setupComponents()
 	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-03", "FLT1607-5-I22-03", this));
 	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-04", "FLT1607-5-I22-04", this));
 
+	// Beam status.
+
+	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->addComponent(wiggler_->gapStatus(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASWigglerGapStatus::Open) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASWigglerGapStatus::Closed));
+	beamStatus_->addComponent(shutters_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
+	beamStatus_->addComponent(beampathValves_, QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
+
 	// Detector stage motors.
 
 	detectorStageLateralMotors_ = new AMControlSet(this);
@@ -1406,8 +1400,6 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	beamStatus_ = 0;
 
 	wiggler_ = 0;
-
-	utilities_ = 0;
 
 	poeShutters_ = 0;
 	soeShutter_ = 0;

@@ -440,9 +440,6 @@ protected:
 	/// The beam status.
 	BioXASBeamStatus *beamStatus_;
 
-	/// The beamline utilities.
-	BioXASUtilities* utilities_;
-
 	/// The front-end POE shutters.
 	CLSShutters *poeShutters_;
 	/// The endstation SOE shutter.
