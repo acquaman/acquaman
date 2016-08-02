@@ -755,6 +755,26 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 	}
 }
 
+QWidget* BioXASAppController::viewForComponent(QObject *component) const
+{
+	return componentViewMapping_.value(component, 0);
+}
+
+QObject* BioXASAppController::componentForView(QWidget *componentView) const
+{
+	return componentViewMapping_.key(componentView);
+}
+
+void BioXASAppController::addComponentViewMapping(QObject *component, QWidget *view)
+{
+	componentViewMapping_.insert(component, view);
+}
+
+void BioXASAppController::removeComponentViewMapping(QObject *component)
+{
+	componentViewMapping_.remove(component);
+}
+
 void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration, AMDetectorSet *detectors)
 {
 	if (configuration && detectors) {
