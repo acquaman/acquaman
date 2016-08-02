@@ -278,6 +278,7 @@ AMNumber CLSValueEditor::getDoubleValue()
 	inputDialog.setValue(value_);
 	inputDialog.setMinimum(minimumValue_);
 	inputDialog.setMaximum(maximumValue_);
+	inputDialog.setPrecision(precision_);
 	inputDialog.setWindowTitle(dialogTitle);
 	inputDialog.move(mapToGlobal(QPoint(width()/2, height()/2)));
 
