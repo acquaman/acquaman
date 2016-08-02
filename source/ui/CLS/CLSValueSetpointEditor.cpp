@@ -18,6 +18,8 @@ CLSValueSetpointEditor::CLSValueSetpointEditor(InputType type, QWidget *parent) 
 	maximumSet_ = false;
 	maximum_ = 0;
 
+	precision_ = 3;
+
 	// Create UI elements.
 
 	spinBox_ = new QDoubleSpinBox();
@@ -119,6 +121,16 @@ void CLSValueSetpointEditor::setMaximum(double newMax)
 	updateInputStatus();
 }
 
+void CLSValueSetpointEditor::setPrecision(int newValue)
+{
+	if (precision_ != newValue) {
+		precision_ = newValue;
+		updateBoxes();
+
+		emit precisionChanged(precision_);
+	}
+}
+
 void CLSValueSetpointEditor::setInputStatus(InputStatus newStatus)
 {
 	if (status_ != newStatus) {
@@ -153,17 +165,13 @@ void CLSValueSetpointEditor::updateBoxes()
 {
 	// Update the spinbox.
 
-	if (type_ == TypeDouble)
-		spinBox_->show();
-	else
-		spinBox_->hide();
+	spinBox_->setVisible(type_ == TypeDouble);
+	spinBox_->setDecimals(precision_);
+	spinBox_->setSingleStep(precision_);
 
 	// Update the combobox.
 
-	if (type_ == TypeEnum)
-		comboBox_->show();
-	else
-		comboBox_->hide();
+	comboBox_->setVisible(type_ == TypeEnum);
 }
 
 void CLSValueSetpointEditor::onBoxValueChanged()

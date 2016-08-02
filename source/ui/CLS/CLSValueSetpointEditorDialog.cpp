@@ -64,6 +64,11 @@ double CLSValueSetpointEditorDialog::maximum() const
 	return setpointEditor_->maximum();
 }
 
+int CLSValueSetpointEditorDialog::precision() const
+{
+	return setpointEditor_->precision();
+}
+
 void CLSValueSetpointEditorDialog::setValue(double newValue)
 {
 	setpointEditor_->setValue(newValue);
@@ -83,6 +88,11 @@ void CLSValueSetpointEditorDialog::setMinimum(double newMin)
 void CLSValueSetpointEditorDialog::setMaximum(double newMax)
 {
 	setpointEditor_->setMaximum(newMax);
+}
+
+void CLSValueSetpointEditorDialog::setPrecision(int newValue)
+{
+	setpointEditor_->setPrecision(newValue);
 }
 
 void CLSValueSetpointEditorDialog::updateButtons()

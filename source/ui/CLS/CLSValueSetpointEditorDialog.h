@@ -28,6 +28,8 @@ public:
 	bool maximumSet() const;
 	/// Returns the maximum value.
 	double maximum() const;
+	/// Returns the precision.
+	int precision() const;
 
 public slots:
 	/// Sets the current value.
@@ -38,6 +40,8 @@ public slots:
 	void setMinimum(double newMin);
 	/// Sets the maximum value.
 	void setMaximum(double newMax);
+	/// Sets the precision, for editing double values.
+	void setPrecision(int newValue);
 
 protected slots:
 	/// Updates the buttons.

@@ -41,6 +41,8 @@ public:
 	bool maximumSet() const { return maximumSet_; }
 	/// Returns the maximum value.
 	double maximum() const { return maximum_; }
+	/// Returns the precision.
+	int precision() const { return precision_; }
 
 	/// Returns true if the minimum value is set and the current value is less than the minimum, indicating a bad input state.
 	bool valueLessThanMinimum() const;
@@ -60,6 +62,8 @@ signals:
 	void minimumChanged(double newMin);
 	/// Notifier that the maximum value has changed.
 	void maximumChanged(double newMax);
+	/// Notifier that the precision has changed.
+	void precisionChanged(int newValue);
 
 public slots:
 	/// Sets the input type.
@@ -73,6 +77,8 @@ public slots:
 	void setMinimum(double newMin);
 	/// Sets the maximum value.
 	void setMaximum(double newMax);
+	/// Sets the precision.
+	void setPrecision(int newValue);
 
 protected slots:
 	/// Sets the input status.
@@ -112,6 +118,8 @@ protected:
 	bool maximumSet_;
 	/// The maximum value.
 	double maximum_;
+	/// The precision.
+	int precision_;
 
 	/// The input spinbox.
 	QDoubleSpinBox *spinBox_;
