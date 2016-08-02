@@ -65,6 +65,16 @@ protected:
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes() = 0;
 
+	/// Returns the pane instance for the given view, 0 if no pane found.
+	QWidget *paneForView(QWidget *view) const;
+	/// Returns the view instance for the given pane, 0 if no view found.
+	QWidget *viewForPane(QWidget *pane) const;
+
+	/// Adds a view-pane mapping, overwriting any previous mappings if they exist.
+	void addViewPaneMapping(QWidget *view, QWidget *pane);
+	/// Removes a view-pane mapping.
+	void removeViewPaneMapping(QWidget *view);
+
 	/// helper function to add a given view directly to the given main window pane, with the given name.
 	void addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 	/// helper function to add a given view (and create a squeeze layout) to the given main window pane, with the given name.
