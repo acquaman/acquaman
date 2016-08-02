@@ -6,10 +6,11 @@
 #define AMHDF5ERROR_ERROR_STACK_NOT_AQUIRED 700001
 #define AMHDF5ERROR_PRINT_FAILED 700002
 #define AMHDF5ERROR_CLEAR_FAILED 700003
+#define AMHDF5ERROR_MUTE_FAILED 7000004
 
 AMHDF5Error::AMHDF5Error(QObject *parent) : QObject(parent)
 {
-//	H5Eset_auto2(NULL, NULL, NULL);
+
 }
 
 AMHDF5Error::~AMHDF5Error()
@@ -73,14 +74,14 @@ bool AMHDF5Error::dumpErrorStack(int errorCode)
 	herr_t status = H5Eprint2(errorStack, testFileStream);
 
 	if(status < 0){
-		AMErrorMon::alert(this, errorCode, QString("Dummp: Printing to filestream failed, error-stack output not aquired."));
+		AMErrorMon::alert(this, errorCode, QString("Dump: Printing to filestream failed, error-stack output not aquired."));
 		fclose(testFileStream);
 		return false;
 	}
 
 	fflush(testFileStream);
 
-	AMErrorMon::alert(this, errorCode, QString(buffer));
+	AMErrorMon::alert(this, AMHDF5ERROR_PRINT_FAILED, QString(buffer));
 
 	fclose(testFileStream); //Stream is allocated in open_memstream and must be closed/deallocated.
 
@@ -92,7 +93,7 @@ bool AMHDF5Error::muteHDF5ErrorOutput()
 	herr_t status = H5Eset_auto2(NULL, NULL, NULL);
 
 	if(status < 0){
-		//AM
+		AMErrorMon::alert(this, 700004, QString("Mute: Muting the H5E stderr output has failed."));
 		return false;
 	}
 

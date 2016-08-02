@@ -35,7 +35,6 @@ public slots:
 	/// To dump the stack to AMErrorMonitor, output must be muted. Do not mute multiple times, HDF5 can do weird things if you do.
 	bool muteHDF5ErrorOutput();
 
-
 };
 
 #endif // AMHDF5ERROR_H
