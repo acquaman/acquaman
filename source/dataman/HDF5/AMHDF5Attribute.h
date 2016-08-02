@@ -15,25 +15,25 @@ class AMHDF5Attribute : public QObject
 public:
 
 	// Constructor for an attribute object.
-	explicit AMHDF5Attribute(const QString &name, hid_t id_, QObject *parent = 0);
+	explicit AMHDF5Attribute(const QString &name, QObject *parent = 0);
 	// Destructor.
 	virtual ~AMHDF5Attribute();
 	// Checks to see if an attribute exists for the specified object.
-	bool exists();
+	bool exists() const;
+
+	bool isOpen() const;
 
 signals:
 
 public slots:
 	// Creates an attribute for the associated object.
-	bool create();
+	bool create(hid_t locationId, hid_t spaceId);
 	// Opens an attribute for the assosciated object.
 	bool open();
 	// Closes an open attribute for the associated object.
 	bool close();
 	// Removes an existing attributes from an object.
 	bool remove();
-	// Flushes new attribute changes to disk.
-	bool flush();
 
 private:
 	// Holds the object id for this object.
