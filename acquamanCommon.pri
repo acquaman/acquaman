@@ -476,7 +476,8 @@ HEADERS += \
     $$PWD/source/dataman/HDF5/AMHDF5File.h \
     $$PWD/source/dataman/HDF5/AMHDF5Group.h \
     $$PWD/source/dataman/HDF5/AMHDF5DataSpace.h \
-    $$PWD/source/dataman/HDF5/AMHDF5DataSpaceInfo.h
+    $$PWD/source/dataman/HDF5/AMHDF5DataSpaceInfo.h \
+    $$PWD/source/dataman/HDF5/AMHDF5Attribute.h
 
 FORMS += \
 
@@ -915,7 +916,8 @@ SOURCES += \
     $$PWD/source/dataman/HDF5/AMHDF5File.cpp \
     $$PWD/source/dataman/HDF5/AMHDF5Group.cpp \
     $$PWD/source/dataman/HDF5/AMHDF5DataSpace.cpp \
-    $$PWD/source/dataman/HDF5/AMHDF5DataSpaceInfo.cpp
+    $$PWD/source/dataman/HDF5/AMHDF5DataSpaceInfo.cpp \
+    $$PWD/source/dataman/HDF5/AMHDF5Attribute.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \
