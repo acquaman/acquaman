@@ -89,7 +89,7 @@ void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 		return;
 
 	if(currentAction->isPaused()) {
-		actionRunner_->pauseCurrentAction();
+		actionRunner_->resumeCurrentAction();
 	} else if (currentAction->isRunning()){
 		if (!actionRunner_->pauseCurrentAction()) {
 			QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);

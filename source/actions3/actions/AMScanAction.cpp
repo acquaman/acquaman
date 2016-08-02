@@ -153,7 +153,6 @@ void AMScanAction::pauseImplementation()
 	if (controller_->pause()){
 
 		setStatusText("Paused");
-		setPaused();
 	}
 }
 
@@ -162,7 +161,6 @@ void AMScanAction::resumeImplementation()
 	if (controller_->resume()){
 
 		setStatusText("Running");
-		setResumed();
 	}
 }
 
