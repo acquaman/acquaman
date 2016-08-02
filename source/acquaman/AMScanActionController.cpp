@@ -179,6 +179,12 @@ bool AMScanActionController::readyForFinished() const
 		return (!fileWriterIsBusy_ && scanControllerStateMachineFinished_);
 }
 
+void AMScanActionController::onInitializationActionsListSucceeded()
+{
+	initializationActions_->disconnect(this);
+	setInitialized();
+}
+
 void AMScanActionController::onInitializationActionsListCancelled()
 {
 	disconnect(initializationActions_, 0, this, 0);
@@ -211,8 +217,7 @@ void AMScanActionController::onInitializationActionsListStateChanged(int fromSta
 
 	switch (toState) {
 	case AMAction3::Succeeded:
-		disconnect(initializationActions_, 0, this, 0);
-		setInitialized();
+		onInitializationActionsListSucceeded();
 		break;
 
 	case AMAction3::Cancelled:

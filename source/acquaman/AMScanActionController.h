@@ -118,6 +118,8 @@ protected slots:
 	  */
 	void onStateChanged(int fromState, int toState);
 
+	/// Handles the initialization actions have been succeeded.
+	virtual void onInitializationActionsListSucceeded();
 	/// Handles the cleanup after the initialization actions have been cancelled.
 	virtual void onInitializationActionsListCancelled();
 	/// Handles the cleanup after the initialization actions fail.

@@ -185,7 +185,7 @@ bool REIXSXESScanController::startImplementation() {
 /// Cancel scan if currently running or paused
 void REIXSXESScanController::cancelImplementation() {
 
-	ScanState currentState = state();
+	ScanState currentState = state_;
 
 	if(currentState == Running || currentState == Paused) {
 		scanProgressTimer_.stop();
