@@ -84,12 +84,6 @@ public:
 	AMScanController *controller() const { return controller_; }
 
 	/*!
-	  * A string representing the state of the action's scan controller. If no
-	  * scan controller is set then an empty string is returned.
-	  */
-	QString controllerStateString() const;
-
-	/*!
 	  * The current validity of the scan action.
 	  */
 	virtual AMAction3::ActionValidity isValid();
@@ -98,7 +92,7 @@ public:
 	  * A human readable message indicating why the scan action is not currently
 	  * valid.
 	  */
-	virtual QString notValidWarning();
+	virtual QString validationWarningMessage();
 
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////
@@ -109,7 +103,7 @@ public:
 	virtual bool hasChildren() const { return false; }
 
 	/*!
-	  * The number of child sub-actions the scan action contains.
+	  * The number of child sub-actions the scan actiosetupAndRunCleanupActionsn contains.
 	  */
 	virtual int numberOfChildren() const { return 0; }
 
@@ -133,6 +127,12 @@ protected slots:
 
 	// Slots that handle the state transitions of the scan controller.
 	////////////////////////////////////////////////////////////////////////
+
+	/*!
+	  * Handles the controller signalling that it has begun the initialization
+	  * steps. Sets the status text for the action to "Initializing".
+	  */
+	void onControllerInitializing();
 
 	/*!
 	  * Handles the controller signalling that it has initialized. Attempts to
@@ -169,12 +169,6 @@ protected slots:
 	void onControllerSucceeded();
 
 	/*!
-	  * Handles the controller signalling that it has begun the initialization
-	  * steps. Sets the status text for the action to "Initializing".
-	  */
-	void onControllerInitializing();
-
-	/*!
 	  * Handles the controller signalling that it has begun the clean-up steps.
 	  * Sets the status text for the aciton to "Cleaning up".
 	  */
@@ -190,7 +184,7 @@ protected slots:
 	  * Handles the controller signaling that it has made a state transition.
 	  * Updates the status text to reflect the new state.
 	  */
-	void onControllerStateChanged();
+	void onControllerStateChanged(int fromState, int toState);
 
 	/*!
 	  * Prepares the scan action for deletion. The scan action will be added to
@@ -251,6 +245,7 @@ protected:
 	  */
 	void autoExportScan();
 
+protected:
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;
 	/// A pointer to the specific scan info this action uses.

@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+#include <QDebug>
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
 
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
@@ -85,7 +86,7 @@ AMAction3::ActionValidity AMScanAction::isValid(){
 	return AMAction3::ActionCurrentlyValid;
 }
 
-QString AMScanAction::notValidWarning(){
+QString AMScanAction::validationWarningMessage(){
 	QString retVal;
 
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
@@ -109,7 +110,6 @@ void AMScanAction::startImplementation()
 {
 	// Setup the controller.
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
-
 	if (!scanInfo){
 
 		AMErrorMon::alert(this, AMSCANACTION_NO_VALID_ACTION_INFO, "Scan action does not have a valid info.");
@@ -118,7 +118,6 @@ void AMScanAction::startImplementation()
 	}
 
 	controller_ = scanInfo->configuration()->createController();
-
 	if (!controller_){
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_CONTROLLER, "Could not create a scan controller.");
@@ -127,22 +126,14 @@ void AMScanAction::startImplementation()
 	}
 
 	hasValidScanController_ = true;
+	skipCommand_ = "";
 
-	if (controller_)
-		skipOptions_.append("Stop Now");
-
-	if (controller_ && controller_->scan()->scanRank() >= 2)
+	skipOptions_.append("Stop Now");
+	if (controller_->scan()->scanRank() >= 2)
 		skipOptions_.append("Stop At End Of Line");
 
-	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
-	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
-	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
-	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
-	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
-	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
-	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
-	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
+	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged(int,int)));
 
 	// The action is started the moment it tries to start the controller.
 	setStatusText("Initializing");
@@ -164,7 +155,6 @@ void AMScanAction::pauseImplementation()
 	if (controller_->pause()){
 
 		setStatusText("Paused");
-		setPaused();
 	}
 }
 
@@ -173,7 +163,6 @@ void AMScanAction::resumeImplementation()
 	if (controller_->resume()){
 
 		setStatusText("Running");
-		setResumed();
 	}
 }
 
@@ -211,8 +200,7 @@ void AMScanAction::scheduleForDeletionImplementation()
 		return;
 	}
 
-	if(!controller_)
-		checkReadyForDeletion();
+	checkReadyForDeletion();
 }
 
 void AMScanAction::checkReadyForDeletion()
@@ -224,12 +212,17 @@ void AMScanAction::checkReadyForDeletion()
 	}
 }
 
+void AMScanAction::onControllerInitializing()
+{
+	setStatusText("Initializing");
+}
+
 void AMScanAction::onControllerInitialized()
 {
 	if (state() == AMAction3::Skipping){
-
-		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
-		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
+		qDebug() << "==== AMScanAction::onControllerInitialized(): initialization finished, but we requested to skip this scan when we are doing initialization.";
+//		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
+//		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
 		controller_->cancel();
 	}
 
@@ -237,10 +230,6 @@ void AMScanAction::onControllerInitialized()
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
-	}
-
-	else {
-		setStarted();
 	}
 }
 
@@ -250,17 +239,25 @@ void AMScanAction::onControllerStarted()
 		scanInfo_->setScanID(controller_->scan()->id());
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
+
+	setStarted();
 }
 
 void AMScanAction::onControllerCancelled()
 {
-	// If the scan was successfully added to the database then store whatever state it made it to.
-	if (scanInfo_->scanID() != -1)
-		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
-			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
+	if (skipCommand_ != "") {
+		// cancell initiated from the skipping command
+		qDebug() << "==== AMScanAction::onControllerCancelled(): from skipping, treate as succeeded";
+		onControllerSucceeded();
+	} else {
+		// If the scan was successfully added to the database then store whatever state it made it to.
+		if (scanInfo_->scanID() != -1)
+			if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
+				AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setStatusText("Cancelled");
-	setCancelled();
+		setStatusText("Cancelled");
+		setCancelled();
+	}
 }
 
 void AMScanAction::onControllerFailed()
@@ -287,11 +284,6 @@ void AMScanAction::onControllerSucceeded()
 	setSucceeded();
 }
 
-void AMScanAction::onControllerInitializing()
-{
-	setStatusText("Initializing");
-}
-
 void AMScanAction::onControllerCleaningUp()
 {
 	setStatusText("Cleaning Up");
@@ -300,71 +292,6 @@ void AMScanAction::onControllerCleaningUp()
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 {
 	setProgress(elapsed, total);
-}
-
-QString AMScanAction::controllerStateString() const
-{
-	if (!controller_)
-		return "";
-
-	QString controllerString = "Scan is ";
-
-	switch(controller_->state()){
-
-	case AMScanController::Constructed:
-		controllerString.append("constructed.");
-		break;
-
-	case AMScanController::Initializing:
-		controllerString.append("initializing.");
-		break;
-
-	case AMScanController::Initialized:
-		controllerString.append("initialized.");
-		break;
-
-	case AMScanController::Starting:
-		controllerString.append("starting.");
-		break;
-
-	case AMScanController::Running:
-		controllerString.append("running.");
-		break;
-
-	case AMScanController::Pausing:
-		controllerString.append("pausing.");
-		break;
-
-	case AMScanController::Paused:
-		controllerString.append("paused.");
-		break;
-
-	case AMScanController::Resuming:
-		controllerString.append("resuming.");
-		break;
-
-	case AMScanController::Stopping:
-		controllerString.append("stopping");
-		break;
-
-	case AMScanController::Cancelling:
-		controllerString.append("cancelling.");
-		break;
-
-	case AMScanController::Cancelled:
-		controllerString.append("cancelled.");
-		break;
-
-	case AMScanController::Finished:
-		controllerString.append("finished.");
-		break;
-
-	case AMScanController::Failed:
-		controllerString.append("failed.");
-		break;
-	}
-
-	return controllerString;
 }
 
 void AMScanAction::autoExportScan()
@@ -412,7 +339,68 @@ void AMScanAction::autoExportScan()
 		AMErrorMon::alert(this, AMSCANACTION_DATABASE_NOT_FOUND, "Could not find the database associated with this scan.");
 }
 
-void AMScanAction::onControllerStateChanged()
+void AMScanAction::onControllerStateChanged(int fromState, int toState)
 {
+	qDebug() << "==== AMAcanAction::onControllerStateChanged() " << fromState << toState;
+	switch (toState) {
+	case AMScanController::Initializing:
+		onControllerInitializing();
+		break;
 
+	case AMScanController::Initialized:
+		onControllerInitialized();
+		break;
+
+	case AMScanController::Running:
+		if (fromState == AMScanController::Resuming && canChangeState(AMAction3::Running))
+			setResumed();
+		else // started
+			onControllerStarted();
+		break;
+
+	case AMScanController::Pausing:
+		if (canChangeState(AMAction3::Pausing))
+			pause();
+		break;
+
+	case AMScanController::Paused:
+		if (canChangeState(AMAction3::Paused))
+			setPaused();
+		break;
+
+	case AMScanController::Resuming:
+		if (canChangeState(AMAction3::Resuming))
+			resume();
+		break;
+
+	case AMScanController::Cleaning:
+		onControllerCleaningUp();
+		break;
+
+	case AMScanController::Stopping:
+		if (canChangeState(AMAction3::Skipping)) {
+			qDebug() << "==== AMAcanAction::onControllerStateChanged() stopping " << controller_->skipCommand();
+			skip(controller_->skipCommand());
+		}
+		break;
+
+	case AMScanController::Cancelling:
+		if (canChangeState(AMAction3::Cancelling)) {
+			qDebug() << "==== AMAcanAction::onControllerStateChanged() cancelling " ;
+			cancel();
+		}
+		break;
+
+	case AMScanController::Cancelled:
+		onControllerCancelled();
+		break;
+
+	case AMScanController::Failed:
+		onControllerFailed();
+		break;
+
+	case AMScanController::Finished:
+		onControllerSucceeded();
+		break;
+	}
 }

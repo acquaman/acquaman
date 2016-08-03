@@ -225,6 +225,7 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded()
 	positions.append(referenceSensitivity);
 
 	scan_->setScanInitialConditions(positions);
+
 	AMScanActionController::onInitializationActionsListSucceeded();
 }
 

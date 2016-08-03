@@ -28,7 +28,7 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	scan_ = 0;
 
 	state_ = AMScanController::Constructed;
-	lastState_ = AMScanController::Constructed;
+	skipCommand_ = "";
 }
 
 AMScanController::~AMScanController()
@@ -36,101 +36,96 @@ AMScanController::~AMScanController()
 
 }
 
-AMScanController::ScanState AMScanController::state() const
+QString AMScanController::stateString(ScanState scanControllerState) const
 {
-	return state_;
-}
+	QString controllerString = "Scan is ";
 
-AMScanController::ScanState AMScanController::lastState() const
-{
-	return lastState_;
-}
+	switch(scanControllerState){
 
-bool AMScanController::isInitializing() const
-{
-	return state_ == AMScanController::Initializing;
-}
+	case AMScanController::Constructed:
+		controllerString.append("constructed.");
+		break;
 
-bool AMScanController::isInitialized() const
-{
-	return state_ == AMScanController::Initialized;
-}
+	case AMScanController::Initializing:
+		controllerString.append("initializing.");
+		break;
 
-bool AMScanController::isStarting() const
-{
-	return state_ == AMScanController::Starting;
-}
+	case AMScanController::Initialized:
+		controllerString.append("initialized.");
+		break;
 
-bool AMScanController::isRunning() const
-{
-	return state_ == AMScanController::Running;
-}
+	case AMScanController::Starting:
+		controllerString.append("starting.");
+		break;
 
-bool AMScanController::isPausing() const
-{
-	return state_ == AMScanController::Pausing;
-}
+	case AMScanController::Running:
+		controllerString.append("running.");
+		break;
 
-bool AMScanController::isPaused() const
-{
-	return state_ == AMScanController::Paused;
-}
+	case AMScanController::Pausing:
+		controllerString.append("pausing.");
+		break;
 
-bool AMScanController::isResuming() const
-{
-	return state_ == AMScanController::Resuming;
-}
+	case AMScanController::Paused:
+		controllerString.append("paused.");
+		break;
 
-bool AMScanController::isStopping() const
-{
-	return state_ == AMScanController::Stopping;
-}
+	case AMScanController::Resuming:
+		controllerString.append("resuming.");
+		break;
 
-bool AMScanController::isCancelling() const
-{
-	return state_ == AMScanController::Cancelling;
-}
+	case AMScanController::Stopping:
+		controllerString.append("stopping");
+		break;
 
-bool AMScanController::isCancelled() const
-{
-	return state_ == AMScanController::Cancelled;
-}
+	case AMScanController::Cleaning:
+		controllerString.append("cleaning.");
+		break;
 
-bool AMScanController::isFinished() const
-{
-	return state_ == AMScanController::Finished;
-}
+	case AMScanController::Cancelling:
+		controllerString.append("cancelling.");
+		break;
 
-bool AMScanController::isFailed() const
-{
-	return state_ == AMScanController::Failed;
-}
+	case AMScanController::Cancelled:
+		controllerString.append("cancelled.");
+		break;
 
-//bool AMScanController::isReadyForDeletion() const
-//{
-//	return true;
-//}
+	case AMScanController::Finished:
+		controllerString.append("finished.");
+		break;
+
+	case AMScanController::Failed:
+		controllerString.append("failed.");
+		break;
+	}
+
+	return controllerString;
+}
 
 bool AMScanController::initialize()
 {
-	if(changeState(AMScanController::Initializing))
+	if(canChangeState(AMScanController::Initializing)) {
+		setState(AMScanController::Initializing);
 		return initializeImplementation();
+	}
 
 	return false;
 }
 
 bool AMScanController::start()
 {
-	if(changeState(AMScanController::Starting))
+	if(canChangeState(AMScanController::Starting)) {
+		setState(AMScanController::Starting);
 		return startImplementation();
+	}
 
 	return false;
 }
 
 bool AMScanController::pause()
 {
-	if(changeState(AMScanController::Pausing)){
-
+	if(canChangeState(AMScanController::Pausing)){
+		setState(AMScanController::Pausing);
 		pauseImplementation();
 		return true;
 	}
@@ -140,8 +135,8 @@ bool AMScanController::pause()
 
 bool AMScanController::resume()
 {
-	if(changeState(AMScanController::Resuming)){
-
+	if(canChangeState(AMScanController::Resuming)){
+		setState(AMScanController::Resuming);
 		resumeImplementation();
 		return true;
 	}
@@ -151,14 +146,20 @@ bool AMScanController::resume()
 
 void AMScanController::cancel()
 {
-	if(changeState(AMScanController::Cancelling))
+	if(canChangeState(AMScanController::Cancelling)) {
+		setState(AMScanController::Cancelling);
 		cancelImplementation();
+	}
 }
 
 void AMScanController::stop(const QString &command)
 {
-	if (changeState(AMScanController::Stopping))
+	if(canChangeState(AMScanController::Stopping)) {
+		skipCommand_ = command;
+
+		setState(AMScanController::Stopping);
 		stopImplementation(command);
+	}
 }
 
 void AMScanController::scheduleForDeletion()
@@ -166,14 +167,16 @@ void AMScanController::scheduleForDeletion()
 	deleteLater();
 }
 
+/// ============== protected slots/ functions =======================
+
 bool AMScanController::setInitialized()
 {
-	if(canChangeStateTo(AMScanController::Initialized)){
+	if(canChangeState(AMScanController::Initialized)){
 
 		if(scan_)
 			scan_->setScanController(this);
 
-		changeState(AMScanController::Initialized);
+		setState(AMScanController::Initialized);
 		emit initialized();
 
 		return true;
@@ -184,12 +187,12 @@ bool AMScanController::setInitialized()
 
 bool AMScanController::setStarted()
 {
-	if(canChangeStateTo(AMScanController::Running)){
+	if(canChangeState(AMScanController::Running)){
 
 		if(scan_)
 			scan_->setScanController(this);
 
-		changeState(AMScanController::Running);
+		setState(AMScanController::Running);
 		emit started();
 
 		return true;
@@ -200,7 +203,8 @@ bool AMScanController::setStarted()
 
 bool AMScanController::setPaused()
 {
-	if(changeState(AMScanController::Paused)){
+	if(canChangeState(AMScanController::Paused)){
+		setState(AMScanController::Paused);
 
 		emit paused();
 		return true;
@@ -211,8 +215,8 @@ bool AMScanController::setPaused()
 
 bool AMScanController::setResumed()
 {
-	if(changeState(AMScanController::Running)){
-
+	if(canChangeState(AMScanController::Running)){
+		setState(AMScanController::Running);
 		emit resumed();
 		return true;
 	}
@@ -220,30 +224,37 @@ bool AMScanController::setResumed()
 	return false;
 }
 
+void AMScanController::setCleaning()
+{
+	if(canChangeState(AMScanController::Cleaning)) {
+		setState(AMScanController::Cleaning);
+	}
+}
+
 void AMScanController::setCancelled()
 {
-	if(canChangeStateTo(AMScanController::Cancelled)) {
+	if(canChangeState(AMScanController::Cancelled)) {
 
 		if(scan_){
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
 
-		changeState(AMScanController::Cancelled);
+		setState(AMScanController::Cancelled);
 		emit cancelled();
 	}
 }
 
 bool AMScanController::setFinished()
 {
-	if(canChangeStateTo(AMScanController::Finished)){
+	if(canChangeState(AMScanController::Finished)){
 
 		if(scan_){
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
 
-		changeState(AMScanController::Finished);
+		setState(AMScanController::Finished);
 		emit finished();
 
 		return true;
@@ -254,21 +265,22 @@ bool AMScanController::setFinished()
 
 void AMScanController::setFailed()
 {
-	if(canChangeStateTo(AMScanController::Failed)) {
+	if(canChangeState(AMScanController::Failed)) {
 
 		if(scan_) {
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
 
-		changeState(AMScanController::Failed);
+		setState(AMScanController::Failed);
 		emit failed();
 	}
 }
 
-bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
+bool AMScanController::canChangeState(AMScanController::ScanState newState)
 {
 	bool canTransition = false;
+
 	// Check the permissible transitions
 	switch (newState) {
 
@@ -281,17 +293,17 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Initialized :
-		if(isInitializing())
+		if(state_ == AMScanController::Initializing)
 			canTransition = true;
 		break;
 
 	case AMScanController::Starting :
-		if(isInitialized())
+		if(state_ == AMScanController::Initialized)
 			canTransition = true;
 		break;
 
 	case AMScanController::Running :
-		if(isStarting() || isResuming())
+		if(state_ == AMScanController::Starting || state_ == AMScanController::Resuming)
 			canTransition = true;
 		break;
 
@@ -302,7 +314,7 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Paused :
-		if(isPausing())
+		if(state_ == AMScanController::Pausing)
 			canTransition = true;
 		break;
 
@@ -316,16 +328,23 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 			canTransition = true;
 		break;
 
+	case AMScanController::Cleaning :
+		if (state_ == Initializing || isRunning() || isStopping() || state_ == Cancelling)
+			canTransition = true;
+		break;
+
 	case AMScanController::Cancelling :
-		canTransition = true;
+		if (state_ != Cancelling && state_ != Cancelled)
+			canTransition = true;
 		break;
 
 	case AMScanController::Cancelled :
-		canTransition = true;
+		if (state_ == Cancelling || state_ == Cleaning)
+			canTransition = true;
 		break;
 
 	case AMScanController::Finished :
-		if(isRunning() || isStopping())
+		if(isRunning() || isStopping() || state_ == Cleaning)
 			canTransition = true;
 		break;
 
@@ -337,16 +356,13 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 	return canTransition;
 }
 
-bool AMScanController::changeState(ScanState newState)
+void AMScanController::setState(ScanState newState)
 {
-	if(canChangeStateTo(newState)) {
+	if(canChangeState(newState)) {
 
-		lastState_ = state_;
+		AMScanController::ScanState lastState = state_;
 		state_= newState;
-		emit stateChanged(lastState_, newState);
 
-		return true;
+		emit stateChanged(lastState, newState);
 	}
-
-	return false;
 }

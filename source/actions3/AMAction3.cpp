@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
@@ -30,7 +31,7 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 {
 	info_ = info;
 	progress_ = QPair<double,double>(-1.0, -1.0);
-	state_ = previousState_ = Constructed;
+	state_ = Constructed;
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
@@ -46,11 +47,11 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 }
 
 // Copy constructor. Takes care of making copies of the info and prerequisites.
-AMAction3::AMAction3(const AMAction3& other)
-	: QObject()
+AMAction3::AMAction3(const AMAction3& other, QObject *parent )
+	: QObject(parent)
 {
 	progress_ = QPair<double,double>(-1.0, -1.0);
-	state_ = previousState_ = Constructed;
+	state_ = Constructed;
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
@@ -84,11 +85,70 @@ bool AMAction3::isLoggingFinished() const{
 	return isLoggingFinished_;
 }
 
+double AMAction3::elapsedTime() const
+{
+	if(!startDateTime_.isValid())
+		return 0;
+
+	return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0;
+}
+
+double AMAction3::pausedTime() const
+{
+	if(!startDateTime_.isValid())
+		return 0;
+
+	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break
+	if(isPaused())
+		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
+	else
+		return secondsSpentPaused_;
+}
+
+double AMAction3::runningTime() const
+{
+	if(!startDateTime_.isValid())
+		return 0;
+
+	return elapsedTime() - pausedTime();
+}
+
+QString AMAction3::stateDescription(AMAction3::State state)
+{
+	switch(state) {
+	case Constructed:
+		return "Not yet started";
+	case Starting:
+		return "Starting";
+	case Running:
+		return "Running";
+	case Pausing:
+		return "Pausing";
+	case Paused:
+		return "Paused";
+	case Resuming:
+		return "Resuming";
+	case Cancelling:
+		return "Cancelling";
+	case Cancelled:
+		return "Cancelled";
+	case Succeeded:
+		return "Succeeded";
+	case Failed:
+		return "Failed";
+	case Skipping:
+		return "Skipping";
+	default:
+		return "Invalid State";
+	}
+}
+
 bool AMAction3::start()
 {
 	if (canChangeState(Starting)){
 
 		startDateTime_ = QDateTime::currentDateTime();
+
 		setState(Starting);
 		startImplementation();
 
@@ -118,21 +178,28 @@ bool AMAction3::pause()
 		return false;
 	}
 
+	if (state_ == Pausing)
+		return true;
+
 	if(canChangeState(Pausing)) {
 
 		lastPausedAt_ = QDateTime::currentDateTime();
-		setProgress(0,0);
+//		setProgress(0,0);
 		setState(Pausing);
 		pauseImplementation();
 		return true;
 	}
 
 	AMErrorMon::debug(this, AMACTION3_CANNOT_PAUSE_NOT_IN_PAUSABLE_STATE, "You can not pause this action, because it is not in a pausable state.");
+
 	return false;	// any other state: cannot pause from there.
 }
 
 bool AMAction3::resume()
 {
+	if (state_ == Resuming)
+		return true;
+
 	if(canChangeState(Resuming)) {
 
 		secondsSpentPaused_ += double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
@@ -155,12 +222,13 @@ bool AMAction3::skip(const QString &command)
 
 	if (canChangeState(Skipping)){
 
+		skipCommand_ = command;
 		setState(Skipping);
 		skipImplementation(command);
 		return true;
 	}
 
-	AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING, "Could not skip this action because it was not running to begin with.");
+	AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING, QString("Could not skip this action because it was not running to begin with (%1).").arg(stateDescription(state_)));
 	return false;
 }
 
@@ -180,6 +248,23 @@ void AMAction3::setIsLoggingFinished(bool isLoggingFinished){
 	}
 }
 
+/// ================ protected =====================
+void AMAction3::setProgress(double numerator, double denominator)
+{
+	progress_ = QPair<double,double>(numerator,denominator);
+	emit progressChanged(numerator, denominator);
+}
+
+void AMAction3::setExpectedDuration(double expectedTotalTimeInSeconds)
+{
+	info_->setExpectedDuration(expectedTotalTimeInSeconds);
+}
+
+void AMAction3::setStatusText(const QString& statusText)
+{
+	emit statusTextChanged(statusText_ = statusText);
+}
+
 void AMAction3::scheduleForDeletionImplementation(){
 	if(isLoggingFinished())
 		deleteLater();
@@ -191,6 +276,7 @@ void AMAction3::setStarted()
 {
 	if (canChangeState(Running)){
 
+		setProgress(0, info_->expectedDuration());
 		setState(Running);
 		emit started();
 	}
@@ -268,51 +354,6 @@ void AMAction3::setSkipped()
 	setSucceeded();
 }
 
-#include <QMessageBox>
-#include <QStringBuilder>
-#include <QPushButton>
-
-QString AMAction3::stateDescription(AMAction3::State state)
-{
-	switch(state) {
-	case Constructed:
-		return "Not yet started";
-	case Starting:
-		return "Starting";
-	case Running:
-		return "Running";
-	case Pausing:
-		return "Pausing";
-	case Paused:
-		return "Paused";
-	case Resuming:
-		return "Resuming";
-	case Cancelling:
-		return "Cancelling";
-	case Cancelled:
-		return "Cancelled";
-	case Succeeded:
-		return "Succeeded";
-	case Failed:
-		return "Failed";
-	case Skipping:
-		return "Skipping";
-	default:
-		return "Invalid State";
-	}
-}
-
-void AMAction3::setState(AMAction3::State newState) {
-
-	if (!canChangeState(newState))
-		return;
-
-	previousState_ = state_;
-	state_ = newState;
-	setStatusText(stateDescription(state_));
-	emit stateChanged(state_, previousState_);
-}
-
 bool AMAction3::canChangeState(State newState) const
 {
 	bool canTransition = false;
@@ -348,7 +389,7 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Cancelling:
-		if (!inFinalState())
+		if (!inFinalState() && state_ != Cancelling)
 			canTransition = true;
 		break;
 
@@ -369,7 +410,7 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Skipping:
-		if (canSkip() && state_ == Running)
+		if (canSkip() && state_ == Running && state_ != Skipping)
 			canTransition = true;
 		break;
 	}
@@ -377,14 +418,16 @@ bool AMAction3::canChangeState(State newState) const
 	return canTransition;
 }
 
-double AMAction3::pausedTime() const
+void AMAction3::setState(AMAction3::State newState)
 {
-	if(!startDateTime_.isValid())
-		return -1.0;
+	if (!canChangeState(newState))
+		return;
 
-	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break
-	if(state() == Paused)
-		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
-	else
-		return secondsSpentPaused_;
+	AMAction3::State fromState = state_;
+
+	state_ = newState;
+
+	setStatusText(stateDescription(state_));
+
+	emit stateChanged(fromState, state_);
 }

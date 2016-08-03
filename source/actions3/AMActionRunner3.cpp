@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "ui/actions3/AMActionHistoryModel.h"
 
+#include <QDebug>
 /// ======== static instances and functions ===============
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
@@ -100,6 +101,8 @@ void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
 	isActionRunnerPauseEnabled_ = false;
 	updateActionRunnerPausable();
 
+	qDebug() << " ==== I might emit two scanActionCreated() signal -- 2";
+
 	emit scanActionCreated(scanAction);
 }
 
@@ -108,6 +111,7 @@ void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 
+	qDebug() << " ==== I might emit two scanActionStarted() signal -- 2";
 	emit scanActionStarted(scanAction);
 }
 
@@ -115,22 +119,24 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 {
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
+
+	qDebug() << " ==== I might emit two onScanActionFinished() signal -- 2";
 	emit scanActionFinished(scanAction);
 }
 
-void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
+void AMActionRunner3::onCurrentActionStateChanged(int fromState, int toState)
 {
 	updateActionRunnerPausable();
 
-	emit currentActionStateChanged(state, previousState);
+	emit currentActionStateChanged(toState, fromState);
 
-	switch (state) {
+	switch (toState) {
 	case AMAction3::Starting:
 		onCurrentActionStarting();
 		break;
 
 	case AMAction3::Running:
-		if ( previousState != AMAction3::Resuming )
+		if ( fromState != AMAction3::Resuming )
 			onCurrentActionRunning();
 
 		break;
@@ -146,9 +152,9 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 
 	// for all three final states, this is how we wrap things up for the current action:
-	if(    state == AMAction3::Failed
-		|| state == AMAction3::Cancelled
-		|| state == AMAction3::Succeeded) {
+	if(    toState == AMAction3::Failed
+		|| toState == AMAction3::Cancelled
+		|| toState == AMAction3::Succeeded) {
 		onCurrentActionFinished();
 	}
 }
@@ -286,18 +292,10 @@ void AMActionRunner3::internalDoNextAction()
 
 		AMAction3* newAction = removeActionFromQueue(0);
 		setCurrentAction(newAction);
-		if (!validateAction(newAction, QString("Ignore this warning and run"), QString("Cancel running this action")))
+		if (!validateAction(newAction, QString("Ignore this warning and run"), QString("Cancel running this action"))) {
+			cancelCurrentAction();
 			return;
-
-		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
-		if (listAction){
-			listAction->setLoggingDatabase(loggingDatabase_);
-
-			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onScanActionCreated(AMScanAction*)));
-			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onScanActionStarted(AMScanAction*)));
-			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onScanActionFinished(AMScanAction*)));
 		}
-
 		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.
 		QTimer::singleShot(0, currentAction_, SLOT(start()));
 	}
@@ -324,15 +322,15 @@ void AMActionRunner3::runActionImmediately(AMAction3 *action)
 	action->start();
 }
 
-void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState)
+void AMActionRunner3::onImmediateActionStateChanged(int fromState, int toState)
 {
-	Q_UNUSED(previousState)
+	Q_UNUSED(fromState)
 
 	AMAction3* action = qobject_cast<AMAction3*>(sender());
 	if(!action)
 		return;
 
-	if(state == AMAction3::Failed) {
+	if(toState == AMAction3::Failed) {
 		// What should we do?
 		int failureResponse = action->failureResponseInActionRunner();
 		if(failureResponse == AMAction3::PromptUserResponse)
@@ -348,9 +346,9 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 	}
 
 	// for all three final states, this is how we wrap things up for the current action:
-	if(state == AMAction3::Failed ||
-			state == AMAction3::Cancelled ||
-			state == AMAction3::Succeeded) {
+	if(toState == AMAction3::Failed ||
+			toState == AMAction3::Cancelled ||
+			toState == AMAction3::Succeeded) {
 
 		// remove from the list of current immediate actions
 		immediateActions_.removeAll(action);
@@ -395,6 +393,15 @@ void AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
 		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
+		if (listAction){
+			listAction->setLoggingDatabase(loggingDatabase_);
+
+			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onScanActionCreated(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onScanActionStarted(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onScanActionFinished(AMScanAction*)));
+		}
 	}
 
 	emit currentActionChanged(currentAction_);
@@ -420,11 +427,10 @@ bool AMActionRunner3::validateAction(AMAction3 *newAction, const QString &okButt
 			information = "\n\nYou won't see this message.";
 		}
 
-		message = "The '" % newAction->info()->typeDescription() % "' action you're about to run reports:\n" % newAction->notValidWarning();
+		message = "The '" % newAction->info()->typeDescription() % "' action you're about to run reports:\n" % newAction->validationWarningMessage();
 
 		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false); //default cancel
 		if (!confirmToAddAction) { // cancel butttton is clicked
-			cancelCurrentAction();
 			return false;
 		}
 	}
@@ -452,15 +458,19 @@ void AMActionRunner3::onCurrentActionStarting()
 		}
 	}
 
-	if (isScanAction())
+	if (isScanAction()) {
+		qDebug() << " ==== I might emit two scanActionCreated() signal -- 1";
 		emit scanActionCreated(qobject_cast<AMScanAction *>(currentAction_));
+	}
 
 }
 
 void AMActionRunner3::onCurrentActionRunning()
 {
-	if (isScanAction())
+	if (isScanAction()) {
+		qDebug() << " ==== I might emit two scanActionStarted() signal -- 1";
 		emit scanActionStarted(qobject_cast<AMScanAction *>(currentAction_));
+	}
 
 }
 
@@ -508,6 +518,8 @@ void AMActionRunner3::onCurrentActionFinished()
 	}
 
 	if (isScanAction()) {
+		qDebug() << " ==== I might emit two scanActionFinished() signal -- 1";
+
 		emit scanActionFinished((AMScanAction *)currentAction());
 	}
 
@@ -523,18 +535,9 @@ AMAction3 * AMActionRunner3::immediateActionAt(int index)
 	return immediateActions_.at(index);
 }
 
-bool AMActionRunner3::cancelCurrentAction()
-{
-	if(currentAction_) {
-		currentAction_->cancel();
-		return true;
-	}
-	return false;
-}
-
 bool AMActionRunner3::pauseCurrentAction()
 {
-	if(currentAction_ && currentAction_->canPause()) {
+	if(currentAction_ ) {
 		return currentAction_->pause();
 	}
 	return false;
@@ -542,8 +545,26 @@ bool AMActionRunner3::pauseCurrentAction()
 
 bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->isPaused()) {
+	if(currentAction_ ) {
 		return currentAction_->resume();
+	}
+	return false;
+}
+
+bool AMActionRunner3::skipCurrentAction(const QString &command)
+{
+	if (currentAction_ && currentAction_->canSkip() && command != "") {
+		return currentAction_->skip(command);
+	}
+
+	return false;
+}
+
+bool AMActionRunner3::cancelCurrentAction()
+{
+	if(currentAction_) {
+		currentAction_->cancel();
+		return true;
 	}
 	return false;
 }

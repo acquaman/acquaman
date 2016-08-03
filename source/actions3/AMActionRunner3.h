@@ -150,7 +150,7 @@ signals:
 	/// Forward the expectedDurationChanged() signal from the current action, for convenience
 	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
 	/// Forward the stateChanged() signal from the current action, for convenience
-	void currentActionStateChanged(int state, int previousState);
+	void currentActionStateChanged(int toState, int fromState);
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
@@ -184,12 +184,14 @@ public slots:
 	void setQueuePaused(bool isPaused);
 
 	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction()
-	/// Cancel the currently-running action, if there is one. (Returns true if so.)
-	bool cancelCurrentAction();
 	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
 	bool pauseCurrentAction();
 	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
 	bool resumeCurrentAction();
+	/// skip the currently-running action, if there is one. (Returns true if so.)
+	bool skipCurrentAction(const QString &command);
+	/// Cancel the currently-running action, if there is one. (Returns true if so.)
+	bool cancelCurrentAction();
 
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();
@@ -206,10 +208,10 @@ protected slots:
 	void onScanActionFinished(AMScanAction *);
 
 	/// Respond internally whenever the state of the currently-running action changes.
-	void onCurrentActionStateChanged(int state, int previousState);
+	void onCurrentActionStateChanged(int fromState, int toState);
 
 	/// Respond internally whenever the state of any immediate-run action changes.
-	void onImmediateActionStateChanged(int state, int previousState);
+	void onImmediateActionStateChanged(int fromState, int toState);
 
 protected:
 	/// Helper method that returns whether the current action is a scan action or not.

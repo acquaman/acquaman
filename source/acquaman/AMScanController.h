@@ -54,6 +54,26 @@ class AMScanController : public QObject
 
 public:
 	/*!
+	  * Enum which describes the states a scan controller can be in.
+	  */
+	enum ScanState {
+			 Constructed,
+			 Initializing,
+			 Initialized,
+			 Starting,
+			 Running,
+			 Pausing,
+			 Paused,
+			 Resuming,
+			 Stopping,
+			 Cleaning,
+			 Cancelling,
+			 Cancelled,
+			 Finished,
+			 Failed
+	};
+
+	/*!
 	  * Base constructor for a scan controller. Sets the configuration associated
 	  * with the controller to the provided configuration but takes no action to
 	  * initialize the scan. The created scan controller will be in the Constructed state.
@@ -65,114 +85,27 @@ public:
 	  */
 	virtual ~AMScanController();
 
-	/*!
-	  * Enum which describes the states a scan controller can be in.
-	  */
-	enum ScanState { Constructed,
-			 Initializing,
-			 Initialized,
-			 Starting,
-			 Running,
-			 Pausing,
-			 Paused,
-			 Resuming,
-			 Stopping,
-			 Cancelling,
-			 Cancelled,
-			 Finished,
-			 Failed };
-
-	/*!
-	  * The current state of the scan controller.
-	  */
-	AMScanController::ScanState state() const;
-
-	/*!
-	  * The state the scan controller was in previous to the current state.
-	  */
-	AMScanController::ScanState lastState() const;
-
 	// Convenience Functions to test the state of the scan.
 	///////////////////////
+	/// Returns a string of the state of the scan controller
+	QString stateString(ScanState scanControllerState) const;
+	/// Whether the scan controller is in the running state.
+	bool isRunning() const { return state_ == AMScanController::Running; }
+	/// Whether the scan controller is in the paused state.
+	bool isPaused() const { return state_ == AMScanController::Paused; }
 
-	/*!
-	  * Whether the scan controller is in the initializing state.
-	  */
-	bool isInitializing() const;
-	/*!
-	  * Whether the scan controller is in the initialized state.
-	  */
-	bool isInitialized() const;
-	/*!
-	  * Whether the scan controller is in the starting state.
-	  */
-	bool isStarting() const;
+	/// The scan which this scan controller is controlling.
+	virtual AMScan* scan() const { return scan_; }
 
-	/*!
-	  * Whether the scan controller is in the running state.
-	  */
-	bool isRunning() const;
-
-	/*!
-	  * Whether the scan controller is in the pausing state.
-	  */
-	bool isPausing() const;
-
-	/*!
-	  * Whether the scan controller is in the paused state.
-	  */
-	bool isPaused() const;
-
-	/*!
-	  * Whether the scan controller is in the resuming state.
-	  */
-	bool isResuming() const;
-
-	/*!
-	  * Whether the scan controller is in the stopping state.
-	  */
-	bool isStopping() const;
-
-	/*!
-	  * Whether the scan controller is in the cancelling state.
-	  */
-	bool isCancelling() const;
-
-	/*!
-	  * Whether the scan controller is in the cancelled state.
-	  */
-	bool isCancelled() const;
-
-	/*!
-	  * Whether the scan controller is in the finished state.
-	  */
-	bool isFinished() const;
-
-	/*!
-	  * Whether the scan controller is in the failed state.
-	  */
-	bool isFailed() const;
-
-	/*!
-	  * Whether the scan controller is able to pause while running.
-	  */
-	bool controllerCanPause() const { return canPause(); }
-
-	/*!
-	  * The scan which this scan controller is controlling.
-	  */
-	virtual AMScan* scan() { return scan_; }
-
-//	/// Returns whether the scan controller is in a state where it can be deleted.
-//	virtual bool isReadyForDeletion() const;
+	QString skipCommand() const { return skipCommand_; }
 
 signals:
 	/*!
 	  * Signal indicating that the state of the scan controller has altered.
-	  * \param oldState ~ The state which the scan controller moved from.
-	  * \param newState ~ The state which the scan controller has moved to.
+	  * \param fromState ~ The state which the scan controller moved from.
+	  * \param toState ~ The state which the scan controller has moved to.
 	  */
-	void stateChanged(int oldState, int newState);
+	void stateChanged(int fromState, int toState);
 
 	// The following signals are emitted for convenience for certain commonly-useful
 	// occurences of stateChanged().
@@ -220,18 +153,6 @@ signals:
 	void failed();
 
 	/*!
-	  * Signal indicating that the initialization action are starting.
-	  * NOTE: This may not be emitted by all scan controllers.
-	  */
-	void initializingActionsStarted();
-
-	/*!
-	  * Signal indicating that the cleaning actions are being started.
-	  * NOTE: This may not be emitted by all scan controllers.
-	  */
-	void cleaningActionsStarted();
-
-	/*!
 	  * Signal which indicates the time remaing for before the scan controller
 	  * estimates it is finished.
 	  * Classes implementing the scan controller interface should emit this signal
@@ -252,9 +173,6 @@ signals:
 	  * is finished in the same arbitrary units as the elapsed argument.
 	  */
 	void progress(double elapsed, double total);
-
-//	/// Notifier that the scan controller deletion state has changed.  Passes the new state.
-//	void readyForDeletion(bool isReady);
 
 public slots:
 	// Public API functions to control a scan
@@ -365,6 +283,8 @@ protected slots:
 	  */
 	bool setResumed();
 
+	void setCleaning();
+
 	/*!
 	  * Sets the state of the scan controller to cancelled. Implementation classes
 	  * must call this after cancelling a scan is complete.
@@ -388,6 +308,13 @@ protected slots:
 	void setFailed();
 
 protected:
+	/// Whether the scan controller is in the initializing state.
+	bool isInitializing() const { return state_ == AMScanController::Initializing; }
+	/// Whether the scan controller is in the cleaning state.
+	bool isCleaning() const { return state_ == AMScanController::Cleaning; }
+	/// Whether the scan controller is in the stopping state.
+	bool isStopping() const { return state_ == AMScanController::Stopping; }
+
 	// Virtual implementation functions.  Implement these as required for relevant
 	// transitions between states.  The AMScanController API guarantees that these
 	// will only be called from the states indicated.
@@ -452,6 +379,21 @@ protected:
 	  */
 	virtual void stopImplementation(const QString &command = QString("")) = 0;
 
+	/*!
+	  * Whether a transition from the current state to newState is allowed.
+	  * \returns True if transitioning from the current state to newState can
+	  * be performed, false otherwise.
+	  */
+	bool canChangeState(ScanState newState);
+
+	/*!
+	  * Changes the state of the scan controller to the provided newState if a
+	  * transition to newState is allowed from the current state. Emits the
+	  * stateChanged(currentState, newState) signal in the event that the change
+	  * is performed.
+	  */
+	void setState(ScanState newState);
+
 protected:
 	/*!
 	  * The configuration for the scan which the scan controller is controlling.
@@ -463,27 +405,11 @@ protected:
 	  */
 	AMScan *scan_;
 
-private:
-	/*!
-	  * Whether a transition from the current state to newState is allowed.
-	  * \returns True if transitioning from the current state to newState can
-	  * be performed, false otherwise.
-	  */
-	bool canChangeStateTo(ScanState newState);
-
-	/*!
-	  * Changes the state of the scan controller to the provided newState if a
-	  * transition to newState is allowed from the current state. Emits the
-	  * stateChanged(currentState, newState) signal in the event that the change
-	  * is performed.
-	  */
-	bool changeState(ScanState newState);
-
-private:
 	/// The current state of the scan.
 	AMScanController::ScanState state_;
-	/// The last state of the scan before the current state.
-	AMScanController::ScanState lastState_;
+
+	QString skipCommand_;
+
 };
 
 #endif // AM_SCANCONTROLLER_H

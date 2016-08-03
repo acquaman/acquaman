@@ -27,7 +27,7 @@ bool AMMockAppController::startup()
 
 	bool dataFolderRetrieved = AMChooseDataFolderDialog::getDataFolder(
 				"/AcquamanLocalData",
-				"/home/acquaman/AcquamanData",
+				"/home/liux0/AcquamanData",
 				"MockBeamline/users",
 	            QStringList());
 

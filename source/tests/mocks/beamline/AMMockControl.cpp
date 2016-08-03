@@ -30,17 +30,18 @@ bool AMMockControl::stop()
 	return false;
 }
 
-void AMMockControl::onMoveActionStateChanged(int newActionState, int /*oldActionState*/)
+void AMMockControl::onMoveActionStateChanged(int fromState, int toState)
 {
+	Q_UNUSED(fromState)
 
-	if(newActionState == AMAction3::Running) {
+	if(toState == AMAction3::Running) {
 
 		setIsMoving(true);
 
-	} else if(newActionState == AMAction3::Cancelled ||
-	          newActionState == AMAction3::Paused ||
-	          newActionState == AMAction3::Succeeded ||
-	          newActionState == AMAction3::Failed) {
+	} else if(toState == AMAction3::Cancelled ||
+			  toState == AMAction3::Paused ||
+			  toState == AMAction3::Succeeded ||
+			  toState == AMAction3::Failed) {
 
 		currentMoveAction_ = 0;
 		setIsMoving(false);
