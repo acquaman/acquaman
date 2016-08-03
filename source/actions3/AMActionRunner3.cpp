@@ -111,6 +111,7 @@ void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 
+	qDebug() << " ==== I might emit two scanActionStarted() signal -- 2";
 	emit scanActionStarted(scanAction);
 }
 
@@ -119,7 +120,7 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 
-	qDebug() << " ==== I might emit two scanActionCreated() signal -- 2";
+	qDebug() << " ==== I might emit two onScanActionFinished() signal -- 2";
 	emit scanActionFinished(scanAction);
 }
 
@@ -466,8 +467,10 @@ void AMActionRunner3::onCurrentActionStarting()
 
 void AMActionRunner3::onCurrentActionRunning()
 {
-	if (isScanAction())
+	if (isScanAction()) {
+		qDebug() << " ==== I might emit two scanActionStarted() signal -- 1";
 		emit scanActionStarted(qobject_cast<AMScanAction *>(currentAction_));
+	}
 
 }
 
@@ -534,7 +537,7 @@ AMAction3 * AMActionRunner3::immediateActionAt(int index)
 
 bool AMActionRunner3::pauseCurrentAction()
 {
-	if(currentAction_ && currentAction_->canPause()) {
+	if(currentAction_ ) {
 		return currentAction_->pause();
 	}
 	return false;
@@ -542,7 +545,7 @@ bool AMActionRunner3::pauseCurrentAction()
 
 bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->isPaused()) {
+	if(currentAction_ ) {
 		return currentAction_->resume();
 	}
 	return false;

@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "ui/actions3/AMActionHistoryModel.h"
 
+#include <QDebug>
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -280,14 +281,12 @@ void AMListAction3::resumeImplementation()
 	if(subActionMode() == Sequential) {
 		// The currentSubAction() will either be Paused (if it supported pausing when we were paused), or Constructed (if the last action didn't support pausing and completed, now we're at the beginning of the next one).
 		if(currentSubAction()) {
-			if(currentSubAction()->isPaused())
-				currentSubAction()->resume();
-			else if(currentSubAction()->state() == Constructed) {
+			if(currentSubAction()->state() == AMAction3::Constructed) {
 				internalConnectAction(currentSubAction());
 				currentSubAction()->start();
+			} else {
+				currentSubAction()->resume();
 			}
-			else
-				AMErrorMon::debug(this, AMLISTACTION3_RESUME_CALLED_WHEN_NOT_PAUSED, "Asked to resume, but the current action is not paused.");
 		}
 		else {
 			AMErrorMon::debug(this, AMLISTACTION3_RESUME_CALLED_WITH_NO_ACTION_RUNNING, "Asked to resume unexpectedly: there is no current action to resume.");

@@ -34,8 +34,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-// These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
 #include <QDebug>
+// These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
+
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {

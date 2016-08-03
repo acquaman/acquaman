@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
@@ -177,6 +178,9 @@ bool AMAction3::pause()
 		return false;
 	}
 
+	if (state_ == Pausing)
+		return true;
+
 	if(canChangeState(Pausing)) {
 
 		lastPausedAt_ = QDateTime::currentDateTime();
@@ -187,11 +191,15 @@ bool AMAction3::pause()
 	}
 
 	AMErrorMon::debug(this, AMACTION3_CANNOT_PAUSE_NOT_IN_PAUSABLE_STATE, "You can not pause this action, because it is not in a pausable state.");
+
 	return false;	// any other state: cannot pause from there.
 }
 
 bool AMAction3::resume()
 {
+	if (state_ == Resuming)
+		return true;
+
 	if(canChangeState(Resuming)) {
 
 		secondsSpentPaused_ += double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
