@@ -214,12 +214,13 @@ bool AMAction3::skip(const QString &command)
 
 	if (canChangeState(Skipping)){
 
+		skipCommand_ = command;
 		setState(Skipping);
 		skipImplementation(command);
 		return true;
 	}
 
-	AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING, "Could not skip this action because it was not running to begin with.");
+	AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING, QString("Could not skip this action because it was not running to begin with (%1).").arg(stateDescription(state_)));
 	return false;
 }
 
@@ -380,7 +381,7 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Cancelling:
-		if (!inFinalState())
+		if (!inFinalState() && state_ != Cancelling)
 			canTransition = true;
 		break;
 
@@ -401,7 +402,7 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Skipping:
-		if (canSkip() && state_ == Running)
+		if (canSkip() && state_ == Running && state_ != Skipping)
 			canTransition = true;
 		break;
 	}

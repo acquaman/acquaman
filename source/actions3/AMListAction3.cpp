@@ -388,8 +388,15 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 				resume();
 			return;
 
+		case AMAction3::Skipping:
+			if (canChangeState(AMAction3::Pausing))
+				skip(currentSubAction()->skipCommand());
+			return;
+
 		case AMAction3::Cancelling:
 			// ??? do we need to change state when sub action is cancelling?
+			if (canChangeState(AMAction3::Cancelling))
+				cancel();
 			return;
 
 		case AMAction3::Cancelled:
@@ -418,9 +425,6 @@ void AMListAction3::internalOnSubActionStateChanged(int fromState, int toState)
 
 			internalCleanupAction();
 			setFailed();
-			return;
-
-		case AMAction3::Skipping:
 			return;
 		}
 	}

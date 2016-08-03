@@ -103,7 +103,7 @@ public:
 	virtual bool hasChildren() const { return false; }
 
 	/*!
-	  * The number of child sub-actions the scan action contains.
+	  * The number of child sub-actions the scan actiosetupAndRunCleanupActionsn contains.
 	  */
 	virtual int numberOfChildren() const { return 0; }
 

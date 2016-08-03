@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-
+#include <QDebug>
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {
@@ -125,6 +125,7 @@ void AMScanAction::startImplementation()
 	}
 
 	hasValidScanController_ = true;
+	skipCommand_ = "";
 
 	skipOptions_.append("Stop Now");
 	if (controller_->scan()->scanRank() >= 2)
@@ -198,8 +199,7 @@ void AMScanAction::scheduleForDeletionImplementation()
 		return;
 	}
 
-	if(!controller_)
-		checkReadyForDeletion();
+	checkReadyForDeletion();
 }
 
 void AMScanAction::checkReadyForDeletion()
@@ -219,9 +219,9 @@ void AMScanAction::onControllerInitializing()
 void AMScanAction::onControllerInitialized()
 {
 	if (state() == AMAction3::Skipping){
-
-		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
-		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
+		qDebug() << "==== AMScanAction::onControllerInitialized(): initialization finished, but we requested to skip this scan when we are doing initialization.";
+//		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
+//		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
 		controller_->cancel();
 	}
 
@@ -244,13 +244,19 @@ void AMScanAction::onControllerStarted()
 
 void AMScanAction::onControllerCancelled()
 {
-	// If the scan was successfully added to the database then store whatever state it made it to.
-	if (scanInfo_->scanID() != -1)
-		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
-			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
+	if (skipCommand_ != "") {
+		// cancell initiated from the skipping command
+		qDebug() << "==== AMScanAction::onControllerCancelled(): from skipping, treate as succeeded";
+		onControllerSucceeded();
+	} else {
+		// If the scan was successfully added to the database then store whatever state it made it to.
+		if (scanInfo_->scanID() != -1)
+			if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
+				AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setStatusText("Cancelled");
-	setCancelled();
+		setStatusText("Cancelled");
+		setCancelled();
+	}
 }
 
 void AMScanAction::onControllerFailed()
@@ -334,6 +340,7 @@ void AMScanAction::autoExportScan()
 
 void AMScanAction::onControllerStateChanged(int fromState, int toState)
 {
+	qDebug() << "==== AMAcanAction::onControllerStateChanged() " << fromState << toState;
 	switch (toState) {
 	case AMScanController::Initializing:
 		onControllerInitializing();
@@ -367,6 +374,20 @@ void AMScanAction::onControllerStateChanged(int fromState, int toState)
 
 	case AMScanController::Cleaning:
 		onControllerCleaningUp();
+		break;
+
+	case AMScanController::Stopping:
+		if (canChangeState(AMAction3::Skipping)) {
+			qDebug() << "==== AMAcanAction::onControllerStateChanged() stopping " << controller_->skipCommand();
+			skip(controller_->skipCommand());
+		}
+		break;
+
+	case AMScanController::Cancelling:
+		if (canChangeState(AMAction3::Cancelling)) {
+			qDebug() << "==== AMAcanAction::onControllerStateChanged() cancelling " ;
+			cancel();
+		}
 		break;
 
 	case AMScanController::Cancelled:

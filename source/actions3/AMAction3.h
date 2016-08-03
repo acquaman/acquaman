@@ -204,6 +204,8 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// Pure virtual function that returns the number of children for this action.
 	virtual int numberOfChildren() const = 0;
 
+	QString skipCommand() const { return skipCommand_; }
+
 
 public slots:
 	// External requests to change the state: start(), cancel(), pause(), and resume().
@@ -359,6 +361,8 @@ protected:
 
 	/// Specific action types should check this flag to see if they need to send out messages with AMAgnositicDataAPI. If true, messages should be generated.
 	bool generateScanActionMessages_;
+
+	QString skipCommand_;
 
 private:
 	/// Changes states (if possible).

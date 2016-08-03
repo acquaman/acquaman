@@ -28,6 +28,7 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	scan_ = 0;
 
 	state_ = AMScanController::Constructed;
+	skipCommand_ = "";
 }
 
 AMScanController::~AMScanController()
@@ -103,8 +104,8 @@ QString AMScanController::stateString(ScanState scanControllerState) const
 
 bool AMScanController::initialize()
 {
-	if(changeState(AMScanController::Initializing)) {
-
+	if(canChangeState(AMScanController::Initializing)) {
+		setState(AMScanController::Initializing);
 		return initializeImplementation();
 	}
 
@@ -113,16 +114,18 @@ bool AMScanController::initialize()
 
 bool AMScanController::start()
 {
-	if(changeState(AMScanController::Starting))
+	if(canChangeState(AMScanController::Starting)) {
+		setState(AMScanController::Starting);
 		return startImplementation();
+	}
 
 	return false;
 }
 
 bool AMScanController::pause()
 {
-	if(canPause() && changeState(AMScanController::Pausing)){
-
+	if(canChangeState(AMScanController::Pausing)){
+		setState(AMScanController::Pausing);
 		pauseImplementation();
 		return true;
 	}
@@ -132,8 +135,8 @@ bool AMScanController::pause()
 
 bool AMScanController::resume()
 {
-	if(changeState(AMScanController::Resuming)){
-
+	if(canChangeState(AMScanController::Resuming)){
+		setState(AMScanController::Resuming);
 		resumeImplementation();
 		return true;
 	}
@@ -143,13 +146,18 @@ bool AMScanController::resume()
 
 void AMScanController::cancel()
 {
-	if(changeState(AMScanController::Cancelling))
+	if(canChangeState(AMScanController::Cancelling)) {
+		setState(AMScanController::Cancelling);
 		cancelImplementation();
+	}
 }
 
 void AMScanController::stop(const QString &command)
 {
-	if (changeState(AMScanController::Stopping)) {
+	if(canChangeState(AMScanController::Stopping)) {
+		skipCommand_ = command;
+
+		setState(AMScanController::Stopping);
 		stopImplementation(command);
 	}
 }
@@ -163,12 +171,12 @@ void AMScanController::scheduleForDeletion()
 
 bool AMScanController::setInitialized()
 {
-	if(canChangeStateTo(AMScanController::Initialized)){
+	if(canChangeState(AMScanController::Initialized)){
 
 		if(scan_)
 			scan_->setScanController(this);
 
-		changeState(AMScanController::Initialized);
+		setState(AMScanController::Initialized);
 		emit initialized();
 
 		return true;
@@ -179,12 +187,12 @@ bool AMScanController::setInitialized()
 
 bool AMScanController::setStarted()
 {
-	if(canChangeStateTo(AMScanController::Running)){
+	if(canChangeState(AMScanController::Running)){
 
 		if(scan_)
 			scan_->setScanController(this);
 
-		changeState(AMScanController::Running);
+		setState(AMScanController::Running);
 		emit started();
 
 		return true;
@@ -195,7 +203,8 @@ bool AMScanController::setStarted()
 
 bool AMScanController::setPaused()
 {
-	if(changeState(AMScanController::Paused)){
+	if(canChangeState(AMScanController::Paused)){
+		setState(AMScanController::Paused);
 
 		emit paused();
 		return true;
@@ -206,8 +215,8 @@ bool AMScanController::setPaused()
 
 bool AMScanController::setResumed()
 {
-	if(changeState(AMScanController::Running)){
-
+	if(canChangeState(AMScanController::Running)){
+		setState(AMScanController::Running);
 		emit resumed();
 		return true;
 	}
@@ -217,35 +226,35 @@ bool AMScanController::setResumed()
 
 void AMScanController::setCleaning()
 {
-	if(canChangeStateTo(AMScanController::Cleaning)) {
-		changeState(AMScanController::Cleaning);
+	if(canChangeState(AMScanController::Cleaning)) {
+		setState(AMScanController::Cleaning);
 	}
 }
 
 void AMScanController::setCancelled()
 {
-	if(canChangeStateTo(AMScanController::Cancelled)) {
+	if(canChangeState(AMScanController::Cancelled)) {
 
 		if(scan_){
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
 
-		changeState(AMScanController::Cancelled);
+		setState(AMScanController::Cancelled);
 		emit cancelled();
 	}
 }
 
 bool AMScanController::setFinished()
 {
-	if(canChangeStateTo(AMScanController::Finished)){
+	if(canChangeState(AMScanController::Finished)){
 
 		if(scan_){
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
 
-		changeState(AMScanController::Finished);
+		setState(AMScanController::Finished);
 		emit finished();
 
 		return true;
@@ -256,19 +265,19 @@ bool AMScanController::setFinished()
 
 void AMScanController::setFailed()
 {
-	if(canChangeStateTo(AMScanController::Failed)) {
+	if(canChangeState(AMScanController::Failed)) {
 
 		if(scan_) {
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
 
-		changeState(AMScanController::Failed);
+		setState(AMScanController::Failed);
 		emit failed();
 	}
 }
 
-bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
+bool AMScanController::canChangeState(AMScanController::ScanState newState)
 {
 	bool canTransition = false;
 
@@ -326,7 +335,7 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 
 	case AMScanController::Cancelling :
 		if (state_ != Cancelling && state_ != Cancelled)
-		canTransition = true;
+			canTransition = true;
 		break;
 
 	case AMScanController::Cancelled :
@@ -347,17 +356,13 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 	return canTransition;
 }
 
-bool AMScanController::changeState(ScanState newState)
+void AMScanController::setState(ScanState newState)
 {
-	if(canChangeStateTo(newState)) {
+	if(canChangeState(newState)) {
 
 		AMScanController::ScanState lastState = state_;
 		state_= newState;
 
 		emit stateChanged(lastState, newState);
-
-		return true;
 	}
-
-	return false;
 }

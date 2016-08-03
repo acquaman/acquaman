@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "ui/actions3/AMActionHistoryModel.h"
 
+#include <QDebug>
 /// ======== static instances and functions ===============
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
@@ -100,6 +101,8 @@ void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
 	isActionRunnerPauseEnabled_ = false;
 	updateActionRunnerPausable();
 
+	qDebug() << " ==== I might emit two scanActionCreated() signal -- 2";
+
 	emit scanActionCreated(scanAction);
 }
 
@@ -115,6 +118,8 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 {
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
+
+	qDebug() << " ==== I might emit two scanActionCreated() signal -- 2";
 	emit scanActionFinished(scanAction);
 }
 
@@ -290,16 +295,6 @@ void AMActionRunner3::internalDoNextAction()
 			cancelCurrentAction();
 			return;
 		}
-
-		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
-		if (listAction){
-			listAction->setLoggingDatabase(loggingDatabase_);
-
-			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onScanActionCreated(AMScanAction*)));
-			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onScanActionStarted(AMScanAction*)));
-			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onScanActionFinished(AMScanAction*)));
-		}
-
 		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.
 		QTimer::singleShot(0, currentAction_, SLOT(start()));
 	}
@@ -397,6 +392,15 @@ void AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
 		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
+		if (listAction){
+			listAction->setLoggingDatabase(loggingDatabase_);
+
+			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onScanActionCreated(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onScanActionStarted(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onScanActionFinished(AMScanAction*)));
+		}
 	}
 
 	emit currentActionChanged(currentAction_);
@@ -453,8 +457,10 @@ void AMActionRunner3::onCurrentActionStarting()
 		}
 	}
 
-	if (isScanAction())
+	if (isScanAction()) {
+		qDebug() << " ==== I might emit two scanActionCreated() signal -- 1";
 		emit scanActionCreated(qobject_cast<AMScanAction *>(currentAction_));
+	}
 
 }
 
@@ -509,6 +515,8 @@ void AMActionRunner3::onCurrentActionFinished()
 	}
 
 	if (isScanAction()) {
+		qDebug() << " ==== I might emit two scanActionFinished() signal -- 1";
+
 		emit scanActionFinished((AMScanAction *)currentAction());
 	}
 

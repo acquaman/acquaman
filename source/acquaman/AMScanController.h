@@ -97,6 +97,8 @@ public:
 	/// The scan which this scan controller is controlling.
 	virtual AMScan* scan() const { return scan_; }
 
+	QString skipCommand() const { return skipCommand_; }
+
 signals:
 	/*!
 	  * Signal indicating that the state of the scan controller has altered.
@@ -382,7 +384,7 @@ protected:
 	  * \returns True if transitioning from the current state to newState can
 	  * be performed, false otherwise.
 	  */
-	bool canChangeStateTo(ScanState newState);
+	bool canChangeState(ScanState newState);
 
 	/*!
 	  * Changes the state of the scan controller to the provided newState if a
@@ -390,7 +392,7 @@ protected:
 	  * stateChanged(currentState, newState) signal in the event that the change
 	  * is performed.
 	  */
-	bool changeState(ScanState newState);
+	void setState(ScanState newState);
 
 protected:
 	/*!
@@ -405,6 +407,8 @@ protected:
 
 	/// The current state of the scan.
 	AMScanController::ScanState state_;
+
+	QString skipCommand_;
 
 };
 
