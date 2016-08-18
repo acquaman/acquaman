@@ -1,31 +1,35 @@
 #include "IDEASScanConfiguration.h"
 
 IDEASScanConfiguration::IDEASScanConfiguration()
+	:CLSScanConfiguration(new IDEASScanConfigurationDbObject)
 {
-	dbObject_ = new IDEASScanConfigurationDbObject;
+//	dbObject_ = new IDEASScanConfigurationDbObject;
+	vespersScanConfigurationDbObject_ = qobject_cast<IDEASScanConfigurationDbObject *>(scanConfigurationDbObject_);
 	totalTime_ = 0;
 	timeOffset_ = 0.4;
 }
 
 IDEASScanConfiguration::IDEASScanConfiguration(const IDEASScanConfiguration &original)
+	:CLSScanConfiguration(new IDEASScanConfigurationDbObject(*original.dbObject()))
 {
-	dbObject_ = new IDEASScanConfigurationDbObject(*original.dbObject());
+//	dbObject_ = new IDEASScanConfigurationDbObject(*original.dbObject());
+	vespersScanConfigurationDbObject_ = qobject_cast<IDEASScanConfigurationDbObject *>(scanConfigurationDbObject_);
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
 }
 
 IDEASScanConfiguration::~IDEASScanConfiguration()
 {
-	dbObject_->deleteLater();
+//	dbObject_->deleteLater();
 }
 
-void IDEASScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
-{
-	IDEASScanConfigurationDbObject *dbo;
+//void IDEASScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
+//{
+//	IDEASScanConfigurationDbObject *dbo;
 
-	if ((dbo = qobject_cast<IDEASScanConfigurationDbObject *>(object)))
-		dbObject_ = dbo;
-}
+//	if ((dbo = qobject_cast<IDEASScanConfigurationDbObject *>(object)))
+//		dbObject_ = dbo;
+//}
 
 QString IDEASScanConfiguration::fluorescenceHeaderString(IDEAS::FluorescenceDetectors detector) const
 {
@@ -43,17 +47,17 @@ QString IDEASScanConfiguration::fluorescenceHeaderString(IDEAS::FluorescenceDete
 	return string;
 }
 
-QString IDEASScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
-{
-	QString string = "";
+//QString IDEASScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
+//{
+//	QString string = "";
 
-	if (!regions.isEmpty()){
+//	if (!regions.isEmpty()){
 
-		string.append("\nRegions Of Interest\n");
+//		string.append("\nRegions Of Interest\n");
 
-		foreach (AMRegionOfInterest *region, regions)
-			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
-	}
+//		foreach (AMRegionOfInterest *region, regions)
+//			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
+//	}
 
-	return string;
-}
+//	return string;
+//}

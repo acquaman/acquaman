@@ -1,6 +1,8 @@
 #ifndef IDEASSCANCONFIGURATION_H
 #define IDEASSCANCONFIGURATION_H
 
+
+#include "acquaman/CLS/CLSScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASScanConfigurationDbObject.h"
 #include "application/IDEAS/IDEAS.h"
 
@@ -8,7 +10,7 @@
 	This is a non-QObject class that holds the database object for a general
 	scan configuration.  It has getters and setters to the database object.
 	*/
-class IDEASScanConfiguration
+class IDEASScanConfiguration: public CLSScanConfiguration
 {
 public:
 	/// Constructor.
@@ -18,25 +20,25 @@ public:
 	/// Destructor.
 	virtual ~IDEASScanConfiguration();
 
-	// DbObject specific methods.
-	////////////////////////////////////////////
+//	// DbObject specific methods.
+//	////////////////////////////////////////////
 
-	/// Returns the database object.  Intended for gaining access to its signals.
-	IDEASScanConfigurationDbObject *dbObject() const { return dbObject_; }
-	/// The database reading member function.
-	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
-	/// The database writing member function.
-	void dbWriteScanConfigurationDbObject(AMDbObject *object);
+//	/// Returns the database object.  Intended for gaining access to its signals.
+//	IDEASScanConfigurationDbObject *dbObject() const { return dbObject_; }
+//	/// The database reading member function.
+//	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
+//	/// The database writing member function.
+//	void dbWriteScanConfigurationDbObject(AMDbObject *object);
 
 	// Getters
 	/////////////////////////////////////////
 
 	/// Returns the energy.
-	double energy() const { return dbObject_->energy(); }
+	double energy() const { return vespersScanConfigurationDbObject_->energy(); }
 	/// Returns the current fluorescence detector choice.
-	IDEAS::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
-	/// Returns the list of regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
+	IDEAS::FluorescenceDetectors fluorescenceDetector() const { return vespersScanConfigurationDbObject_->fluorescenceDetector(); }
+//	/// Returns the list of regions of interest.
+//	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -49,17 +51,17 @@ public:
 	////////////////////////////////////////
 
 	/// Sets the energy.
-	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
+	void setEnergy(double newEnergy) { vespersScanConfigurationDbObject_->setEnergy(newEnergy); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector) { dbObject_->setFluorescenceDetector(detector); }
+	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector) { vespersScanConfigurationDbObject_->setFluorescenceDetector(detector); }
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector); }
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
-	/// Sets the bounding range for the given region of interest.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
+//	/// Adds a region of interest to the list.
+//	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
+//	/// Removes a region of interest from the list.
+//	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
+//	/// Sets the bounding range for the given region of interest.
+//	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -77,13 +79,13 @@ protected:
 	void setHeaderText(QString) {}
 	/// Returns a string for the header string for the given \param fluorescence detector.
 	QString fluorescenceHeaderString(IDEAS::FluorescenceDetectors detector) const;
-	/// Returns a string that displays all the regions of interest.
-	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+//	/// Returns a string that displays all the regions of interest.
+//	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 	//////////////////////////////////////////////////
 
 	/// The databse object we're encapsulating.
-	IDEASScanConfigurationDbObject *dbObject_;
+	IDEASScanConfigurationDbObject *vespersScanConfigurationDbObject_;
 
 	/// Holds the offset per point of extra time when doing a scan.
 	double timeOffset_;

@@ -11,7 +11,7 @@ IDEAS2DScanConfiguration::IDEAS2DScanConfiguration(QObject *parent)
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -34,7 +34,7 @@ IDEAS2DScanConfiguration::IDEAS2DScanConfiguration(const IDEAS2DScanConfiguratio
 {
 	setName(original.name());
 	setUserScanName(original.name());
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 
 	computeTotalTime();
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));

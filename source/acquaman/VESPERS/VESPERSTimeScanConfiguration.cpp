@@ -29,7 +29,7 @@ VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(QObject *parent)
 {
 	setName("Timed Scan");
 	setUserScanName("Timed Scan");
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
 	setCCDDetector(VESPERS::NoCCD);
@@ -44,7 +44,7 @@ VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(QObject *parent)
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timePerAcquisitionChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(iterationsChanged(int)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
+	connect(vespersScanConfigurationDbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(const VESPERSTimeScanConfiguration &original)
@@ -52,14 +52,14 @@ VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(const VESPERSTimeScan
 {
 	setName(original.name());
 	setUserScanName(original.name());
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();
 
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timePerAcquisitionChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(iterationsChanged(int)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
+	connect(vespersScanConfigurationDbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSTimeScanConfiguration::createCopy() const

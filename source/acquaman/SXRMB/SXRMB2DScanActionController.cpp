@@ -15,7 +15,7 @@
 
 
 SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfiguration *configuration, QObject *parent)
-	: AMStepScanActionController(configuration, parent)
+	: AMStepScanActionController(configuration, parent), CLSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -23,6 +23,9 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
+
+	// for CLSScanController
+	setContollerScanInstance(scan_);
 
 	if (configuration_->exportAsAscii()){
 
@@ -83,29 +86,28 @@ void SXRMB2DScanActionController::buildScanControllerImplementation()
 {
 	if (configuration_->fluorescenceDetector().testFlag(SXRMB::BrukerDetector)){
 
-		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
-		detector->removeAllRegionsOfInterest();
-
+		AMXRFDetector *xrfDetector = SXRMBBeamline::sxrmb()->brukerDetector();
+		const AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(xrfDetector->name()));
 		QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
-		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+		build2DXRFAnalysisBlock(xrfDetector, spectraSource, i0Sources);
 
-		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
-			detector->addRegionOfInterest(region);
+//		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+//			detector->addRegionOfInterest(region);
 
-			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-			scan_->addAnalyzedDataSource(newRegion, false, true);
+//			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+//			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+//			newRegion->setBinningRange(regionAB->binningRange());
+//			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+//			scan_->addAnalyzedDataSource(newRegion, false, true);
 
-			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
-			normalizedRegion->setDataName(newRegion->name());
-			normalizedRegion->setNormalizationName(i0Sources.first()->name());
-			scan_->addAnalyzedDataSource(normalizedRegion, true, false);
-		}
+//			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+//			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+//			normalizedRegion->setDataName(newRegion->name());
+//			normalizedRegion->setNormalizationName(i0Sources.first()->name());
+//			scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+//		}
 	}
 }
 

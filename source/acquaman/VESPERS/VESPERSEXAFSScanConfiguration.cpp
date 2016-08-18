@@ -32,7 +32,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 {
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setMotor(VESPERS::H | VESPERS::V);
 	setFluorescenceDetector(VESPERS::NoXRF);
 	setTransmissionChoice(VESPERS::Ipost);
@@ -65,7 +65,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 {
 	setName(original.name());
 	setUserScanName(original.name());
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();

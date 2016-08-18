@@ -1,6 +1,7 @@
 #ifndef SXRMBSCANCONFIGURATION_H
 #define SXRMBSCANCONFIGURATION_H
 
+#include "acquaman/CLS/CLSScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBScanConfigurationDbObject.h"
 
 /*!
@@ -8,7 +9,7 @@
   and setters to the database object.  This class exists purely because classes can not multiply inherit two QObject
   classes.
 */
-class SXRMBScanConfiguration
+class SXRMBScanConfiguration: public CLSScanConfiguration
 {
 public:
 	/// Constructor.
@@ -18,37 +19,37 @@ public:
 	/// Destructor.
 	virtual ~SXRMBScanConfiguration();
 
-	// DbObject specific methods.
-	////////////////////////////////////////////
+//	// DbObject specific methods.
+//	////////////////////////////////////////////
 
-	/// Returns the database object.  Intended for gaining access to its signals.
-	SXRMBScanConfigurationDbObject *dbObject() const { return dbObject_; }
-	/// The database reading member function.
-	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
-	/// The database writing member function.
-	void dbWriteScanConfigurationDbObject(AMDbObject *object);
+//	/// Returns the database object.  Intended for gaining access to its signals.
+//	SXRMBScanConfigurationDbObject *dbObject() const { return dbObject_; }
+//	/// The database reading member function.
+//	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
+//	/// The database writing member function.
+//	void dbWriteScanConfigurationDbObject(AMDbObject *object);
 
 	// Getters
 	/////////////////////////////////////////
 
 	/// Returns the endstation.
-	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
+	SXRMB::Endstation endstation() const { return sxrmbScanConfigurationDbObject_->endstation(); }
 	/// Returns the fluorescence detectors.
-	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
+	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return sxrmbScanConfigurationDbObject_->fluorescenceDetector(); }
 	/// Returns the flag to power on HV control
 	bool powerOnHVControl() const;
 	/// Returns the x position.
-	double x() const { return dbObject_->x(); }
+	double x() const { return sxrmbScanConfigurationDbObject_->x(); }
 	/// Returns the y position.
-	double y() const { return dbObject_->y(); }
+	double y() const { return sxrmbScanConfigurationDbObject_->y(); }
 	/// Returns the z position.
-	double z() const { return dbObject_->z(); }
+	double z() const { return sxrmbScanConfigurationDbObject_->z(); }
 	/// Returns the rotation.
-	double rotation() const { return dbObject_->rotation(); }
+	double rotation() const { return sxrmbScanConfigurationDbObject_->rotation(); }
 	/// Returns the energy.
-	double energy() const { return dbObject_->energy(); }
-	/// Returns the list of regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
+	double energy() const { return sxrmbScanConfigurationDbObject_->energy(); }
+//	/// Returns the list of regions of interest.
+//	virtual QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -61,25 +62,25 @@ public:
 	////////////////////////////////////////
 
 	/// Sets the endstation.
-	void setEndstation(SXRMB::Endstation newEndstation) { dbObject_->setEndstation(newEndstation); }
+	void setEndstation(SXRMB::Endstation newEndstation) { sxrmbScanConfigurationDbObject_->setEndstation(newEndstation); }
 	/// Sets the fluorescence detectors.
-	void setFluorescenceDetector(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { dbObject_->setFluorescenceDetector(newFluorescenceDetectors); }
+	void setFluorescenceDetector(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { sxrmbScanConfigurationDbObject_->setFluorescenceDetector(newFluorescenceDetectors); }
 	/// Sets the x position.
-	void setX(double newX) { dbObject_->setX(newX); }
+	void setX(double newX) { sxrmbScanConfigurationDbObject_->setX(newX); }
 	/// Sets the y position.
-	void setY(double newY) { dbObject_->setY(newY); }
+	void setY(double newY) { sxrmbScanConfigurationDbObject_->setY(newY); }
 	/// Sets the z position.
-	void setZ(double newZ) { dbObject_->setZ(newZ); }
+	void setZ(double newZ) { sxrmbScanConfigurationDbObject_->setZ(newZ); }
 	/// Sets the rotation position.
-	void setRotation(double newRotation) { dbObject_->setRotation(newRotation); }
+	void setRotation(double newRotation) { sxrmbScanConfigurationDbObject_->setRotation(newRotation); }
 	/// Sets the energy.
-	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
-	/// Sets the bounding range for the given region of interest.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
+	void setEnergy(double newEnergy) { sxrmbScanConfigurationDbObject_->setEnergy(newEnergy); }
+//	/// Adds a region of interest to the list.
+//	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
+//	/// Removes a region of interest from the list.
+//	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
+//	/// Sets the bounding range for the given region of interest.
+//	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -98,13 +99,13 @@ protected:
 	virtual QString headerText() const = 0;
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void setHeaderText(QString) {}
-	/// Returns a string that displays all the regions of interest.
-	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+//	/// Returns a string that displays all the regions of interest.
+//	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 
 protected:
 	/// The database object we're encapsulating.
-	SXRMBScanConfigurationDbObject *dbObject_;
+	SXRMBScanConfigurationDbObject *sxrmbScanConfigurationDbObject_;
 
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;

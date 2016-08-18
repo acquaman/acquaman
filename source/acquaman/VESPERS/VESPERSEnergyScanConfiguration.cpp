@@ -30,7 +30,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 {
 	setName("EnergyScan");
 	setUserScanName("EnergyScan");
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -55,7 +55,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 {
 	setName(original.name());
 	setUserScanName(original.name());
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();

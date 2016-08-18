@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configuration)
+	:CLSScanController(configuration)
 {
 	config_ = configuration;
 }

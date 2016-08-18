@@ -35,7 +35,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
     setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	edge_ = "";
 	usingTransmission_ = true;
 	usingReference_ = true;
@@ -62,7 +62,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	edge_ = original.edge();
 	usingTransmission_ = original.usingTransmission();
 	usingReference_ = original.usingReference();

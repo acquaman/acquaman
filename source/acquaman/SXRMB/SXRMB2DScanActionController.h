@@ -2,9 +2,12 @@
 #define SXRMB2DSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMStepScanActionController.h"
+#include "acquaman/CLS/CLSScanController.h"
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
 
-class SXRMB2DScanActionController : public AMStepScanActionController
+class AMXRFDetector;
+
+class SXRMB2DScanActionController : public AMStepScanActionController, public CLSScanController
 {
 	Q_OBJECT
 
