@@ -17,6 +17,7 @@
 class BioXASZebra : public QObject
 {
 	Q_OBJECT
+
 public:
 	/// Constructor.
 	explicit BioXASZebra(const QString &baseName, QObject *parent = 0);
@@ -76,6 +77,8 @@ protected slots:
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
+	/// The set of all subcontrols.
+	AMControlSet *allControls_;
 
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;
