@@ -97,6 +97,8 @@ protected slots:
 
 	/// Actually handle triggering
 	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	/// Handles reporting a trigger as succeeded when all scaler channels have reported a new value. Reimplemented to additionally check that the scanning state is accurate.
+	virtual void onReadingChanged(double value);
 
 	/// Handles applying the inputs mode value preference, if a preference has been set.
 	void updateInputsModeControl();
